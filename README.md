@@ -1,4 +1,4 @@
-# nv3jay
+# rb3jay
 Crowd-controlled, office music player using local files.
 
 # Features
