@@ -1,0 +1,57 @@
+#!/usr/bin/env ruby
+
+# begin
+	require_relative '../lib/rb3jay'
+# rescue
+	# require 'rb3jay'
+# end
+
+ARGS = { directory:'.', port:7331 }
+USAGE = <<ENDUSAGE
+Usage:
+   rb3jay [-h] [-v] [-i] [-p port] [-d path/to/store/data] [-D] [--debug]
+ENDUSAGE
+
+HELP = <<ENDHELP
+   -h, --help         Show this help.
+   -v, --version      Show the version number (#{RB3Jay::VERSION}).
+   -p, --port         Port to communicate on.
+                      DEFAULT: #{ARGS[:port]}
+   -d, --directory    Path to the directory to use for database and cache files.
+                      DEFAULT: #{ARGS[:directory]}
+   -D, --nodb         Use an in-memory database (for testing).
+   --debug            Enable verbose logging.
+ENDHELP
+
+UNFLAGGED_ARGS = []
+next_arg = UNFLAGGED_ARGS.first
+ARGV.each do |arg|
+	case arg
+		when '-h','--help'        then ARGS[:help]    = true
+		when '-v','--version'     then ARGS[:version] = true
+		when '-D','--nodb'        then ARGS[:nodb]    = true
+		when '--debug'            then ARGS[:debug]   = true
+		when '-d','--directory'   then next_arg = :directory
+		else
+			if next_arg
+				ARGS[next_arg] = arg
+				UNFLAGGED_ARGS.delete( next_arg )
+			end
+			next_arg = UNFLAGGED_ARGS.first
+	end
+end
+
+if ARGS.delete(:version)
+	puts "rb3jay v#{RB3Jay::VERSION}"
+	exit 0 if ARGS.empty?
+end
+
+if ARGS[:help]
+	puts USAGE, HELP
+	exit 0
+end
+
+# Make the directory absolute
+ARGS[:directory] = File.expand_path(ARGS[:directory])
+
+RB3Jay.start ARGS
