@@ -8,6 +8,9 @@ module RB3Jay
 		EventMachine.run do
 			EventMachine.start_server "127.0.0.1", args[:port], self
 		end
+		trap(:INT) { EventMachine.stop }
+		trap(:HUP) { EventMachine.stop }
+		trap(:TERM){ EventMachine.stop }
 	end
 
 	def receive_data(data)
@@ -21,20 +24,23 @@ module RB3Jay
 			begin
 				joy! method(cmd).arity==0 ? send(cmd) : send(cmd,req['opts'])
 			rescue Exception => e
-				err! "Problem running #{cmd.inspect}", e
+				err! "Problem running #{cmd.inspect}", {message:e.message, backtrace:e.backtrace}
 			end
 		rescue JSON::ParserError => e
-			err! "Could not parse: #{data.inspect}", e
+			err! "Could not parse: #{data.inspect}", {message:e.message}
 		end
 	end
 
 	def joy!(result)
-		send! {ok:true, result:result}.to_json
+		send! ok:true, result:result
 	end
 
 	def err!(msg,details=nil)
 		result = { ok:false, msg:msg }
-		result.merge!( details:details ) unless details.nil?
+		unless details.nil?
+			details = {details:details} unless details.is_a? Hash
+			result.merge! details
+		end
 		send! result
 	end
 
