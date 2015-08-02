@@ -35,17 +35,18 @@ module RB3Jay
 	# ***************************************************************************
 
 	def receive_data(data)
+		puts "rb3jay received: #{data.inspect}" if ARGS[:debug]
 		data.chomp!
+		return if data.empty?
 		begin
-			puts "rb3jay received: #{data}" if ARGS[:debug]
 			req = JSON.parse(data)
 			return err! "Queries must be JSON Objects" unless req.is_a? Hash
 			return err! "No cmd supplied" unless req['cmd']
 			cmd = req.delete('cmd').to_s
 			return err! "Unsupported cmd #{cmd.inspect}" unless respond_to? cmd
 			begin
-				opts = Hash[ req.map{ |k,v| [k.to_sym,v] } ]
-				result = method(cmd).parameters.empty? ? send(cmd) : send(cmd,opts)
+				keyargs = method(cmd).parameters.map{ |_,name| [name,req[name.to_s]] if req.include?(name.to_s) }.compact.to_h
+				result = keyargs.empty? ? send(cmd) : send(cmd,keyargs)
 				joy! result unless result.nil?
 			rescue Exception => e
 				err! "Problem running #{cmd.inspect}", {message:e.message}
