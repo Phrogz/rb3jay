@@ -45,7 +45,7 @@ class TestServer < MiniTest::Unit::TestCase
 	end
 
 	def _create( directory=nil )
-		cmd = "#{CMD} #{directory ? "-d #{directory}" : "-D"} #{'--debug' if $DEBUG} --port #{PORT}"
+		cmd = "#{CMD} #{directory ? "-d #{directory}" : "-D"} --port #{PORT}#{' --debug' if $DEBUG}"
 		puts "Test launching #{cmd.inspect}" if $DEBUG
 		@pid = Process.spawn cmd
 		begin
@@ -66,7 +66,7 @@ class TestServer < MiniTest::Unit::TestCase
 
 	def _send(data)
 		puts "Test is sending: #{data.inspect}" if $DEBUG
-		@socket.puts(data.to_json)
+		@socket.print(data.to_json)
 	end
 
 	def _query(data)
