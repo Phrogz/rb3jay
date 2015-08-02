@@ -1,4 +1,5 @@
 require 'eventmachine'
+require 'time'
 require 'json'
 
 module RB3Jay
@@ -6,6 +7,7 @@ module RB3Jay
 	def self.start( args )
 		require_relative 'models/init'
 		EventMachine.run do
+			puts "rb3jay starting on port #{args[:port]}"
 			EventMachine.start_server "127.0.0.1", args[:port], self
 		end
 		trap(:INT) { EventMachine.stop }
@@ -13,18 +15,40 @@ module RB3Jay
 		trap(:TERM){ EventMachine.stop }
 	end
 
+	# ***************************************************************************
+
+	def playlists
+		Playlist.order(:name).all.map(&:summary)
+	end
+
+	def makePlaylist(name:, code:nil)
+		Playlist.create(name:name, query:code, created:Time.now.utc.iso8601)
+		"Created playlist #{name}"
+	end
+
+	def quit
+		puts "rb3jay shutting down..."
+		EventMachine.stop
+		nil
+	end
+
+	# ***************************************************************************
+
 	def receive_data(data)
 		data.chomp!
 		begin
-			puts "Received: #{data}" if ARGS[:debug]
+			puts "rb3jay received: #{data}" if ARGS[:debug]
 			req = JSON.parse(data)
+			return err! "Queries must be JSON Objects" unless req.is_a? Hash
 			return err! "No cmd supplied" unless req['cmd']
-			cmd = req['cmd'].to_s
+			cmd = req.delete('cmd').to_s
 			return err! "Unsupported cmd #{cmd.inspect}" unless respond_to? cmd
 			begin
-				joy! method(cmd).arity==0 ? send(cmd) : send(cmd,req['opts'])
+				opts = Hash[ req.map{ |k,v| [k.to_sym,v] } ]
+				result = method(cmd).parameters.empty? ? send(cmd) : send(cmd,opts)
+				joy! result unless result.nil?
 			rescue Exception => e
-				err! "Problem running #{cmd.inspect}", {message:e.message, backtrace:e.backtrace}
+				err! "Problem running #{cmd.inspect}", {message:e.message}
 			end
 		rescue JSON::ParserError => e
 			err! "Could not parse: #{data.inspect}", {message:e.message}
@@ -45,15 +69,8 @@ module RB3Jay
 	end
 
 	def send!(data)
-		puts "Sending: #{data.to_json}" if ARGS[:debug]
+		puts "rb3jay sending: #{data.to_json}" if ARGS[:debug]
 		send_data( data.to_json + "\n" )
-	end
-
-	# ***************************************************************************
-
-	def quit
-		puts "rb3jay shutting down..."
-		EventMachine.stop
 	end
 
 end

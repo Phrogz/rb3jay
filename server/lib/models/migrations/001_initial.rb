@@ -17,8 +17,9 @@ Sequel.migration do
       primary_key :id
       String :name, unique:true
       String :query
+      Time   :created
     end
-    create_table(:playlist_songs) do
+    create_table(:playlists_songs) do
       foreign_key :playlist_id, :playlists
       foreign_key :song_id,     :songs
       primary_key [:playlist_id, :song_id]
