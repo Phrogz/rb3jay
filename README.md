@@ -80,9 +80,12 @@ Each playlist object looks like the following:
   "name"  : "Party Time",
   "added" : "2015-07-29T14:59:08Z",
   "songs" : 42,
-  "code"  : null  // a string for a "live" playlist
+  "code"  : null
 }
 ~~~
+
+If the playlist is "live" the `code` key will have a string of the query
+used to generate the playlist.
 
 Use the `playlist` query to get the list of songs for a particular playlist.
 
@@ -90,22 +93,25 @@ Use the `playlist` query to get the list of songs for a particular playlist.
 Returns a JSON array of JSON song objects for a playlist specified by name.
 
 Songs are sorted by artist, album, track, and title.
-
 Each song object looks like the following:
 
 ~~~ json
 {
-	"id"     : 7347
+	"id"     : 7347,
 	"title"  : "Sanctuary (feat. Lucy Saunders) (Original Mix)",
 	"artist" : "Gareth Emery",
 	"album"  : "Northern Lights",
 	"genre"  : "Dance",
 	"year"   : 2010,
-	"rank"   : 0.4327 // on a 0-1 scale
+	"rank"   : 0.4327
 }
 ~~~
 
-Missing metadata will not be present in the object.
+The `rank` value is the relative value of the song (based on complex voting),
+and is normalized between 0 and 1 (inclusive).
+
+Metadata missing for a song (e.g. no `year` information) will be missing from
+the object; there will not be a key with a `null` value.
 
 ### `{"cmd":"playing"}`
 get details about the currently-playing song and playlist
