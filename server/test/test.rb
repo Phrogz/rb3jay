@@ -17,8 +17,8 @@ class TestServer < MiniTest::Unit::TestCase
 		assert_kind_of Array, existing['result'], "playlists should return an array"
 		assert_equal 0, existing['result'].length, "Should start with no playlists"
 
-		result = _query( cmd:"makePlaylist", name:"Party" )
-		assert result['ok'], "Should be able to create a new playlist."
+		response = _query( cmd:"makePlaylist", name:"Party" )
+		assert response['ok'], "Should be able to create a new playlist."
 
 		lists = _query(cmd:"playlists")
 		assert lists['ok'], "Should be able to ask for all playlists after creating"
@@ -27,11 +27,40 @@ class TestServer < MiniTest::Unit::TestCase
 		assert_equal "Party", party['name'], "Playlist should be named"
 		assert_equal 0,       party['songs'], "Should have no songs"
 
-		result = _query( cmd:"makePlaylist", name:"Party" )
-		refute result['ok'], "Must not be able to create duplicate playlist with same name."
+		response = _query( cmd:"makePlaylist", name:"Party" )
+		refute response['ok'], "Must not be able to create duplicate playlist with same name."
 
-		result = _query( cmd:"makePlaylist", name:"Ambience" )
-		assert result['ok'], "Should be able to create a second playlist."
+		respose = _query( cmd:"makePlaylist", name:"Ambiance" )
+		assert respose['ok'], "Should be able to create a second playlist"
+
+		lists = _query(cmd:"playlists")
+		assert lists['ok'], "Still able to ask for all playlists"
+		assert_equal 2, lists['result'].length, "Should have two playlists"
+		lists = lists['result']
+		assert_equal "Ambiance", lists[0]['name'], "Playlists should be sorted alphabetically"
+		assert_equal "Party",    lists[1]['name'], "Playlists should be sorted alphabetically"
+	end
+
+	def test_songs
+		response = _query(cmd:"songs")
+		assert response['ok'], "Should be able to ask for all songs"
+		assert_kind_of Array, response['result'], "songs should return an array"
+		assert_equal 0, response['result'].length, "Should have no songs at first"
+
+		response = _query(cmd:"scan", directory:'/doesnotexist/nononope')
+		refute response['ok'], "Should error trying to scan an invalid directory"
+
+		set1 = File.expand_path('../files/set1',__FILE__)
+		response = _query(cmd:"scan", directory:set1)
+		assert response['ok'], "Should be able to scan an existing directory"
+		assert_kind_of Array, response['result'], "scan returns an array of songs found"
+		assert_equal 4, response['result'].length, "should have found four songs"
+		assert response['result'].any?{ |song| song['title']=='Banana Slap' }, "scanned songs should have metadata"
+
+
+		response = _query(cmd:"scan", directory:set1)
+		assert response['ok'], "Should be able to scan same directory again"
+		assert_equal 0, response['result'].length, "should skip duplicate songs"
 	end
 
 	# ***************************************************************************

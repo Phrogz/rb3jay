@@ -1,13 +1,14 @@
 require 'eventmachine'
 require 'time'
 require 'json'
+require 'set'
 
 module RB3Jay
 	VERSION = "0.0.1"
 	def self.start( args )
 		require_relative 'models/init'
 		EventMachine.run do
-			puts "rb3jay starting on port #{args[:port]}"
+			puts "rb3jay starting on port #{args[:port]}" if args[:debug]
 			EventMachine.start_server "127.0.0.1", args[:port], self
 		end
 		trap(:INT) { EventMachine.stop }
@@ -26,8 +27,29 @@ module RB3Jay
 		"Created playlist #{name}"
 	end
 
+	def songs
+		Song.order(:artist,:album,:track,:title).all.map(&:summary)
+	end
+
+	def scan(directory:, andsubdirs:true)
+		raise "#{directory.inspect} is not a recognized directory" unless File.exist?(directory) && File.directory?(directory)
+		existing_dirs = Set.new Song.select_map(:file)
+		Dir.chdir(directory) do
+			Dir["#{'**/' if andsubdirs}*.{mp3,m4a,ogg}"].map do |path|
+				# TODO: validate file as valid audio
+				file = File.join(directory,path)
+				unless existing_dirs.include?(file)
+					Song.create({
+						file:file,
+						added:Time.now.utc.iso8601
+					})
+				end
+			end.compact.map(&:summary)
+		end
+	end
+
 	def quit
-		puts "rb3jay shutting down..."
+		puts "rb3jay shutting down..." if args[:debug]
 		EventMachine.stop
 		nil
 	end

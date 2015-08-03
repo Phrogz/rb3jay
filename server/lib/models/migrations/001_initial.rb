@@ -2,7 +2,7 @@ Sequel.migration do
   change do
     create_table(:songs) do
       primary_key :id
-      String  :file
+      String  :file, null:false
       String  :title
       String  :artist
       String  :album
@@ -11,13 +11,13 @@ Sequel.migration do
       String  :track
       Float   :length
       Integer :bpm
-      Time    :date_added
+      Time    :added, null:false
     end
     create_table(:playlists) do
       primary_key :id
       String :name, unique:true
       String :query
-      Time   :created
+      Time   :created, null:false
     end
     create_table(:playlists_songs) do
       foreign_key :playlist_id, :playlists

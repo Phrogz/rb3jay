@@ -1,15 +1,16 @@
 # rb3jay
-Crowd-controlled, office music player using local files.
+A democratic, crowd-controlled music player for the workplace.
 
 
 # Features
-* Smart Playlists (don't hear the same song in the same week)
-* Vote on upcoming songs through web interface
-* Songs are group-ranked (not a single ranking)
+* Smart Playlists (don't hear the same song in the same week; don't hear Christmas music except for 3 weeks prior).
+* Vote on upcoming songs through web interface; songs are group-ranked (not a single ranking)
+* Headless core server application can support multiple front-ends.
 
 
 # Starting the Server
 
+* _TODO_
 
 # Communicating with the Server
 
@@ -28,6 +29,7 @@ The supported commands are summarized here, and described in detail below that.
 * `playlist`: get a list of all songs for a playlist
 * `playing`: get details about the currently-playing song and playlist
 * `upcoming`: see a summary of upcoming songs
+* `songs`: get a summary of all songs in the library
 * `song`: get detailed information about a particular song
 
 
@@ -51,7 +53,7 @@ The supported commands are summarized here, and described in detail below that.
 * `hate`: indicate -2 for a song for a particular user
 
 
-**Modifying**
+**Modifying the Library**
 
 * `scan`: add songs found in a directory to the library
 * `makePlaylist`: create a new playlist
@@ -59,7 +61,6 @@ The supported commands are summarized here, and described in detail below that.
 * `killPlaylist`: delete a playlist
 * `editSong`: update metadata for a particular song
 * `killSong`: remove a song from the library
-
 
 **Admin**
 
@@ -89,11 +90,11 @@ used to generate the playlist.
 
 Use the `playlist` query to get the list of songs for a particular playlist.
 
-### `{"cmd":"playlist", "name":"…"}` → _array of songs_
-Returns a JSON array of JSON song objects for a playlist specified by name.
+### `{"cmd":"playlist", "name":"…"}` → _array of song summaries_
+Returns a JSON array of JSON song summary objects for a playlist specified by name.
 
 Songs are sorted by artist, album, track, and title.
-Each song object looks like the following:
+Each song summary object looks like the following:
 
 ~~~ json
 {
@@ -103,9 +104,12 @@ Each song object looks like the following:
 	"album"  : "Northern Lights",
 	"genre"  : "Dance",
 	"year"   : 2010,
+	"length" : 447.752,
 	"rank"   : 0.4327
 }
 ~~~
+
+The `length` value is the duration the song in seconds.
 
 The `rank` value is the relative value of the song (based on complex voting),
 and is normalized between 0 and 1 (inclusive).
@@ -119,10 +123,28 @@ get details about the currently-playing song and playlist
 ### `{"cmd":"upcoming"}`
 see a summary of upcoming songs
 
+### `{"cmd":"songs"}` → _array of song summaries_
+Returns a JSON array of JSON song summary objects for every song tracked in the library.
+
+Songs are sorted by artist, album, track, and title.
+Each song summary object looks like the following:
+
+~~~ json
+{
+	"id"     : 7347,
+	"title"  : "Sanctuary (feat. Lucy Saunders) (Original Mix)",
+	"artist" : "Gareth Emery",
+	"album"  : "Northern Lights",
+	"genre"  : "Dance",
+	"year"   : 2010,
+	"length" : 447.752,
+	"rank"   : 0.4327
+}
+~~~
+
+
 ### `{"cmd":"song"}`
 get detailed information about a particular song
-
-
 
 ## Playback Control Commands
 
@@ -176,8 +198,14 @@ Voting on a song requires the song id and user name:
 
 ## Modifying Commands
 
-### `{"cmd":"scan"}`
-add songs found in a directory to the library
+### `{"cmd":"scan", "directory":"...", "andsubdirs":false}` → _array of song summaries_
+Find all songs in a directory and add them to the library.
+
+Returns a JSON array of JSON song summary objects for every new, non-duplicate song found.
+
+The `directory` argument should be an absolute path to the directory to search.
+By default, this command searches sub-directories as well. Use the `andsubdirs` option to
+limit searching only to the specified directory.
 
 ### `{"cmd":"makePlaylist", "name":"…"}`
 The `name` parameter is the name of the new playlist.
@@ -197,21 +225,14 @@ update metadata for a particular song
 ## Admin Commands
 
 ### `{"cmd":"removeUser"}`
-clear all actions (especially votes) by a particular user
+Clear all actions (especially votes) by a particular user.
 
 ### `{"cmd":"history"}`
 show the log of all actions taken in a particular time period
 
 ### `{"cmd":"quit"}`
-quit the server
-
-
-
-
-
-## `{ "cmd":"quit" }`
-
 Cleanly shut down the server. Does not send a response.
+
 
 
 # Contact
