@@ -36,8 +36,7 @@ module RB3Jay
 		raise "#{directory.inspect} is not a recognized directory" unless File.exist?(directory) && File.directory?(directory)
 		existing_dirs = Set.new Song.select_map(:file)
 		Dir.chdir(directory) do
-			Dir["#{'**/' if andsubdirs}*.{mp3,m4a,ogg}"].map do |path|
-				# TODO: validate file as valid audio
+			Dir["#{'**/' if andsubdirs}*.{mp3,m4a,ogg,oga,flac}"].map do |path|
 				fullpath = File.join(directory,path)
 				unless existing_dirs.include?(fullpath)
 					TagLib::FileRef.open(path) do |fileref|
@@ -53,7 +52,34 @@ module RB3Jay
 								genre: tag.genre,
 								length: fileref.audio_properties.length,
 								added:Time.now.utc.iso8601
-							})
+							}).tap do |song|
+								ext,data = case File.extname(path)
+									when '.mp3'
+										TagLib::MPEG::File.open(path) do |f|
+											if p = f.id3v2_tag.frame_list('APIC').first
+												[ p.mime_type.split('/').last, p.picture ]
+											end
+										end
+									when '.m4a'
+										TagLib::MP4::File.open(path) do |f|
+											if p = mp4.tag.item_list_map['covr'].to_cover_art_list
+												[ p.format==TagLib::MP4::CoverArt::JPEG ? 'jpg' : 'png', p.data ]
+											end
+										end
+									# TODO: FLAC
+								end
+								if data
+									if ARGS[:directory]
+										imagesdir = File.join(ARGS[:directory],'images')
+										imagepath = File.join(imagesdir,"#{song.id}.#{ext}")
+										song.update(artwork:imagepath)
+										Dir.mkdir(imagesdir) unless File.exist?(imagesdir)
+										File.open(imagepath,'wb'){ |f| f<<data }
+									else
+										song.update(artwork:data)
+									end
+								end
+							end
 						end
 					end
 				end

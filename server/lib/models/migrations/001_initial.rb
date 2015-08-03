@@ -11,6 +11,7 @@ Sequel.migration do
       String  :track
       Float   :length
       Integer :bpm
+      String  :artwork
       Time    :added, null:false
     end
     create_table(:playlists) do
