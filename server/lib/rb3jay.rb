@@ -2,6 +2,7 @@ require 'eventmachine'
 require 'time'
 require 'json'
 require 'set'
+require 'taglib'
 
 module RB3Jay
 	VERSION = "0.0.1"
@@ -37,19 +38,31 @@ module RB3Jay
 		Dir.chdir(directory) do
 			Dir["#{'**/' if andsubdirs}*.{mp3,m4a,ogg}"].map do |path|
 				# TODO: validate file as valid audio
-				file = File.join(directory,path)
-				unless existing_dirs.include?(file)
-					Song.create({
-						file:file,
-						added:Time.now.utc.iso8601
-					})
+				fullpath = File.join(directory,path)
+				unless existing_dirs.include?(fullpath)
+					TagLib::FileRef.open(path) do |fileref|
+					  unless fileref.null?
+					    tag = fileref.tag
+							Song.create({
+								file: fullpath,
+								title: tag.title,
+								artist: tag.artist,
+								album: tag.album,
+								year: tag.year==0 ? nil : tag.year,
+								track: tag.track,
+								genre: tag.genre,
+								length: fileref.audio_properties.length,
+								added:Time.now.utc.iso8601
+							})
+						end
+					end
 				end
 			end.compact.map(&:summary)
 		end
 	end
 
 	def quit
-		puts "rb3jay shutting down..." if args[:debug]
+		puts "rb3jay shutting down..." if ARGS[:debug]
 		EventMachine.stop
 		nil
 	end
