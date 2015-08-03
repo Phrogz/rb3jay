@@ -4,12 +4,30 @@ A democratic, crowd-controlled music player for the workplace.
 
 # Features
 * Smart Playlists (don't hear the same song in the same week; don't hear Christmas music except for 3 weeks prior).
-* Vote on upcoming songs through web interface; songs are group-ranked (not a single ranking)
 * Headless core server application can support multiple front-ends.
+* Includes a web-based front-end, allowing an iTunes-like experience.
+* Vote on upcoming songs through web interface; songs are group-ranked (not a single ranking)
 
 
-# Starting the Server
+# Requirements & Installation
 
+## rb3jay Core Server
+* Requires the [`taglib-ruby`](http://robinst.github.io/taglib-ruby/) gem to be installed
+  * This, in turn, requires that you have [`taglib`](http://developer.kde.org/~wheeler/taglib.html) installed along with header files.
+* Requires the `sequel` and `sqlite3` gems to be installed.
+  * This, in tern, requires that you have SQLite installed.
+* `gem install rb3jay`
+
+## rb3jay-www Web Server
+* Requires `sinatra`, and `haml` gems installed.
+  * Suggest that you also install `thin` and use that to run the web server.
+
+# Starting the Servers
+
+## rb3jay Core Server
+* `rb3jay --help` for command-line options.
+
+## rb3jay-www Web Server
 * _TODO_
 
 # Communicating with the Server
