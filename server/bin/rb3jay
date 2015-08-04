@@ -53,5 +53,9 @@ end
 
 # Make the directory absolute
 ARGS[:directory] = File.expand_path(ARGS[:directory])
+unless File.exist?(ARGS[:directory])
+	warn "Directory #{ARGS[:directory]} does not exist."
+	exit 1
+end
 
 RB3Jay.start ARGS
