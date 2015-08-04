@@ -57,23 +57,32 @@ class TestServer < MiniTest::Unit::TestCase
 		assert_equal 4, response['result'].length, "should have found four songs"
 		assert response['result'].any?{ |song| song['title']=='Banana Slap' }, "scanned songs should have metadata"
 
-
 		response = _query(cmd:"scan", directory:set1)
 		assert response['ok'], "Should be able to scan same directory again"
 		assert_equal 0, response['result'].length, "should skip duplicate songs"
+
+		response = _query(cmd:"songs")
+		assert response['ok'], "Should be able to ask for all songs"
+		assert_kind_of Array, response['result'], "songs should return an array"
+		assert_equal 4, response['result'].length, "Should have four songs after scanning"
+	end
+
+	def test_search
+		teardown
+		setup( File.expand_path('../db1',__FILE__) )
+
+		response = _query(cmd:"songs")
+		assert response['ok'], "Should be able to ask for all songs"
+		assert_kind_of Array, response['result'], "songs should return an array"
+		assert_equal 4, response['result'].length, "Should have four songs loaded from DB"
+
+		response = _query(cmd:"songs")
+
 	end
 
 	# ***************************************************************************
 
-	def setup
-		_create
-	end
-
-	def teardown
-		_destroy
-	end
-
-	def _create( directory=nil )
+	def setup( directory=nil )
 		cmd = "#{CMD} #{directory ? "-d #{directory}" : "-D"} --port #{PORT}#{' --debug' if $DEBUG}"
 		puts "Test launching #{cmd.inspect}" if $DEBUG
 		@pid = Process.spawn cmd
@@ -85,7 +94,7 @@ class TestServer < MiniTest::Unit::TestCase
 		end
 	end
 
-	def _destroy
+	def teardown
 		if @socket && !@socket.closed?
 			_send cmd:"quit"
 			@socket.close
