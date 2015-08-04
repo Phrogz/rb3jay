@@ -49,6 +49,7 @@ The supported commands are summarized here, and described in detail below that.
 * `upcoming`: see a summary of upcoming songs
 * `songs`: get a summary of all songs in the library
 * `song`: get detailed information about a particular song
+* `search`: find songs in the library
 
 
 **Playback Control**
@@ -116,14 +117,15 @@ Each song summary object looks like the following:
 
 ~~~ json
 {
-	"id"     : 7347,
-	"title"  : "Sanctuary (feat. Lucy Saunders) (Original Mix)",
-	"artist" : "Gareth Emery",
-	"album"  : "Northern Lights",
-	"genre"  : "Dance",
-	"year"   : 2010,
-	"length" : 447.752,
-	"rank"   : 0.4327
+	"id"      : 7347,
+	"title"   : "Sanctuary (feat. Lucy Saunders) (Original Mix)",
+	"artist"  : "Gareth Emery",
+	"album"   : "Northern Lights",
+	"genre"   : "Dance",
+	"year"    : 2010,
+	"length"  : 447.752,
+	"rank"    : 0.4327,
+	"artwork" : "/absolute/path/to/7347.jpg"
 }
 ~~~
 
@@ -135,11 +137,14 @@ and is normalized between 0 and 1 (inclusive).
 Metadata missing for a song (e.g. no `year` information) will be missing from
 the object; there will not be a key with a `null` value.
 
+
 ### `{"cmd":"playing"}`
 get details about the currently-playing song and playlist
 
+
 ### `{"cmd":"upcoming"}`
 see a summary of upcoming songs
+
 
 ### `{"cmd":"songs"}` → _array of song summaries_
 Returns a JSON array of JSON song summary objects for every song tracked in the library.
@@ -156,7 +161,34 @@ Each song summary object looks like the following:
 	"genre"  : "Dance",
 	"year"   : 2010,
 	"length" : 447.752,
-	"rank"   : 0.4327
+	"rank"   : 0.4327,
+	"artwork" : "/absolute/path/to/7347.jpg"
+}
+~~~
+
+
+### `{"cmd":"song", "id":…}` → _song details_
+Returns a JSON object with detailed information about the song with the
+supplied id value.
+
+Song details look like the following:
+
+~~~ json
+{
+	"id"      : 7347,
+	"file"    : "/absolute/path/to/song.mp3",
+	"title"   : "Sanctuary (feat. Lucy Saunders) (Original Mix)",
+	"artist"  : "Gareth Emery",
+	"album"   : "Northern Lights",
+	"genre"   : "Dance",
+	"year"    : 2010,
+	"length"  : 447.752,
+	"rank"    : 0.4327,
+	"track"   : 7,
+	"artwork" : "/absolute/path/to/7347.jpg"
+	"bpm"     : 134,
+	"added"   : "2015-08-04T05:03:23Z",
+	"rank"    : 0.4327
 }
 ~~~
 
@@ -164,29 +196,36 @@ Each song summary object looks like the following:
 ### `{"cmd":"song"}`
 get detailed information about a particular song
 
+
+
 ## Playback Control Commands
 
 ### `{"cmd":"stop"}`
 pause playback
 
+
 ### `{"cmd":"play"}`
 resume playback, or start a particular playlist or song
+
 
 ### `{"cmd":"next"}`
 skip to the next song
 
+
 ### `{"cmd":"back"}`
 restart the current song, or go to a previous song
+
 
 ### `{"cmd":"seek"}`
 jump to a particular playback time
 
+
 ### `{"cmd":"want"}`
 add a particular song to the upcoming playlist
 
+
 ### `{"cmd":"nope"}`
 remove a particular song from the upcoming playlist
-
 
 
 ## Song Voting
@@ -212,6 +251,7 @@ Voting on a song requires the song id and user name:
   "user":"phrogz"
 }
 ~~~
+
 
 
 ## Modifying Commands
