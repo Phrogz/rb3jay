@@ -8,4 +8,7 @@ class Playlist < Sequel::Model
 			code:  query
 		}
 	end
+	def details
+		summary.merge(songs:songs.map(&:summary))
+	end
 end

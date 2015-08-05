@@ -23,6 +23,10 @@ module RB3Jay
 		Playlist.order(:name).all.map(&:summary)
 	end
 
+	def playlist(name:)
+		Playlist[name:name].details
+	end
+
 	def makePlaylist(name:, code:nil)
 		Playlist.create(name:name, query:code, created:Time.now.utc.iso8601)
 		"Created playlist #{name}"
@@ -30,6 +34,10 @@ module RB3Jay
 
 	def songs
 		Song.order(:artist,:album,:track,:title).all.map(&:summary)
+	end
+
+	def song(id:)
+		Song[id].details
 	end
 
 	def scan(directory:, andsubdirs:true)
@@ -85,6 +93,37 @@ module RB3Jay
 				end
 			end.compact.map(&:summary)
 		end
+	end
+
+	def editPlaylist(name:, newName:nil, code:'-', add:[], remove:[] )
+		playlist = Playlist[name:name]
+		raise "Cannot find playlist #{name.inspect}" unless playlist
+
+		successMessages = []
+		if newName
+			playlist.name = newName
+			successMessages << "updated name"
+		end
+		unless code=='-'
+			playlist.query = code
+			successMessages << "updated code"
+		end
+		unless playlist.query || remove.empty?
+			removed = ARGS[:db][:playlists_songs].filter( playlist_id:playlist.pk, song_id:remove ).delete
+			successMessages << "removed #{removed} song#{:s if removed!=1}"
+		end
+		unless playlist.query || add.empty?
+			existing = ARGS[:db][:playlists_songs].filter(playlist_id:playlist.pk).select_map(:song_id)
+			new_ids = add - existing
+			ARGS[:db][:playlists_songs].import(
+				[:playlist_id, :song_id],
+				[playlist.pk].product(new_ids)
+			)
+			successMessages << "added #{new_ids.length} song#{:s if new_ids.length!=1}"
+		end
+
+		playlist.save unless successMessages.empty?
+		successMessages.join("; ")
 	end
 
 	def quit

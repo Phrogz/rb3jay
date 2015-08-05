@@ -30,8 +30,8 @@ class TestServer < MiniTest::Unit::TestCase
 		response = _query( cmd:"makePlaylist", name:"Party" )
 		refute response['ok'], "Must not be able to create duplicate playlist with same name."
 
-		respose = _query( cmd:"makePlaylist", name:"Ambiance" )
-		assert respose['ok'], "Should be able to create a second playlist"
+		response = _query( cmd:"makePlaylist", name:"Ambiance" )
+		assert response['ok'], "Should be able to create a second playlist"
 
 		lists = _query(cmd:"playlists")
 		assert lists['ok'], "Still able to ask for all playlists"
@@ -40,6 +40,48 @@ class TestServer < MiniTest::Unit::TestCase
 		assert_equal "Ambiance", lists[0]['name'], "Playlists should be sorted alphabetically"
 		assert_equal "Party",    lists[1]['name'], "Playlists should be sorted alphabetically"
 	end
+
+	def test_playlist_editing
+		response = _query( cmd:"makePlaylist", name:"Party" )
+		assert response['ok'], "Should be able to create a new playlist."
+		response = _query( cmd:"makePlaylist", name:"Ambiance" )
+		assert response['ok'], "Should be able to create a second playlist"
+
+		set1 = File.expand_path('../files/set1',__FILE__)
+		response = _query(cmd:"scan", directory:set1)
+		assert response['ok'], "Should be able to scan an existing directory"
+		assert_kind_of Array, response['result'], "scan returns an array of songs found"
+		assert_equal 4, response['result'].length, "should have found four songs"
+
+		response = _query(cmd:"editPlaylist", name:"Party")
+		assert response['ok'], "No-op edits are acceptable."
+
+		response = _query(cmd:"editPlaylist", name:"Party", remove:[99,100])
+		assert response['ok'], "Allowed to remove songs that don't exist."
+
+		response = _query(cmd:"editPlaylist", name:"Party", add:[])
+		assert response['ok'], "Allowed to add empty song list."
+
+		response = _query(cmd:"playlist", name:"Party")
+		assert response['ok'], "Can fetch playlist details."
+		assert_equal 0, response['result']['songs'].length, "Adding empty songs does not modify list."
+
+		song_id_by_file = _query(cmd:"songs")['result'].map do |song|
+			[
+				File.basename(_query(cmd:'song',id:song['id'])['result']['file']),
+				song['id']
+			]
+		end.to_h
+		party_ids = %w[BananaSlap.mp3 Slap.mp3 CoinDrops.mp3].map{|f| song_id_by_file[f]}
+		response = _query(cmd:"editPlaylist", name:"Party", add:party_ids)
+		assert response['ok'], "Adding songs should seem to work."
+
+		response = _query(cmd:"playlist", name:"Party")
+		assert response['ok']
+		party = response['result']
+		assert_equal 3, party['songs'].length, "Adding songs should actually work."
+	end
+
 
 	def test_songs
 		response = _query(cmd:"songs")
@@ -77,7 +119,6 @@ class TestServer < MiniTest::Unit::TestCase
 		assert_equal 4, response['result'].length, "Should have four songs loaded from DB"
 
 		response = _query(cmd:"songs")
-
 	end
 
 	# ***************************************************************************

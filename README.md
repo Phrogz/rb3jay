@@ -109,23 +109,26 @@ used to generate the playlist.
 
 Use the `playlist` query to get the list of songs for a particular playlist.
 
-### `{"cmd":"playlist", "name":"…"}` → _array of song summaries_
-Returns a JSON array of JSON song summary objects for a playlist specified by name.
+
+### `{"cmd":"playlist", "name":"…"}` → _playlist details_
+Returns a JSON object identical to those returned by `playlists`,
+except that the `songs` key is an array of of JSON song summary objects
+for the playlist.
 
 Songs are sorted by artist, album, track, and title.
 Each song summary object looks like the following:
 
 ~~~ json
 {
-	"id"      : 7347,
-	"title"   : "Sanctuary (feat. Lucy Saunders) (Original Mix)",
-	"artist"  : "Gareth Emery",
-	"album"   : "Northern Lights",
-	"genre"   : "Dance",
-	"year"    : 2010,
-	"length"  : 447.752,
-	"rank"    : 0.4327,
-	"artwork" : "/absolute/path/to/7347.jpg"
+  "id"      : 7347,
+  "title"   : "Sanctuary (feat. Lucy Saunders) (Original Mix)",
+  "artist"  : "Gareth Emery",
+  "album"   : "Northern Lights",
+  "genre"   : "Dance",
+  "year"    : 2010,
+  "length"  : 447.752,
+  "rank"    : 0.4327,
+  "artwork" : "images/7347.jpg"
 }
 ~~~
 
@@ -154,15 +157,15 @@ Each song summary object looks like the following:
 
 ~~~ json
 {
-	"id"     : 7347,
-	"title"  : "Sanctuary (feat. Lucy Saunders) (Original Mix)",
-	"artist" : "Gareth Emery",
-	"album"  : "Northern Lights",
-	"genre"  : "Dance",
-	"year"   : 2010,
-	"length" : 447.752,
-	"rank"   : 0.4327,
-	"artwork" : "/absolute/path/to/7347.jpg"
+  "id"      : 7347,
+  "title"   : "Sanctuary (feat. Lucy Saunders) (Original Mix)",
+  "artist"  : "Gareth Emery",
+  "album"   : "Northern Lights",
+  "genre"   : "Dance",
+  "year"    : 2010,
+  "length"  : 447.752,
+  "rank"    : 0.4327,
+  "artwork" : "images/7347.jpg"
 }
 ~~~
 
@@ -175,20 +178,20 @@ Song details look like the following:
 
 ~~~ json
 {
-	"id"      : 7347,
-	"file"    : "/absolute/path/to/song.mp3",
-	"title"   : "Sanctuary (feat. Lucy Saunders) (Original Mix)",
-	"artist"  : "Gareth Emery",
-	"album"   : "Northern Lights",
-	"genre"   : "Dance",
-	"year"    : 2010,
-	"length"  : 447.752,
-	"rank"    : 0.4327,
-	"track"   : 7,
-	"artwork" : "/absolute/path/to/7347.jpg"
-	"bpm"     : 134,
-	"added"   : "2015-08-04T05:03:23Z",
-	"rank"    : 0.4327
+  "id"      : 7347,
+  "file"    : "/absolute/path/to/song.mp3",
+  "title"   : "Sanctuary (feat. Lucy Saunders) (Original Mix)",
+  "artist"  : "Gareth Emery",
+  "album"   : "Northern Lights",
+  "genre"   : "Dance",
+  "year"    : 2010,
+  "length"  : 447.752,
+  "rank"    : 0.4327,
+  "track"   : 7,
+  "artwork" : "images/7347.jpg"
+  "bpm"     : 134,
+  "added"   : "2015-08-04T05:03:23Z",
+  "rank"    : 0.4327
 }
 ~~~
 
@@ -256,7 +259,7 @@ Voting on a song requires the song id and user name:
 
 ## Modifying Commands
 
-### `{"cmd":"scan", "directory":"...", "andsubdirs":false}` → _array of song summaries_
+### `{"cmd":"scan", "directory":"…", "andsubdirs":false}` → _array of song summaries_
 Find all songs in a directory and add them to the library.
 
 Returns a JSON array of JSON song summary objects for every new, non-duplicate song found.
@@ -270,9 +273,23 @@ The `name` parameter is the name of the new playlist.
 You may optionally include a `code` parameter set to a string to create this
 as a "live" playlist.
 
-### `{"cmd":"editPlaylist"}`
-create a new playlist, or modify an existing one
-### `{"cmd":"editPlaylist"}`
+### `{"cmd":"editPlaylist", "name"="…", …}`
+Update the information about a playlist, or its song contents.
+Along with the `editPlaylist` command and the `name` attribute identifying the
+playlist to modify, you must supply one or more of the following changes to make:
+
+* `{…, "newName"="…"}` — rename the playlist.
+* `{…, "code"="…"}` — set the query to use for a "live" playlist.
+  Set this to `null` to make this a normal playlist.
+* `{…, "add"=[141,214,355]}` — add the songs (specified by song `id`).
+  Playlists are unordered; the order of songs has no impact on the result.
+  This will be ignored if the playlist is "live".
+* `{…, "remove"=[7,214,13]}` — remove the songs (specified by song `id`).
+  Songs that are not already in the playlist will be silently ignored.
+   This will be ignored if the playlist is "live".
+
+
+### `{"cmd":"killPlaylist", "name"="…"}`
 create a new playlist, or modify an existing one
 
 ### `{"cmd":"editSong"}`
