@@ -1,5 +1,5 @@
 class Playlist < Sequel::Model
-	many_to_many :songs
+	many_to_many :songs, order:[:artist,:album,:track,:title]
 	def summary
 		{
 			name:  name,
