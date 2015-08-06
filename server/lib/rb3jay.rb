@@ -52,7 +52,7 @@ module RB3Jay
 					    tag = fileref.tag
 							Song.create({
 								file: fullpath,
-								title: tag.title,
+								title: tag.title || File.basename(path).sub(/\.[^.]+$/,''),
 								artist: tag.artist,
 								album: tag.album,
 								year: tag.year==0 ? nil : tag.year,
