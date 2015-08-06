@@ -45,31 +45,31 @@ The supported commands are summarized here, and described in detail below that.
 
 * `playlists`: get a list of all playlists, with summary information
 * `playlist`: get a list of all songs for a playlist
-* `playing`: get details about the currently-playing song and playlist
-* `upcoming`: see a summary of upcoming songs
+* _(TODO)_ `playing`: get details about the currently-playing song and playlist
+* _(TODO)_ `upcoming`: see a summary of upcoming songs
 * `songs`: get a summary of all songs in the library
 * `song`: get detailed information about a particular song
-* `search`: find songs in the library
+* _(TODO)_ `search`: find songs in the library
 
 
 **Playback Control**
 
-* `stop`: pause playback
-* `play`: resume playback, or start a particular playlist or song
-* `next`: skip to the next song
-* `back`: restart the current song, or go to a previous song
-* `seek`: jump to a particular playback time
-* `want`: add a particular song to the upcoming playlist
-* `nope`: remove a particular song from the upcoming playlist
+* _(TODO)_ `stop`: pause playback
+* _(TODO)_ `play`: resume playback, or start a particular playlist or song
+* _(TODO)_ `next`: skip to the next song
+* _(TODO)_ `back`: restart the current song, or go to a previous song
+* _(TODO)_ `seek`: jump to a particular playback time
+* _(TODO)_ `want`: add a particular song to the upcoming playlist
+* _(TODO)_ `nope`: remove a particular song from the upcoming playlist
 
 
 **Voting**
 
-* `love`: indicate +2 for a song for a particular user
-* `like`: indicate +1 for a song for a particular user
-* `zero`: indicate +0 for a song for a particular user
-* `bleh`: indicate -1 for a song for a particular user
-* `hate`: indicate -2 for a song for a particular user
+* _(TODO)_ `love`: indicate +2 for a song for a particular user
+* _(TODO)_ `like`: indicate +1 for a song for a particular user
+* _(TODO)_ `zero`: indicate +0 for a song for a particular user
+* _(TODO)_ `bleh`: indicate -1 for a song for a particular user
+* _(TODO)_ `hate`: indicate -2 for a song for a particular user
 
 
 **Modifying the Library**
@@ -77,14 +77,14 @@ The supported commands are summarized here, and described in detail below that.
 * `scan`: add songs found in a directory to the library
 * `makePlaylist`: create a new playlist
 * `editPlaylist`: update a playlist
-* `killPlaylist`: delete a playlist
-* `editSong`: update metadata for a particular song
-* `killSong`: remove a song from the library
+* _(TODO)_ `killPlaylist`: delete a playlist
+* _(TODO)_ `editSong`: update metadata for a particular song
+* _(TODO)_ `killSong`: remove a song from the library
 
 **Admin**
 
-* `removeUser`: clear all actions by a particular user
-* `history`: show the log of all actions taken in a particular time period
+* _(TODO)_ `removeUser`: clear all actions by a particular user
+* _(TODO)_ `history`: show the log of all actions taken in a particular time period
 * `quit`: quit the server
 
 ## Query Commands
