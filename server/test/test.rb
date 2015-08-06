@@ -97,6 +97,25 @@ class TestServer < MiniTest::Unit::TestCase
 		assert_equal "Slap",        party['songs'][1]['title']
 		assert_equal "Banana Slap", party['songs'][2]['title']
 		assert_equal "Coin Drops",  party['songs'][3]['title']
+
+		response = _query(cmd:"editPlaylist", name:"Party", remove:song_id_by_file['Slap.mp3'])
+		assert response['ok'], "Allowed to remove a single song."
+
+		response = _query(cmd:"playlist", name:"Party")
+		assert response['ok']
+		party = response['result']
+		assert_equal 3, party['songs'].length, "Removing song should actually remove it."
+		assert_equal "I Love You",  party['songs'][0]['title']
+		assert_equal "Banana Slap", party['songs'][1]['title']
+		assert_equal "Coin Drops",  party['songs'][2]['title']
+
+		response = _query(cmd:"editPlaylist", name:"Party", remove:[song_id_by_file['CoinDrops.mp3'], song_id_by_file['ILoveYou.mp3']])
+		assert response['ok'], "Allowed to remove multiple songs."
+		response = _query(cmd:"playlist", name:"Party")
+		assert response['ok']
+		party = response['result']
+		assert_equal 1, party['songs'].length, "Removing multiple songs should work."
+		assert_equal "Banana Slap", party['songs'][0]['title']
 	end
 
 

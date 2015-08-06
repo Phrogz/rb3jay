@@ -99,6 +99,7 @@ module RB3Jay
 		playlist = Playlist[name:name]
 		raise "Cannot find playlist #{name.inspect}" unless playlist
 
+
 		successMessages = []
 		if newName
 			playlist.name = newName
@@ -108,10 +109,14 @@ module RB3Jay
 			playlist.query = code
 			successMessages << "updated code"
 		end
+
+		remove = [*remove]
 		unless playlist.query || remove.empty?
 			removed = ARGS[:db][:playlists_songs].filter( playlist_id:playlist.pk, song_id:remove ).delete
 			successMessages << "removed #{removed} song#{:s if removed!=1}"
 		end
+
+		add = [*add]
 		unless playlist.query || add.empty?
 			existing = ARGS[:db][:playlists_songs].filter(playlist_id:playlist.pk).select_map(:song_id)
 			new_ids = add - existing
