@@ -3,102 +3,121 @@ require 'time'
 require 'json'
 require 'set'
 require 'taglib'
+require 'ruby-mpd'
+
+class MPD::Playlist
+	def summary
+		{
+			name:  name,
+			songs: songs.length,
+			code:  nil
+		}
+	end
+	def details
+		summary.merge( songs:songs.map(&:summary) )
+	end
+end
+
+class MPD::Song
+	def summary
+		{
+			file:    file,
+			title:   title,
+			artist:  artist,
+			album:   album,
+			genre:   genre,
+			date:    date,
+			time:    time,
+			rank:    0.5,    #TODO: calculate song rankings
+  		artwork: nil     #TODO: extract and store song artwork
+		}
+	end
+	def details
+		summary.merge({
+			modified:    modified,
+			track:       track,
+			composer:    composer,
+			disc:        disc,
+			albumartist: albumartist,
+			bpm:         bpm
+		})
+	end
+end
 
 module RB3Jay
 	VERSION = "0.0.1"
 	def self.start( args )
 		require_relative 'models/init'
+		@mpd = MPD.new(args[:mpdhost],args[:mpdport])
+		@mpd.connect
 		EventMachine.run do
 			puts "rb3jay starting on port #{args[:port]}" if args[:debug]
 			EventMachine.start_server "127.0.0.1", args[:port], self
 		end
-		trap(:INT) { EventMachine.stop }
-		trap(:HUP) { EventMachine.stop }
-		trap(:TERM){ EventMachine.stop }
+		trap(:INT) { @mpd.disconnect; EventMachine.stop }
+		trap(:HUP) { @mpd.disconnect; EventMachine.stop }
+		trap(:TERM){ @mpd.disconnect; EventMachine.stop }
 	end
 
 	# ***************************************************************************
 
 	def playlists
-		Playlist.order(:name).all.map(&:summary)
+		@mpd.playlists.sort(&:name).map(&:summary).to_json
 	end
 
 	def playlist(name:)
-		Playlist[name:name].details
+		(list=@mpd.playlists.find{ |pl| pl.name==name }) && list.details.to_json
 	end
 
 	def makePlaylist(name:, code:nil)
-		Playlist.create(name:name, query:code, created:Time.now.utc.iso8601)
+		MPD::Playlist.new(@mpd,name)
+		warn "Live playlists not yet supported" if code
 		"Created playlist #{name}"
 	end
 
 	def songs
-		Song.order(:artist,:album,:track,:title).all.map(&:summary)
+		@mpd.songs.sort_by{ |s| [
+			s.artist ? s.artist.downcase.sub(/\Athe /,'').gsub(/[^ _a-z0-9]+/,'') : "",
+			s.album  || "",
+			s.track  || 99,
+			s.title ? s.title.downcase.sub(/\Athe /,'').gsub(/[^ _a-z0-9]+/,'') : ""
+		]	}.map(&:summary).to_json
 	end
 
-	def song(id:)
-		Song[id].details
+	def song(file:)
+		(song = @mpd.where({file:file},{strict:true}).first) && song.details.to_json
 	end
 
-	def scan(directory:, andsubdirs:true)
-		raise "#{directory.inspect} is not a recognized directory" unless File.exist?(directory) && File.directory?(directory)
-		existing_dirs = Set.new Song.select_map(:file)
-		Dir.chdir(directory) do
-			Dir["#{'**/' if andsubdirs}*.{mp3,m4a,ogg,oga,flac}"].map do |path|
-				fullpath = File.join(directory,path)
-				unless existing_dirs.include?(fullpath)
-					TagLib::FileRef.open(path) do |fileref|
-					  unless fileref.null?
-					    tag = fileref.tag
-							Song.create({
-								file: fullpath,
-								title: tag.title || File.basename(path).sub(/\.[^.]+$/,''),
-								artist: tag.artist,
-								album: tag.album,
-								year: tag.year==0 ? nil : tag.year,
-								track: tag.track,
-								genre: tag.genre,
-								length: fileref.audio_properties.length,
-								added:Time.now.utc.iso8601
-							}).tap do |song|
-								ext,data = case File.extname(path)
-									when '.mp3'
-										TagLib::MPEG::File.open(path) do |f|
-											if p = f.id3v2_tag.frame_list('APIC').first
-												[ p.mime_type.split('/').last, p.picture ]
-											end
-										end
-									when '.m4a'
-										TagLib::MP4::File.open(path) do |f|
-											if p = mp4.tag.item_list_map['covr'].to_cover_art_list
-												[ p.format==TagLib::MP4::CoverArt::JPEG ? 'jpg' : 'png', p.data ]
-											end
-										end
-									# TODO: FLAC
-								end
-								if data
-									if ARGS[:directory]
-										imagesdir = File.join(ARGS[:directory],'images')
-										imagepath = File.join(imagesdir,"#{song.id}.#{ext}")
-										song.update(artwork:imagepath)
-										Dir.mkdir(imagesdir) unless File.exist?(imagesdir)
-										File.open(imagepath,'wb'){ |f| f<<data }
-									else
-										song.update(artwork:data)
-									end
-								end
-							end
-						end
-					end
-				end
-			end.compact.map(&:summary)
-		end
+	def next
+		@mpd.next
+	end
+
+	def back
+		
+		@mpd.previous
+	end
+
+	def stop
+		@mpd.pause = true
+	end
+
+	def play
+		case @mpd.status[:state]
+			when :pause then @mpd.pause = false
+			when :stop
+				if 
+				@mpd.play
+			end
+		end				
+	end
+
+	def update
+		@mpd.update
 	end
 
 	def editPlaylist(name:, newName:nil, code:'-', add:[], remove:[] )
 		playlist = Playlist[name:name]
 		raise "Cannot find playlist #{name.inspect}" unless playlist
-
 
 		successMessages = []
 		if newName

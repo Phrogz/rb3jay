@@ -1,8 +1,5 @@
-* database
-* scan directory
-* find mp3/m4a/ogg/flac
-* extract metadata into common format
-	* playback metadata, e.g. skips, play count, last played
+* playback metadata, e.g. skips, play count, last played as stickers
+* add per-user ratings as stickers
 * simple playlists
 * calculated playlists
 	* compile to queries (or just expressed as query?)

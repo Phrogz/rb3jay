@@ -12,10 +12,12 @@ A democratic, crowd-controlled music player for the workplace.
 # Requirements & Installation
 
 ## rb3jay Core Server
-* Requires the [`taglib-ruby`](http://robinst.github.io/taglib-ruby/) gem to be installed
+* Requires the [`sequel`](http://sequel.jeremyevans.net) and [`sqlite3`](https://github.com/sparklemotion/sqlite3-ruby) gems to be installed.
+  * This, in turn, requires that you have SQLite installed.
+* Requires the [`ruby-mpd`](https://github.com/archSeer/ruby-mpd) gem to be installed
+  * This, in turn, requires that you have [`mpd`](http://www.musicpd.org) be installed.
+* Editing tags requires the [`taglib-ruby`](http://robinst.github.io/taglib-ruby/) gem to be installed
   * This, in turn, requires that you have [`taglib`](http://developer.kde.org/~wheeler/taglib.html) installed along with header files.
-* Requires the `sequel` and `sqlite3` gems to be installed.
-  * This, in tern, requires that you have SQLite installed.
 * `gem install rb3jay`
 
 ## rb3jay-www Web Server
@@ -33,13 +35,14 @@ A democratic, crowd-controlled music player for the workplace.
 # Communicating with the Server
 
 The rb3jay server is a headless application that manages songs, playlists,
-voting, and actually plays the music. All communication with the server occurs
+voting, and actually plays the music (via MPD). All communication with the server occurs
 through TCP sockets carrying a JSON object.
 
 Every query you send to the server is identified by a `cmd` property
 describing your intent, sometimes along with additional arguments.
 
 The supported commands are summarized here, and described in detail below that.
+
 
 **Querying**
 
@@ -54,11 +57,11 @@ The supported commands are summarized here, and described in detail below that.
 
 **Playback Control**
 
-* _(TODO)_ `stop`: pause playback
+* `stop`: pause playback
 * _(TODO)_ `play`: resume playback, or start a particular playlist or song
-* _(TODO)_ `next`: skip to the next song
-* _(TODO)_ `back`: restart the current song, or go to a previous song
-* _(TODO)_ `seek`: jump to a particular playback time
+* `next`: skip to the next song
+* `back`: restart the current song, or go to a previous song
+* `seek`: jump to a particular playback time
 * _(TODO)_ `want`: add a particular song to the upcoming playlist
 * _(TODO)_ `nope`: remove a particular song from the upcoming playlist
 
@@ -74,9 +77,9 @@ The supported commands are summarized here, and described in detail below that.
 
 **Modifying the Library**
 
-* `scan`: add songs found in a directory to the library
+* `update`: check for new/changed/deleted songs in the library
 * `makePlaylist`: create a new playlist
-* `editPlaylist`: update a playlist
+* _(TODO)_ `editPlaylist`: update a playlist
 * _(TODO)_ `killPlaylist`: delete a playlist
 * _(TODO)_ `editSong`: update metadata for a particular song
 * _(TODO)_ `killSong`: remove a song from the library
@@ -93,12 +96,11 @@ The supported commands are summarized here, and described in detail below that.
 
 Returns a JSON array of all JSON playlist objects in the system, sorted by name.
 
-Each playlist object looks like the following:
+Each playlist summary object looks like the following:
 
 ~~~ json
 {
   "name"  : "Party Time",
-  "added" : "2015-07-29T14:59:08Z",
   "songs" : 42,
   "code"  : null
 }
@@ -120,15 +122,15 @@ Each song summary object looks like the following:
 
 ~~~ json
 {
-  "id"      : 7347,
-  "title"   : "Sanctuary (feat. Lucy Saunders) (Original Mix)",
-  "artist"  : "Gareth Emery",
-  "album"   : "Northern Lights",
+  "file"    : "Chicane/Giants/12 Titles.m4a",
+  "title"   : "Titles",
+  "artist"  : "Chicane",
+  "album"   : "Giants",
   "genre"   : "Dance",
-  "year"    : 2010,
-  "length"  : 447.752,
-  "rank"    : 0.4327,
-  "artwork" : "images/7347.jpg"
+  "date"    : 2010,
+  "time"    : 261,
+  "rank"    : 0.6327,
+  "artwork" : "Chicane/Giants/12 Titles.m4a.jpg"
 }
 ~~~
 
@@ -157,48 +159,44 @@ Each song summary object looks like the following:
 
 ~~~ json
 {
-  "id"      : 7347,
-  "title"   : "Sanctuary (feat. Lucy Saunders) (Original Mix)",
-  "artist"  : "Gareth Emery",
-  "album"   : "Northern Lights",
+  "file"    : "Chicane/Giants/12 Titles.m4a",
+  "title"   : "Titles",
+  "artist"  : "Chicane",
+  "album"   : "Giants",
   "genre"   : "Dance",
-  "year"    : 2010,
-  "length"  : 447.752,
-  "rank"    : 0.4327,
-  "artwork" : "images/7347.jpg"
+  "date"    : 2010,
+  "time"    : 261,
+  "rank"    : 0.6327,
+  "artwork" : "Chicane/Giants/12 Titles.m4a.jpg"
 }
 ~~~
 
 
-### `{"cmd":"song", "id":…}` → _song details_
+### `{"cmd":"song", "file":…}` → _song details_
 Returns a JSON object with detailed information about the song with the
-supplied id value.
+supplied file.
 
 Song details look like the following:
 
 ~~~ json
 {
-  "id"      : 7347,
-  "file"    : "/absolute/path/to/song.mp3",
-  "title"   : "Sanctuary (feat. Lucy Saunders) (Original Mix)",
-  "artist"  : "Gareth Emery",
-  "album"   : "Northern Lights",
-  "genre"   : "Dance",
-  "year"    : 2010,
-  "length"  : 447.752,
-  "rank"    : 0.4327,
-  "track"   : 7,
-  "artwork" : "images/7347.jpg"
-  "bpm"     : 134,
-  "added"   : "2015-08-04T05:03:23Z",
-  "rank"    : 0.4327
+  "file"        : "Chicane/Giants/12 Titles.m4a",
+  "title"       : "Titles",
+  "artist"      : "Chicane",
+  "album"       : "Giants",
+  "genre"       : "Dance",
+  "date"        : 2010,
+  "time"        : 261,
+  "rank"        : 0.6327,
+  "artwork"     : "Chicane/Giants/12 Titles.m4a.jpg",
+  "modified"    : "2015-07-29 04:46:01 UTC",
+  "track"       : 12,
+  "composer"    : "N. Bracegirdle/J. Hockley",
+  "disc"        : 1,
+  "albumartist" : "Chicane",
+  "bpm"         : 134
 }
 ~~~
-
-
-### `{"cmd":"song"}`
-get detailed information about a particular song
-
 
 
 ## Playback Control Commands
@@ -207,8 +205,9 @@ get detailed information about a particular song
 pause playback
 
 
-### `{"cmd":"play"}`
-resume playback, or start a particular playlist or song
+### `{"cmd":"play", …}`
+To start or resume playback from the current song list,
+issue this command with no additional parameters.
 
 
 ### `{"cmd":"next"}`
@@ -219,7 +218,7 @@ skip to the next song
 restart the current song, or go to a previous song
 
 
-### `{"cmd":"seek"}`
+### `{"cmd":"seek", "time":4.71}`
 jump to a particular playback time
 
 
@@ -245,28 +244,19 @@ The five voting levels are:
 * `bleh` -1 : I'm getting tired of this song. Play it every other week.
 * `hate` -2 : If it were up to me, this song would never be played.
 
-Voting on a song requires the song id and user name:
+Voting on a song requires the song's file and the name of the user who is voting:
 
 ~~~ json
 {
-  "cmd":"like",
-  "song":12345,
-  "user":"phrogz"
+  "cmd"  : "like",
+  "file" : "Chicane/Giants/12 Titles.m4a",
+  "user" : "phrogz"
 }
 ~~~
 
 
 
 ## Modifying Commands
-
-### `{"cmd":"scan", "directory":"…", "andsubdirs":false}` → _array of song summaries_
-Find all songs in a directory and add them to the library.
-
-Returns a JSON array of JSON song summary objects for every new, non-duplicate song found.
-
-The `directory` argument should be an absolute path to the directory to search.
-By default, this command searches sub-directories as well. Use the `andsubdirs` option to
-limit searching only to the specified directory.
 
 ### `{"cmd":"makePlaylist", "name":"…"}`
 The `name` parameter is the name of the new playlist.
@@ -281,18 +271,18 @@ playlist to modify, you must supply one or more of the following changes to make
 * `{…, "newName"="…"}` — rename the playlist.
 * `{…, "code"="…"}` — set the query to use for a "live" playlist.
   Set this to `null` to make this a normal playlist.
-* `{…, "add"=[141,214,355]}` — add the songs (specified by song `id`).
+* `{…, "add"=["file1","file3","file2"]}` — add the songs (specified by song `file`).
   Playlists are unordered; the order of songs has no impact on the result.
-  This will be ignored if the playlist is "live".
-* `{…, "remove"=[7,214,13]}` — remove the songs (specified by song `id`).
+  Adding songs will be ignored if the playlist is "live".
+* `{…, "remove"=["file7","file3"]}` — remove the songs (specified by song `file`).
   Songs that are not already in the playlist will be silently ignored.
-   This will be ignored if the playlist is "live".
+  Removing songs will be ignored if the playlist is "live".
 
 
 ### `{"cmd":"killPlaylist", "name"="…"}`
-create a new playlist, or modify an existing one
+Delete a playlist, specified by name.
 
-### `{"cmd":"editSong"}`
+### `{"cmd":"editSong", "file"="…"}`
 update metadata for a particular song
 
 

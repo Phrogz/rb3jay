@@ -6,10 +6,10 @@
 	# require 'rb3jay'
 # end
 
-ARGS = { directory:'.', port:7331 }
+ARGS = { directory:'.', port:7331, mpdhost:'localhost', mpdport:6600 }
 USAGE = <<ENDUSAGE
 Usage:
-   rb3jay [-h] [-v] [-i] [-p port] [-d path/to/store/data] [-D] [--debug]
+   rb3jay [-h] [-v] [-i] [-p port] [-m mpd_host] [-P mpd_port] [-d path/to/store/data] [-D] [--debug]
 ENDUSAGE
 
 HELP = <<ENDHELP
@@ -17,6 +17,10 @@ HELP = <<ENDHELP
    -v, --version      Show the version number (#{RB3Jay::VERSION}).
    -p, --port         Port to communicate on.
                       DEFAULT: #{ARGS[:port]}
+   -m, --mpd-host     Server that MPD is running on.
+                      DEFAULT: #{ARGS[:mpdhost]}
+   -P, --mpd-port     Port that MPD is running on.
+                      DEFAULT: #{ARGS[:mpdport]}
    -d, --directory    Path to the directory to use for database and cache files.
                       DEFAULT: #{ARGS[:directory]}
    -D, --nodb         Use an in-memory database (for testing).
@@ -32,6 +36,9 @@ ARGV.each do |arg|
 		when '-D','--nodb'        then ARGS[:nodb]    = true
 		when '--debug'            then ARGS[:debug]   = true
 		when '-d','--directory'   then next_arg = :directory
+		when '-p','--port'        then next_arg = :port
+		when '-m','--mpd-host'    then next_arg = :mpdhost
+		when '-P','--mpd-port'    then next_arg = :mpdport
 		else
 			if next_arg
 				ARGS[next_arg] = arg
