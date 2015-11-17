@@ -1,0 +1,37 @@
+!!! html5
+%html(lang="en" ng-app="rb3jay")
+	%head
+		%meta(charset="utf-8")
+		%title RB3Jay
+		%meta(name="author" content="Gavin Kistner")
+		%link(rel="icon" type="image/png" href="/favicon.png")
+		%link(rel="stylesheet" type="text/css" href="/style.css")
+		%script(src="https://ajax.googleapis.com/ajax/libs/angularjs/1.4.7/angular.min.js")
+		:javascript
+			angular.module('rb3jay', [])
+			.controller('App', function(){
+				this.load = function(a,b,c){
+					console.log(a);
+					console.log(b);
+					console.log(c);
+					console.log(this);
+				}
+			})
+			.controller('Playlists', function(){
+				this.all = [
+					{ name:"Female Vocals" },
+					{ name:"ZZNap" }
+				];
+			})
+			;
+	%body
+		%ul#menu(ng-controller="App as app")
+			%li#nowplaying(ng-click="app.load($event)") Now Playing
+			%li#songs(     ng-click="app.load($event)") Songs
+			%li#artist(    ng-click="app.load($event)") Artists
+			%li#albums(    ng-click="app.load($event)") Albums
+			%li#genres(    ng-click="app.load($event)") Genres
+			%li#playlists(ng-controller="Playlists as pl")
+				%ul
+					%li(ng-repeat="playlist in pl.all") {{playlist.name}}
+		%section#content

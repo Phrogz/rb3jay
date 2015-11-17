@@ -1,0 +1,4 @@
+* { margin:0; padding:0; box-sizing:padding-box }
+#menu { width:20em }
+#menu li { list-style:none; padding:0.2em 1em }
+#menu li.active { background:#ccc; font-weight:bold }

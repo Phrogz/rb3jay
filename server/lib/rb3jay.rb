@@ -93,7 +93,7 @@ module RB3Jay
 	end
 
 	def back
-		
+
 		@mpd.previous
 	end
 
@@ -105,10 +105,12 @@ module RB3Jay
 		case @mpd.status[:state]
 			when :pause then @mpd.pause = false
 			when :stop
-				if 
+				unless @mpd.queue(1) # TODO: does queue(1) return nil or [] when empty?
+					# TODO: add songs to queue if is empty
+				end
 				@mpd.play
 			end
-		end				
+		end
 	end
 
 	def update

@@ -143,9 +143,8 @@ Metadata missing for a song (e.g. no `year` information) will be missing from
 the object; there will not be a key with a `null` value.
 
 
-### `{"cmd":"playing"}`
-get details about the currently-playing song and playlist
-
+### `{"cmd":"playing"}` → _array of song summaries_
+Returns a song summary object.
 
 ### `{"cmd":"upcoming"}`
 see a summary of upcoming songs
