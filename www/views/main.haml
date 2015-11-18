@@ -5,33 +5,99 @@
 		%title RB3Jay
 		%meta(name="author" content="Gavin Kistner")
 		%link(rel="icon" type="image/png" href="/favicon.png")
+		%link(rel="stylesheet" href="//maxcdn.bootstrapcdn.com/font-awesome/4.3.0/css/font-awesome.min.css")
 		%link(rel="stylesheet" type="text/css" href="/style.css")
-		%script(src="https://ajax.googleapis.com/ajax/libs/angularjs/1.4.7/angular.min.js")
-		:javascript
-			angular.module('rb3jay', [])
-			.controller('App', function(){
-				this.load = function(a,b,c){
-					console.log(a);
-					console.log(b);
-					console.log(c);
-					console.log(this);
-				}
-			})
-			.controller('Playlists', function(){
-				this.all = [
-					{ name:"Female Vocals" },
-					{ name:"ZZNap" }
-				];
-			})
-			;
+		/ %script(src="https://ajax.googleapis.com/ajax/libs/angularjs/1.4.7/angular.min.js")
 	%body
-		%ul#menu(ng-controller="App as app")
-			%li#nowplaying(ng-click="app.load($event)") Now Playing
-			%li#songs(     ng-click="app.load($event)") Songs
-			%li#artist(    ng-click="app.load($event)") Artists
-			%li#albums(    ng-click="app.load($event)") Albums
-			%li#genres(    ng-click="app.load($event)") Genres
-			%li#playlists(ng-controller="Playlists as pl")
-				%ul
-					%li(ng-repeat="playlist in pl.all") {{playlist.name}}
-		%section#content
+		#playing
+			#controls
+				/ %button#back   <i class="fa fa-step-backward"></i>
+				%button#toggle <i class="fa fa-pause"></i>
+				%button#next   <i class="fa fa-step-forward"></i>
+
+			#song
+				#artwork artwork
+				#summary
+					#title Alone (feat. Lauren Evans)
+					#artalb
+						%span#artist Armin van Buuren
+						—
+						%span#album Intense (The More Intense Edition) [Bonus Track Version]
+					#progress
+						#elapsed 1:41
+						%input#scrubber(type="range" min="0" max="100")
+						#remaining 4:37
+				#rate rate
+
+			#volume
+				%input#scrubber(type="range" min="0" max="100")
+
+		#queues
+			%table#songlist
+				%caption
+					%label
+						%input(type="radio" name="listtype" value="songs") songs
+					%label
+						%input(type="radio" name="listtype" value="playlists") playlists
+				%thead
+					%tr
+						%th song
+						%th artist
+				%tbody
+					%tr
+						%td No Ordinary Morning
+						%td Chicane
+					%tr
+						%td From Where I Stand
+						%td Chicane
+					%tr
+						%td Some Nights
+						%td Fun.
+					%tr
+						%td Somebody That I Used to Know (feat. Kimbra)
+						%td Gotye
+					%tr
+						%td Lovers' Eyes
+						%td Mumford & Sons
+					%tr
+						%td Alone (feat. Lauren Evans)
+						%td Armin van Buuren
+					%tr
+						%td I'm Not Alone (Deadmau5 Mix)
+						%td Calvin Harris
+					%tr
+						%td Come Back
+						%td Chicane
+					%tr
+						%td Titanium (feat. Sia)
+						%td David Guetta & Sia
+					%tr
+						%td Blood Red (Original Mix)
+						%td Feed Me
+					%tr
+						%td We Are Young (feat. Janelle Monáe)
+						%td Fun.
+
+			%table#myqueue
+				%caption my queue
+				%thead
+					%tr
+						%th song
+						%th artist
+				%tbody
+					%tr
+						%td Titanium (feat. Sia)
+						%td David Guetta & Sia
+
+			%table#livequeue
+				%caption live queue
+				%thead
+					%tr
+						%th song
+						%th artist
+				%tbody
+					%tr
+						%td Titanium (feat. Sia)
+						%td David Guetta & Sia
+
+		#inspector inspector
