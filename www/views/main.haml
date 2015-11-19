@@ -41,13 +41,13 @@
 						%input(type="radio" name="listtype" value="playlists") playlists
 				%thead
 					%tr
-						%th song
+						%th title
 						%th artist
 				%tbody
 					%tr
 						%td No Ordinary Morning
 						%td Chicane
-					%tr
+					%tr.selected
 						%td From Where I Stand
 						%td Chicane
 					%tr
@@ -82,7 +82,7 @@
 				%caption my queue
 				%thead
 					%tr
-						%th song
+						%th title
 						%th artist
 				%tbody
 					%tr
@@ -93,11 +93,38 @@
 				%caption live queue
 				%thead
 					%tr
-						%th song
+						%th title
 						%th artist
 				%tbody
 					%tr
 						%td Titanium (feat. Sia)
 						%td David Guetta & Sia
 
-		#inspector inspector
+		%table#inspector
+			%tr
+				%th title
+				%td From Where I Stand
+				%th genre
+				%td Dance
+				%th my rating
+				%td -
+				%th added
+				%td 2014-Jul-10
+			%tr
+				%th artist
+				%td Chicane
+				%th year
+				%td 2010
+				%th score
+				%td +1.4
+				%th played
+				%td 2014-Jul-14 (7x)
+			%tr
+				%th album
+				%td Giants
+				%th length
+				%td 6:37
+				%th
+				%td
+				%th skipped
+				%td -
