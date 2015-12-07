@@ -83,9 +83,8 @@
 		this.ss = Share.ss;
 		inspector = this;
 		Share.inspect = this.inspectSong = function(song){
-			inspector.title    = song && song.title;
-			inspector.artist   = song && song.artist;
-			inspector.duration = song && song.duration;
+			if (song)	for (var field in song) inspector[field] = song[field];
+			else      for (var field in inspector) inspector[field] = null;
 		};
 	}]);
 

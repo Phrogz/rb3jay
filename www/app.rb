@@ -8,15 +8,72 @@ require 'sinatra'
 require 'haml'
 require 'logger'
 require 'json'
-require 'socket'
+require 'ruby-mpd'
 
 # require_relative 'minify_resources'
 
-class RB3JayWWW < Sinatra::Application
-	use Rack::Session::Cookie, key:'rb3jaywww.session', path:'/', secret:'znogood'
+# TODO: move these monkeypatches to an appropriate spot
+class MPD::Playlist
+	def summary
+		{
+			name:  name,
+			songs: songs.length,
+			code:  nil
+		}
+	end
+	def details
+		summary.merge( songs:songs.map(&:summary) )
+	end
+end
+
+class MPD::Song
+	def summary
+		{
+			id:      file.gsub(' ','💔'),
+			file:    file,
+			title:   title,
+			artist:  artist,
+			album:   album,
+			genre:   genre,
+			date:    date,
+			time:    time,
+			rank:    0.5,    #TODO: calculate song rankings
+  		artwork: nil     #TODO: extract and store song artwork
+		}
+	end
+	def details
+		summary.merge({
+			modified:    modified,
+			track:       track,
+			composer:    composer,
+			disc:        disc,
+			albumartist: albumartist,
+			bpm:         bpm
+		})
+	end
+	def hash
+		file.hash
+	end
+	def eql?(song2)
+		file == song2.file
+	end
+end
+
+
+class RB3Jay < Sinatra::Application
+	use Rack::Session::Cookie, key:'rb3jay.session', path:'/', secret:'znogood'
+
+  SONG_ORDER = ->(s){ [
+		s.artist ? s.artist.downcase.sub(/\Athe /,'').gsub(/[^ _a-z0-9]+/,'') : "~~~~",
+		s.album  || "~~~~",
+		s.track  || 99,
+		s.title ? s.title.downcase.sub(/\Athe /,'').gsub(/[^ _a-z0-9]+/,'') : "~~~~"
+	]	}
+
 	def initialize(args={})
 		super()
-		@rb3jayhost, @rb3jayport = args[:rb3jayhost], args[:rb3jayport]
+		@mpd = MPD.new( args[:mpdhost], args[:mpdport] )
+		@mpd.connect
 	end
 
 	configure :production do

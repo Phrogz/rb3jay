@@ -11,18 +11,16 @@ A democratic, crowd-controlled music player for the workplace.
 
 # Requirements & Installation
 
-## rb3jay Core Server
 * Requires the [`sequel`](http://sequel.jeremyevans.net) and [`sqlite3`](https://github.com/sparklemotion/sqlite3-ruby) gems to be installed.
   * This, in turn, requires that you have SQLite installed.
 * Requires the [`ruby-mpd`](https://github.com/archSeer/ruby-mpd) gem to be installed
   * This, in turn, requires that you have [`mpd`](http://www.musicpd.org) be installed.
 * Editing tags requires the [`taglib-ruby`](http://robinst.github.io/taglib-ruby/) gem to be installed
   * This, in turn, requires that you have [`taglib`](http://developer.kde.org/~wheeler/taglib.html) installed along with header files.
-* `gem install rb3jay`
-
-## rb3jay-www Web Server
 * Requires `sinatra`, and `haml` gems installed.
   * Suggest that you also install `thin` and use that to run the web server.
+* `gem install rb3jay`
+
 
 # Starting the Servers
 

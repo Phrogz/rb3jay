@@ -3,8 +3,44 @@ get '/' do
 end
 
 get '/search' do
+	fields = {
+		"file"        => :file,
+		"filename"    => :file,
+		"artist"      => :artist,
+		"album"       => :album,
+		"albumartist" => :albumartist,
+		"title"       => :title,
+		"genre"       => :genre,
+		"date"        => :date,
+		"name"        => :title,
+		"year"        => :date,
+		"n"           => :title,
+		"t"           => :title,
+		"a"           => :artist,
+		"b"           => :album,
+		"y"           => :date,
+		"g"           => :genre,
+		"f"           => :file,
+		nil           => :any
+	}
   content_type :json
-	rb3jay(cmd:"search", query:params[:query]).to_json
+  query = params[:query]
+	if !query || query.empty?
+		[]
+	else
+		query.split(/\s+/).map do |piece|
+			*field,str = piece.split(':')
+			@mpd.where( fields[field.first] => str)
+		end
+		.inject(:&)
+		.uniq
+		.sort_by(&RB3Jay::SONG_ORDER)
+		.map(&:summary)
+	end.to_json
+end
+
+get '/playlists' do
+
 end
 
 not_found do |*a|
@@ -14,22 +50,4 @@ not_found do |*a|
   	path:   request.path,
   	params: request.params
   }.to_json
-end
-
-helpers do
-	def rb3jay(command)
-		begin
-			@socket.print(command.to_json)
-		rescue NoMethodError, Errno::ECONNREFUSED
-			@socket = TCPSocket.open(@rb3jayhost,@rb3jayport)
-			sleep 0.02
-			retry
-		rescue Exception => e
-			p errorwas:e
-		end
-		# JSON.parse(@socket.gets.chomp)
-		(json=@socket.gets) && json.chomp!
-		json = JSON.parse(json)
-		json['ok'] ? json['result'] : json['msg']
-	end
 end

@@ -1,4 +1,3 @@
-require 'eventmachine'
 require 'time'
 require 'json'
 require 'set'
@@ -168,54 +167,6 @@ class RB3Jay < EventMachine::Connection
 
 		playlist.save unless successMessages.empty?
 		successMessages.join("; ")
-	end
-
-	def quit
-		puts "rb3jay shutting down..." if ARGS[:debug]
-		EventMachine.stop
-		nil
-	end
-
-	# ***************************************************************************
-
-	def receive_data(data)
-		puts "rb3jay received: #{data.inspect}" if ARGS[:debug]
-		data.chomp!
-		return if data.empty?
-		begin
-			req = JSON.parse(data)
-			return err! "Queries must be JSON Objects" unless req.is_a? Hash
-			return err! "No cmd supplied" unless req['cmd']
-			cmd = req.delete('cmd').to_s
-			return err! "Unsupported cmd #{cmd.inspect}" unless respond_to? cmd
-			begin
-				keyargs = method(cmd).parameters.map{ |_,name| [name,req[name.to_s]] if req.include?(name.to_s) }.compact.to_h
-				result = keyargs.empty? ? send(cmd) : send(cmd,keyargs)
-				joy! result unless result.nil?
-			rescue Exception => e
-				err! "Problem running #{cmd.inspect}", {message:e.message}
-			end
-		rescue JSON::ParserError => e
-			err! "Could not parse: #{data.inspect}", {message:e.message}
-		end
-	end
-
-	def joy!(result)
-		send! ok:true, result:result
-	end
-
-	def err!(msg,details=nil)
-		result = { ok:false, msg:msg }
-		unless details.nil?
-			details = {details:details} unless details.is_a? Hash
-			result.merge! details
-		end
-		send! result
-	end
-
-	def send!(data)
-		puts "rb3jay sending: #{data.to_json}" if ARGS[:debug]
-		send_data( data.to_json + "\n" )
 	end
 
 end
