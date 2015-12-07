@@ -52,7 +52,7 @@ The supported commands are summarized here, and described in detail below that.
 * _(TODO)_ `upcoming`: see a summary of upcoming songs
 * `songs`: get a summary of all songs in the library
 * `song`: get detailed information about a particular song
-* _(TODO)_ `search`: find songs in the library
+* `search`: find songs in the library
 
 
 **Playback Control**
@@ -197,6 +197,10 @@ Song details look like the following:
 }
 ~~~
 
+### `{"cmd":"search", "query":"…"}` → _array of song summaries_
+Returns a JSON array of JSON song summary objects for every song tracked in the library.
+
+The simple `query` field is matched loosely against `title`, `artist`, `album`, `genre`, and `year`.
 
 ## Playback Control Commands
 

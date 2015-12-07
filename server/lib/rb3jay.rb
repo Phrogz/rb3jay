@@ -21,6 +21,7 @@ end
 class MPD::Song
 	def summary
 		{
+			id:      file.gsub(' ','💔'),
 			file:    file,
 			title:   title,
 			artist:  artist,
@@ -42,79 +43,96 @@ class MPD::Song
 			bpm:         bpm
 		})
 	end
+	def hash
+		file.hash
+	end
+	def eql?(song2)
+		file == song2.file
+	end
 end
 
-module RB3Jay
+class RB3Jay < EventMachine::Connection
 	VERSION = "0.0.1"
-	def self.start( args )
-		require_relative 'models/init'
-		@mpd = MPD.new(args[:mpdhost],args[:mpdport])
-		@mpd.connect
-		EventMachine.run do
-			puts "rb3jay starting on port #{args[:port]}" if args[:debug]
-			EventMachine.start_server "127.0.0.1", args[:port], self
+	SONG_ORDER = ->(s){ [
+		s.artist ? s.artist.downcase.sub(/\Athe /,'').gsub(/[^ _a-z0-9]+/,'') : "~~~~",
+		s.album  || "~~~~",
+		s.track  || 99,
+		s.title ? s.title.downcase.sub(/\Athe /,'').gsub(/[^ _a-z0-9]+/,'') : "~~~~"
+	]	}
+	class << self
+		attr_reader :mpd
+		def start( args )
+			require_relative 'models/init'
+			@mpd = MPD.new( args[:mpdhost], args[:mpdport] )
+			@mpd.connect
+			EventMachine.run do
+				puts "rb3jay starting on port #{args[:port]}" if args[:debug]
+				EventMachine.start_server "127.0.0.1", args[:port], self
+			end
+			trap(:INT) { @mpd.disconnect; EventMachine.stop }
+			trap(:HUP) { @mpd.disconnect; EventMachine.stop }
+			trap(:TERM){ @mpd.disconnect; EventMachine.stop }
 		end
-		trap(:INT) { @mpd.disconnect; EventMachine.stop }
-		trap(:HUP) { @mpd.disconnect; EventMachine.stop }
-		trap(:TERM){ @mpd.disconnect; EventMachine.stop }
+	end
+
+	def mpd
+		self.class.mpd
 	end
 
 	# ***************************************************************************
 
 	def playlists
-		@mpd.playlists.sort(&:name).map(&:summary).to_json
+		mpd.playlists.sort(&:name).map(&:summary)
 	end
 
 	def playlist(name:)
-		(list=@mpd.playlists.find{ |pl| pl.name==name }) && list.details.to_json
+		(list=mpd.playlists.find{ |pl| pl.name==name }) && list.details
 	end
 
 	def makePlaylist(name:, code:nil)
-		MPD::Playlist.new(@mpd,name)
+		MPD::Playlist.new(mpd,name)
 		warn "Live playlists not yet supported" if code
 		"Created playlist #{name}"
 	end
 
 	def songs
-		@mpd.songs.sort_by{ |s| [
-			s.artist ? s.artist.downcase.sub(/\Athe /,'').gsub(/[^ _a-z0-9]+/,'') : "",
-			s.album  || "",
-			s.track  || 99,
-			s.title ? s.title.downcase.sub(/\Athe /,'').gsub(/[^ _a-z0-9]+/,'') : ""
-		]	}.map(&:summary).to_json
+		mpd.songs.sort_by(&SONG_ORDER).map(&:summary).uniq
+	end
+
+	def search(query:)
+		return [] if !query || query.empty?
+		query.split(/\s+/).map{ |piece| mpd.where(any:piece) }.inject(:&).uniq.sort_by(&SONG_ORDER).map(&:summary)
 	end
 
 	def song(file:)
-		(song = @mpd.where({file:file},{strict:true}).first) && song.details.to_json
+		(song = mpd.where({file:file},{strict:true}).first) && song.details
 	end
 
 	def next
-		@mpd.next
+		mpd.next
 	end
 
 	def back
-
-		@mpd.previous
+		mpd.previous
 	end
 
 	def stop
-		@mpd.pause = true
+		mpd.pause = true
 	end
 
 	def play
-		case @mpd.status[:state]
-			when :pause then @mpd.pause = false
-			when :stop
-				unless @mpd.queue(1) # TODO: does queue(1) return nil or [] when empty?
-					# TODO: add songs to queue if is empty
-				end
-				@mpd.play
+		case mpd.status[:state]
+		when :pause then mpd.pause = false
+		when :stop
+			unless mpd.queue(1) # TODO: does queue(1) return nil or [] when empty?
+				# TODO: add songs to queue if is empty
 			end
+			mpd.play
 		end
 	end
 
 	def update
-		@mpd.update
+		mpd.update
 	end
 
 	def editPlaylist(name:, newName:nil, code:'-', add:[], remove:[] )

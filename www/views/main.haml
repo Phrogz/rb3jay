@@ -5,100 +5,83 @@
 		%title RB3Jay
 		%meta(name="author" content="Gavin Kistner")
 		%link(rel="icon" type="image/png" href="/favicon.png")
-		%link(rel="stylesheet" href="//maxcdn.bootstrapcdn.com/font-awesome/4.3.0/css/font-awesome.min.css")
+		%link(rel="stylesheet" href="/fontawesome.css")
 		%link(rel="stylesheet" type="text/css" href="/style.css")
-		/ %script(src="https://ajax.googleapis.com/ajax/libs/angularjs/1.4.7/angular.min.js")
+		%script(src="/angular.js")
+		%script(src="/jquery.js")
+		%script(src="/rb3jay.js")
 	%body
-		#playing
+		#playing(ng-controller="PlaybackController as controls")
 			#controls
 				/ %button#back   <i class="fa fa-step-backward"></i>
-				%button#toggle <i class="fa fa-pause"></i>
+				%button#toggle(ng-click="controls.playing = !controls.playing")
+					<i ng-class="['fa', controls.playing ? 'fa-pause' : 'fa-play' ]"></i>
 				%button#next   <i class="fa fa-step-forward"></i>
 
 			#song
 				#artwork artwork
 				#summary
-					#title Alone (feat. Lauren Evans)
+					#title {{controls.song.title}}
 					#artalb
-						%span#artist Armin van Buuren
+						%span#artist {{controls.song.artist}}
 						—
-						%span#album Intense (The More Intense Edition) [Bonus Track Version]
+						%span#album {{controls.song.album}}
 					#progress
-						#elapsed 1:41
-						%input#scrubber(type="range" min="0" max="100")
-						#remaining 4:37
+						#elapsed {{controls.elapsed | duration}}
+						%input#scrubber(type="range" min="0" max="100" ng-model="controls.elapsedPercent")
+						#remaining {{controls.remaining | duration}}
 				#rate rate
 
 			#volume
-				%input#scrubber(type="range" min="0" max="100")
+				%input#scrubber(type="range" min="0" max="100" ng-model="controls.volume")
 
 		#queues
-			%table#songlist
+			%table#songlist(ng-controller="SongsController as songs")
 				%caption
 					%label
-						%input(type="radio" name="listtype" value="songs") songs
-					%label
-						%input(type="radio" name="listtype" value="playlists") playlists
+						playlist
+						%select
+							%option (all songs)
+							%option Best
+							%option Dancetronica
+							%option Enya-esque
+							%option Piano
+					%section#search
+						%label(for="search-input") <i class="fa fa-search"></i>
+						%input#search-input.form-control.input-lg(placeholder="search" autocomplete="off" spellcheck="false" autocorrect="off")
+						%button#search-clear.fa.fa-times-circle
 				%thead
 					%tr
 						%th title
 						%th artist
 				%tbody
-					%tr
-						%td No Ordinary Morning
-						%td Chicane
-					%tr.selected
-						%td From Where I Stand
-						%td Chicane
-					%tr
-						%td Some Nights
-						%td Fun.
-					%tr
-						%td Somebody That I Used to Know (feat. Kimbra)
-						%td Gotye
-					%tr
-						%td Lovers' Eyes
-						%td Mumford & Sons
-					%tr
-						%td Alone (feat. Lauren Evans)
-						%td Armin van Buuren
-					%tr
-						%td I'm Not Alone (Deadmau5 Mix)
-						%td Calvin Harris
-					%tr
-						%td Come Back
-						%td Chicane
-					%tr
-						%td Titanium (feat. Sia)
-						%td David Guetta & Sia
-					%tr
-						%td Blood Red (Original Mix)
-						%td Feed Me
-					%tr
-						%td We Are Young (feat. Janelle Monáe)
-						%td Fun.
+					%tr(ng-repeat="song in songs.found" ng-class="{selected:song.selected}" ng-click="songs.select(song,$event)")
+						%td {{song.title}}
+						%td {{song.artist}}
 
-			%table#myqueue
+
+			%table#myqueue(ng-controller="MyQueueController as songs")
 				%caption my queue
 				%thead
 					%tr
 						%th title
 						%th artist
 				%tbody
-					%tr
-						%td Titanium (feat. Sia)
-						%td David Guetta & Sia
+					%tr(ng-repeat="song in songs.found" ng-click="songs.select(song,$event)")
+						%td {{song.title}}
+						%td {{song.artist}}
 
-			%table#livequeue
+
+			%table#livequeue(ng-controller="LiveQueueController as songs")
 				%caption live queue
 				%thead
 					%tr
 						%th title
 						%th artist
 				%tbody
-					%tr
-						%td Titanium (feat. Sia)
-						%td David Guetta & Sia
+					%tr(ng-repeat="song in songs.found" ng-click="songs.select(song,$event)")
+						%td {{song.title}}
+						%td {{song.artist}}
 
 		%table#inspector
 			%tr

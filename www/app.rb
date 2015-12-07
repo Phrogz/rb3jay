@@ -7,16 +7,16 @@ Dir.chdir( File.dirname( __FILE__ ) )
 require 'sinatra'
 require 'haml'
 require 'logger'
-require 'ruby-mpd'
 require 'json'
+require 'socket'
+
 # require_relative 'minify_resources'
 
 class RB3JayWWW < Sinatra::Application
 	use Rack::Session::Cookie, key:'rb3jaywww.session', path:'/', secret:'znogood'
 	def initialize(args={})
 		super()
-		@mpd = args[:mpdhost] ? (args[:mpdport] ? MPD.new(args[:mpdhost], args[:mpdport]) : MPD.new(args[:mpdhost])) : MPD.new
-		@mpd.connect
+		@rb3jayhost, @rb3jayport = args[:rb3jayhost], args[:rb3jayport]
 	end
 
 	configure :production do
