@@ -13,20 +13,28 @@ body { font-family:Calibri }
 #summary { display:flex; flex-direction:column; justify-content:center; padding:0 20px }
 #summary > * { margin:3px;}
 #title { font-weight:bold }
-#artalb { text-overflow:ellipsis; text-overflow:"⋯"; white-space:nowrap; overflow:hidden }
+#artalb { text-overflow:ellipsis; white-space:nowrap; overflow:hidden }
 #artist, #album { display:inline }
 #progress { display:flex; width:100% }
 #scrubber { width:calc(100% - 6em) }
 #elapsed, #remaining { font-family:sans-serif; font-size:9pt; width:3em; flex-grow:0; opacity:0.6 }
 #remaining { text-align:right }
 
-#volume { display:flex; justify-content:center }
+#volume { display:flex; justify-content:center; }
 
-#queues { position:fixed; top:82px; left:0; width:100%; bottom:62px; overflow:auto; display:flex; flex-direction:row; justify-content:space-between; align-items:flex-start; flex-grow:1 }
+#queues { position:fixed; top:84px; left:0; width:100%; bottom:62px; overflow:hidden; display:flex; flex-direction:row; justify-content:space-between; align-items:flex-start; flex-grow:1 }
+#queues table { display:flex; flex-flow:column; height:100%; margin-right:4px; overflow:hidden }
+#queues table:last-child { margin-right:0 }
+#queues table caption { flex:0 0 auto; width:100%; display:block; height:34px }
+#queues table thead { flex:0 0 auto; width:calc(100% + 1px) } /* head takes the height it requires, and it's not scaled when table is resized */
+#queues table tbody { flex:1 1 auto; display:block; overflow-y:auto } /* body takes all the remaining available space */
+#queues table tbody tr { width:100% }
+#queues table thead,
+#queues table tbody tr { display:table; table-layout:fixed }
 #queues td { max-width:0; overflow:hidden; white-space:nowrap; text-overflow:ellipsis }
-#queues table { table-layout:fixed }
 #queues tbody tr { cursor:default }
-#queues thead th:last-child { width:33%; }
+#queues thead th:last-child,
+#queues tbody td:last-child { width:33%; }
 
 #menu { width:20em }
 #menu li { list-style:none; padding:0.2em 1em }
@@ -36,8 +44,8 @@ body { font-family:Calibri }
 #inspector th { width:4em; text-align:right; white-space:nowrap }
 #inspector td { white-space:nowrap; text-overflow:ellipsis; max-width:0; overflow:hidden }
 
-table { border-collapse:collapse; width:33%; border-left:2px solid white; }
-caption { background:#999; border-left:2px solid white; font-weight:bold; padding:5px }
+table { border-collapse:collapse; width:33% }
+caption { background:#999; font-weight:bold; padding:5px }
 th { text-align:left; background:#ccc; color:rgba(0,0,0,0.6) }
 th, td { padding:1px 5px; }
 tbody tr.selected td { background:#cdf }
@@ -46,3 +54,9 @@ tbody tr.selected td { background:#cdf }
 #songlist caption { border-left:0 }
 #songlist label + label { margin-left:2em }
 #songlist input { margin:0 0.5em;}
+
+#search { display:inline-block; position:relative; font-size:18px }
+#search label { display:none; position:absolute; left:17px; top:51px }
+#search #search-input { height:20px; width:100%; padding:0 10px; border-radius:10px; border:0; }
+#search #search-clear { display:none; text-decoration:none; position:absolute; right:18px; top:54px; color:#b3b3b3 }
+#search #search-clear:hover { color:#8f8f8f }

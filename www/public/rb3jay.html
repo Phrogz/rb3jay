@@ -1,0 +1,126 @@
+<!DOCTYPE html>
+<html lang="en" ng-app="rb3jay">
+  <head>
+    <meta charset="utf-8">
+    <title>RB3Jay</title>
+    <meta content="Gavin Kistner" name="author">
+    <link href="font-awesome.min.css" rel="stylesheet">
+    <link href="style.css" rel="stylesheet">
+    <script src="angular.min.js"></script>
+    <script src="jquery.js"></script>
+    <script src="bind-delayed.js"></script>
+    <script src="rb3jay.js"></script>
+  </head>
+  <body>
+    <div id="playing" ng-controller="PlaybackController as controls">
+      <div id="controls">
+        <button id="toggle" ng-click="controls.toggle()">
+          <i ng-class="['fa', controls.playing ? 'fa-pause' : 'fa-play' ]"></i>
+        </button>
+        <button id="next" ng-click="controls.nextSong()"><i class="fa fa-step-forward"></i></button>
+      </div>
+      <div id="song">
+        <div id="artwork">artwork</div>
+        <div id="summary">
+          <div id="title">{{controls.song.title}}</div>
+          <div id="artalb">
+            <span id="artist">{{controls.song.artist}}</span>
+            —
+            <span id="album">{{controls.song.album}}</span>
+          </div>
+          <div id="progress">
+            <div id="elapsed">{{controls.elapsed | duration}}</div>
+            <input id="scrubber" max="100" min="0" ng-model="controls.elapsedPercent" type="range">
+            <div id="remaining">{{controls.remaining | duration}}</div>
+          </div>
+        </div>
+        <div id="rate">rate</div>
+      </div>
+      <div id="volume"><input id="scrubber" max="100" min="0" ng-model="controls.volume" type="range"></div>
+    </div>
+
+    <div id="queues">
+
+      <table id="songlist" ng-controller="SongsController as songs">
+        <caption>
+          <form id="search-form">
+            <label>
+              playlist
+              <select name="playlist" ng-model="songs.activePlaylist">
+                <option value="">(all songs)</option>
+                <option ng-repeat="playlist in songs.playlists">{{playlist.name}}</option>
+              </select>
+            </label>
+            <section id="search">
+              <label for="search-input"><i class="fa fa-search"></i></label>
+              <input autocomplete="off" autocorrect="off" class="form-control input-lg" id="search-input" placeholder="search" spellcheck="false" name="query">
+              <button class="fa fa-times-circle" id="search-clear"></button>
+            </section>
+          </form>
+        </caption>
+        <thead><tr><th>title</th><th>artist</th></tr></thead>
+        <tbody>
+          <tr ng-repeat="song in songs.found" id="songs-{{song.id}}" ng-class="{selected:song.selected}" ng-mousedown="songs.select(song,$event)" draggable>
+            <td>{{song.title}}</td>
+            <td>{{song.artist}}</td>
+          </tr>
+        </tbody>
+      </table>
+
+      <table id="myqueue" ng-controller="MyQueueController as songs">
+        <caption>my queue</caption>
+        <thead><tr><th>title</th><th>artist</th></tr></thead>
+        <tbody droppable>
+          <tr ng-repeat="song in songs.found" id="my-{{song.id}}" ng-class="{selected:song.selected}" ng-click="songs.select(song,$event)">
+            <td>{{song.title}}</td>
+            <td>{{song.artist}}</td>
+          </tr>
+        </tbody>
+      </table>
+
+      <table id="livequeue" ng-controller="LiveQueueController as songs">
+        <caption>live queue</caption>
+        <thead><tr><th>title</th><th>artist</th></tr></thead>
+        <tbody>
+          <tr ng-repeat="song in songs.found" id="live-{{song.id}}" ng-class="{selected:song.selected}" ng-click="songs.select(song,$event)">
+            <td>{{song.title}}</td>
+            <td>{{song.artist}}</td>
+          </tr>
+        </tbody>
+      </table>
+
+    </div>
+
+    <table id="inspector" ng-controller="InspectorController as i">
+      <tbody><tr>
+        <th>title</th>
+        <td>{{i.title}}</td>
+        <th>genre</th>
+        <td>{{i.genre}}</td>
+        <th>my rating</th>
+        <td>-</td>
+        <th>added</th>
+        <td>2014-Jul-10</td>
+      </tr>
+      <tr>
+        <th>artist</th>
+        <td>{{i.artist || '-'}}</td>
+        <th>year</th>
+        <td>2010</td>
+        <th>score</th>
+        <td>+1.4</td>
+        <th>played</th>
+        <td>2014-Jul-14 (7x)</td>
+      </tr>
+      <tr>
+        <th>album</th>
+        <td>Giants</td>
+        <th>length</th>
+        <td>{{i.duration | duration}}</td>
+        <th></th>
+        <td></td>
+        <th>skipped</th>
+        <td>-</td>
+      </tr>
+    </tbody></table>
+</body></html>
