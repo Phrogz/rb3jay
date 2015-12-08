@@ -36,7 +36,7 @@ class MPD::Song
 			album:   album,
 			genre:   genre,
 			date:    date,
-			time:    time,
+			time:    time && time.respond_to?(:last) ? time.last : time,
 			rank:    0.5,    #TODO: calculate song rankings
   		artwork: nil     #TODO: extract and store song artwork
 		}
@@ -63,6 +63,7 @@ end
 class RB3Jay < Sinatra::Application
 	use Rack::Session::Cookie, key:'rb3jay.session', path:'/', secret:'znogood'
 
+	YEAR_RANGE = /\A(\d{4})(?:-|\.\.)(\d{4})\Z/
   SONG_ORDER = ->(s){ [
 		s.artist ? s.artist.downcase.sub(/\Athe /,'').gsub(/[^ _a-z0-9]+/,'') : "~~~~",
 		s.album  || "~~~~",

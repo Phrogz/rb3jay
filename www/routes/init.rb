@@ -30,7 +30,15 @@ get '/search' do
 	else
 		query.split(/\s+/).map do |piece|
 			*field,str = piece.split(':')
-			@mpd.where( fields[field.first] => str)
+			field = fields[field.first]
+			if field==:date && str[RB3Jay::YEAR_RANGE]
+				_,y1,y2 = str.match(RB3Jay::YEAR_RANGE).to_a
+				y1,y2 = y1.to_i,y2.to_i
+				y1,y2 = y2,y1 if y1>y2
+				y1.upto(y2).flat_map{ |y| @mpd.where(date:y) }
+			else
+				@mpd.where( field=>str )
+			end
 		end
 		.inject(:&)
 		.uniq
