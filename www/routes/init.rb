@@ -17,6 +17,7 @@ get '/search' do
 		"n"           => :title,
 		"t"           => :title,
 		"a"           => :artist,
+		"A"           => :album,
 		"b"           => :album,
 		"y"           => :date,
 		"g"           => :genre,
