@@ -94,23 +94,23 @@
     <table id="inspector" ng-controller="InspectorController as i">
       <tbody><tr>
         <th>title</th>
-        <td>{{i.title}}</td>
+        <td>{{i.title || '-'}}</td>
         <th>genre</th>
-        <td>{{i.genre}}</td>
+        <td>{{i.genre || '-'}}</td>
         <th>my rating</th>
         <td>-</td>
         <th>added</th>
-        <td>2014-Jul-10</td>
+        <td>-</td>
       </tr>
       <tr>
         <th>artist</th>
         <td>{{i.artist || '-'}}</td>
         <th>year</th>
-        <td>{{i.date}}</td>
+        <td>{{i.date || '-'}}</td>
         <th>score</th>
-        <td>+1.4</td>
+        <td>-</td>
         <th>played</th>
-        <td>2014-Jul-14 (7x)</td>
+        <td>-</td>
       </tr>
       <tr>
         <th>album</th>
@@ -118,7 +118,7 @@
         <th>length</th>
         <td>{{i.time | duration}}</td>
         <th>file</th>
-        <td>{{i.file}}</td>
+        <td>{{i.file || '-'}}</td>
         <th>skipped</th>
         <td>-</td>
       </tr>
