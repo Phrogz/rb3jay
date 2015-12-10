@@ -17,6 +17,7 @@ get '/search' do
 		"n"           => :title,
 		"t"           => :title,
 		"a"           => :artist,
+		"A"           => :album,
 		"b"           => :album,
 		"y"           => :date,
 		"g"           => :genre,
@@ -41,7 +42,7 @@ get '/search' do
 			end
 		end
 		.inject(:&)
-		.uniq
+		.uniq[0..RB3Jay::MAX_RESULTS]
 		.sort_by(&RB3Jay::SONG_ORDER)
 		.map(&:summary)
 	end.to_json

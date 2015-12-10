@@ -62,6 +62,7 @@ end
 
 class RB3Jay < Sinatra::Application
 	use Rack::Session::Cookie, key:'rb3jay.session', path:'/', secret:'znogood'
+	MAX_RESULTS = 500
 
 	YEAR_RANGE = /\A(\d{4})(?:-|\.\.)(\d{4})\Z/
   SONG_ORDER = ->(s){ [
