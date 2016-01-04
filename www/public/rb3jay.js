@@ -1,5 +1,5 @@
 (function($){
-	var app = angular.module('rb3jay', []);
+	var app = angular.module('rb3jay', ['as.sortable']);
 
 	app.factory('Share', function(){
 		return {selectedSongs:[]};
@@ -77,6 +77,10 @@
 			},
 			resendDuplicates:false
 		});
+		$scope.sortableCloneOptions = {
+			// containment: '#sortable-container',
+			clone: true
+		};
 	}]);
 
 	app.controller('InspectorController', ['$scope','Share',function($scope,Share){
@@ -88,12 +92,16 @@
 		};
 	}]);
 
-	app.controller('MyQueueController', function(){
+	app.controller('MyQueueController', ['$scope','Share',function($scope,Share){
 		this.visible = [
 			{ name:"Female Vocals" },
 			{ name:"ZZNap" }
 		];
-	});
+		$scope.sortableOptions = {
+			// containment: '#sortable-container',
+			allowDuplicates: true
+		};
+	}]);
 
 	app.controller('LiveQueueController', function(){
 		this.visible = [

@@ -52,6 +52,12 @@ get '/playlists' do
 
 end
 
+get '/user-playlist' do
+	playlist_name = "user-#{@username}"
+	playlist = @mpd.playlists.find{ |pl| pl.name==playlist_name } || MPD::Playlist.new( @mpd, playlist:playlist_name )
+	playlist.details
+end
+
 not_found do |*a|
   content_type :json
   halt 404, {
