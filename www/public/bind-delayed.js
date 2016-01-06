@@ -7,6 +7,7 @@
     delay:250, // milliseconds
     url:null,
     callback:null,
+    callbackScope:null,
     data:{}, // may be function or literal data
     dataType:'json',
     type:'get',
@@ -33,7 +34,10 @@
           dataType:opts.dataType,
           success:function(data){
             xhr = null;
-            if (id==ct && opts.callback) opts.callback.call(this,data);
+            if (id==ct && opts.callback){
+              if (opts.callbackScope) opts.callback.call(opts.callbackScope,data);
+              else                    opts.callback.call(this,data);
+            }
           }
         });
       },opts.delay);
