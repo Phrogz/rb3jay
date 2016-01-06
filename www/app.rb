@@ -30,10 +30,13 @@ class RB3Jay < Sinatra::Application
 
 	def initialize(args={})
 		super()
-		@mpd = MPD.new( args[:mpd_host] || ENV['MPD_HOST'], args[:mpd_port] || ENV['MPD_PORT'] )
+		args[:mpd_host] ||= ENV['MPD_HOST'] || '127.0.0.1'
+		args[:mpd_port] ||= ENV['MPD_PORT'] || 6600
+		args[:mpd_sticker_file] ||= ENV['MPD_STICKER_FILE']
+		@mpd = MPD.new( args[:mpd_host], args[:mpd_port] )
 		@mpd.connect
 		require_relative 'model/init'
-		@db = connect_to( args[:mpd_sticker_file] || ENV['MPD_STICKER_FILE'] )
+		@db = connect_to( args[:mpd_sticker_file] )
 	end
 
 	configure :production do

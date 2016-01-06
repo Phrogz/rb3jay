@@ -48,7 +48,8 @@ table { border-collapse:collapse; width:33% }
 caption { background:#999; font-weight:bold; padding:5px }
 th { text-align:left; background:#ccc; color:rgba(0,0,0,0.4) }
 th, td { padding:1px 5px; }
-tbody tr.selected td { background:#cdf }
+tr.selected td { background:#f6f6f6 }
+table:focus tr.selected td { background:#cdf }
 
 #songlist { width:34%; border-left:0 }
 #songlist caption { border-left:0 }

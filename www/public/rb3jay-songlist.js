@@ -1,13 +1,18 @@
 SongList = (function(){
 	var SELECTED_CLASS = 'selected';
+	var FOCUSED_CLASS  = 'focused';
 
 	function SongList(listSelector,searchSelector,clearSelector){
 		this.$tbody = $(listSelector);
 		this.$inp   = $(searchSelector);
 		this.$clear = $(clearSelector);
 		var self = this;
-		this.$tbody.on('click','tr',function(evt){
-			self.select( $(this), { extend:evt.shiftKey, toggle:evt.metaKey } );
+		this.selectSong = makeSelectable( this.$tbody );
+		this.$tbody.on('songSelectionChanged',function(evt,selectedSongIds){
+			if (self.onSelectionChanged) self.onSelectionChanged( selectedSongIds );
+		});
+		this.$tbody.on('songDoubleClicked',function(evt,selectedSongIds){
+			if (self.onDoubleClick) self.onDoubleClick( selectedSongIds );
 		});
 
 		var self = this;
@@ -29,14 +34,11 @@ SongList = (function(){
 
 	SongList.prototype.clear = function(){
 		this.$tbody.empty();
-		this.rows = [];
 	};
 
 	SongList.prototype.addSong = function(song){
-		songInfoById[song.id] = song;
-		var $tr = $('<tr id="'+song.id+'"><td>'+song.title+'</td><td>'+song.artist+'</td></tr>')
-		$tr.appendTo(this.$tbody);
-		this.rows.push($tr);
+		øinspector.songInfo(song.id,song);
+		var $tr = $(øinspector.songHTML(song.id)).appendTo(this.$tbody);
 
 		// Native HTML5 dragging
 		var tr = $tr[0];
@@ -45,10 +47,10 @@ SongList = (function(){
 		var self = this;
 		var tbody = this.$tbody;
 		tr.addEventListener( 'dragstart', function(evt){
-			self.select($(this));
+			self.selectSong($(this));
 			this.classList.add('drag');
 			evt.dataTransfer.effectAllowed = 'copy';
-			evt.dataTransfer.setData( 'text', tbody.find('tr.selected').map(function(){ return this.id }).toArray().join("∆≈ƒ") );
+			evt.dataTransfer.setData( 'text', tbody.find('tr.selected').map(function(){ return this.dataset.songid }).toArray().join("∆≈ƒ") );
 			return false;
 		}, false );
 
@@ -56,26 +58,6 @@ SongList = (function(){
 			this.classList.remove('drag');
 			return false;
 		}, false );
-	};
-
-	var $selectionStart;
-	SongList.prototype.select = function($tr,opts){
-		if (!opts) $tr.addClass(SELECTED_CLASS);
-		else if (opts.extend && $selectionStart){
-			var a = $selectionStart.index();
-			var b = $tr.index();
-			if (a<b) for (var i=a+1;i<=b;++i) this.select(this.rows[i]);
-			else     for (var i=a-1;i>=b;--i) this.select(this.rows[i]);
-			document.getSelection().removeAllRanges();
-		}else if (opts.toggle){
-			if ($tr.hasClass(SELECTED_CLASS)) $tr.removeClass(SELECTED_CLASS);
-			else this.select($tr);
-		}else{
-			this.$tbody.find('tr.'+SELECTED_CLASS).removeClass(SELECTED_CLASS);
-			this.select($tr);
-			$selectionStart = $tr;
-		}
-		if (this.onSelectionChanged) this.onSelectionChanged(this.$tbody.find('tr.'+SELECTED_CLASS).attr('id'));
 	};
 
 	return SongList;

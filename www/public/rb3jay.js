@@ -6,8 +6,11 @@ var øcontrols  = new Controls('#playing'),
     ølive      = new LiveQueue('#livequeue tbody');
     øinspector = new Inspector('#inspector');
 
-øsongs.onSelectionChanged = function(songId){
-	øinspector.inspect(songId);
+øsongs.onSelectionChanged = function(songIds){
+	øinspector.inspect(songIds[0]);
+};
+øsongs.onDoubleClick = function(songIds){
+	songIds.forEach( øqueue.appendSong, øqueue );
 };
 
 function duration(seconds){
@@ -24,3 +27,53 @@ function duration(seconds){
 	}
 }
 
+function makeSelectable($tbody){
+	var FOCUSED  = 'focused',
+	    SELECTED = 'selected';
+	$tbody.on('click','tr',function($evt){
+		// TODO: OS X should not use control key for toggle; Windows should not use metaKey for toggle
+		_select( $(this), { extend:$evt.shiftKey, toggle:$evt.metaKey || $evt.ctrlKey } );
+		// $('table.'+FOCUSED).removeClass(FOCUSED);
+		// $table.addClass(FOCUSED);
+		// $tbody.focus();
+		$tbody.trigger( 'songSelectionChanged', [_selectedIds()] );
+	}).on('dblclick','tr',function(){
+		_select( $(this), {} );
+		$tbody.trigger( 'songDoubleClicked', [_selectedIds()] );
+	});
+
+	var table = $tbody.closest('table')[0];
+	$(document.body).on('keydown',function(evt){
+		// TODO: test on Safari; perhaps use :focus with jQuery instead
+		if (document.activeElement==table){
+			if (evt.keyCode==46) $tbody.trigger( 'deleteSongs', [_selectedIds()] );
+		}
+	});
+
+	return _select;
+
+	function _selectedIds(){
+		return $tbody.find('tr.'+SELECTED).map(function(){ return this.dataset.songid }).toArray();
+	}
+
+	var $selectionStart;
+	function _select($tr,opts){
+		if (!opts) opts={};
+		if (opts.toggle) $tr.toggleClass(SELECTED);
+		else if (opts.extend && $selectionStart){
+			var a = $selectionStart.index();
+			var b = $tr.index();
+			if (a<b) $tbody.find('tr').slice(a+1,b+1).addClass(SELECTED);
+			else     $tbody.find('tr').slice(b,a).addClass(SELECTED);
+			document.getSelection().removeAllRanges(); // shift-clicking tends to select text on the page; deselect it
+		} else if (!$tr.hasClass(SELECTED)){
+			$tbody.find('tr.'+SELECTED).removeClass(SELECTED);
+			$tr.addClass(SELECTED);
+			$selectionStart = $tr;
+		}
+	}
+}
+
+function songRow(song){
+	return $()
+}
