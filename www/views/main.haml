@@ -1,115 +1,108 @@
 !!! html5
-%html(lang="en" ng-app="rb3jay")
-  %head
-    %meta(charset="utf-8")
-      %title RB3Jay
-      %meta(content="Gavin Kistner" name="author")
-        %link(href="font-awesome.min.css" rel="stylesheet")
-        %link(href="ng-sortable.min.css" rel="stylesheet")
-        / %link(href="ng-sortable.style.min.css" rel="stylesheet")
-        %link(href="style.css" rel="stylesheet")
-        %script(src="angular.min.js")
-        %script(src="jquery.js")
-        %script(src="bind-delayed.js")
-        %script(src="ng-sortable.js")
-        %script(src="rb3jay.js")
+%html(lang="en")
+	%head
+		%meta(charset="utf-8")
+			%title RB3Jay
+			%meta(content="Gavin Kistner" name="author")
+				%link(href="font-awesome.min.css" rel="stylesheet")
+				%link(href="style.css" rel="stylesheet")
+				%script(src="jquery.js")
+				%script(src="bind-delayed.js")
 
-  %body
-    #playing(ng-controller="PlaybackController as controls")
-      #controls
-        %button#toggle(ng-click="controls.toggle()")
-          %i(ng-class="['fa', controls.playing ? 'fa-pause' : 'fa-play' ]")
-        %button#next(ng-click="controls.nextSong()")
-          %i.fa.fa-step-forward
-      #song
-        #artwork artwork
-        #summary
-          #title {{controls.song.title}}
-          #artalb
-            %span#artist {{controls.song.artist}}
-            —
-            %span#album {{controls.song.album}}
-          #progress
-            #elapsed {{controls.elapsed | duration}}
-            %input#scrubber(max="100" min="0" ng-model="controls.elapsedPercent" type="range")
-              #remaining {{controls.remaining | duration}}
-        #rate rate
-      #volume
-        %input#scrubber(max="100" min="0" ng-model="controls.volume" type="range")/
+	%body
+		#playing
+			#controls
+				%button#toggle
+					%i.fa.fa-play
+				%button#next
+					%i.fa.fa-step-forward
+			#song
+				#artwork artwork
+				#summary
+					#title {{controls.song.title}}
+					#artalb
+						%span#artist {{controls.song.artist}}
+						—
+						%span#album {{controls.song.album}}
+					#progress
+						#elapsed {{controls.elapsed | duration}}
+						%input#scrubber(max="100" min="0" type="range")
+							#remaining {{controls.remaining | duration}}
+				#rate rate
+			#volume
+				%input#scrubber(max="100" min="0" type="range")/
 
 
-    #queues
+		#queues
 
-      %table#songlist(ng-controller="SongsController as songs")
-        %caption
-          %form#search-form
-            %label
-              playlist
-              %select(name="playlist" ng-model="songs.activePlaylist")
-                %option(value="") (all songs)
-                %option(ng-repeat="playlist in songs.playlists") {{playlist.name}}
-            %section#search(title="Shortcuts:\nt:title    a:artist    b:album\ny:year or y:1980-1989\ng:genre    f:file")
-              %label(for="search-input")
-                %i.fa.fa-search
-              %input#search-input.form-control.input-lg(autocomplete="off" autocorrect="off" name="query" placeholder="search" spellcheck="false")
-                %button#search-clear.fa.fa-times-circle
-        %thead
-          %tr
-            %th title
-            %th artist
-        %tbody(ng-model="songs" as-sortable="sortableCloneOptions")
-          %tr(as-sortable-item ng-repeat="song in songs.found" id="songs-{{song.id}}" ng-class="{selected:song.selected}" xng-mousedown="songs.select(song,$event)")
-            %td {{song.title}}
-            %td {{song.artist}}
+			%table#songlist
+				%caption
+					%form#search-form
+						%label
+							playlist
+							%select(name="playlist")
+								%option(value="") (all songs)
+								%option() {{playlist.name}}
+						%section#search(title="Shortcuts:\nt:title    a:artist    b:album\ny:year or y:1980-1989\ng:genre    f:file")
+							%label(for="search-input")
+								%i.fa.fa-search
+							%input#search-input.form-control.input-lg(autocomplete="off" autocorrect="off" name="query" placeholder="search" spellcheck="false")
+								%button#search-clear.fa.fa-times-circle
+				%thead
+					%tr
+						%th title
+						%th artist
+				%tbody
 
-      %table#myqueue(ng-controller="MyQueueController as songs")
-        %caption my queue
-        %thead
-          %tr
-            %th title
-            %th artist
-        %tbody(as-sortable="sortableOptions" ng-model="songs" ng-repeat="song in songs.found")
-          %tr(as-sortable-item id="my-{{song.id}}" ng-class="{selected:song.selected}" ng-click="songs.select(song,$event)" ng-repeat="song in songs.found")
-            %td {{song.title}}
-            %td {{song.artist}}
+			%table#myqueue
+				%caption my queue
+				%thead
+					%tr
+						%th title
+						%th artist
+				%tbody
 
-      %table#livequeue(ng-controller="LiveQueueController as songs")
-        %caption live queue
-        %thead
-          %tr
-            %th title
-            %th artist
-        %tbody
-          %tr(id="live-{{song.id}}" ng-class="{selected:song.selected}" ng-click="songs.select(song,$event)" ng-repeat="song in songs.found")
-            %td {{song.title}}
-            %td {{song.artist}}
+			%table#livequeue
+				%caption live queue
+				%thead
+					%tr
+						%th title
+						%th artist
+				%tbody
 
-    %table#inspector(ng-controller="InspectorController as i")
-      %tbody
-        %tr
-          %th title
-          %td {{i.title || '-'}}
-          %th genre
-          %td {{i.genre || '-'}}
-          %th my rating
-          %td -
-          %th added
-          %td -
-        %tr
-          %th artist
-          %td {{i.artist || '-'}}
-          %th year
-          %td {{i.date || '-'}}
-          %th score
-          %td -
-          %th played
-          %td -
-        %tr
-          %th album
-          %td {{i.album}}
-          %th length
-          %td {{i.time | duration}}
-          %th file
-          %td {{i.file || '-'}}
-          %th skipped
-          %td -
+		%table#inspector
+			%tbody
+				%tr
+					%th title
+					%td#ins-title -
+					%th genre
+					%td#ins-genre -
+					%th my rating
+					%td#ins-rating -
+					%th added
+					%td#ins-added -
+				%tr
+					%th artist
+					%td#ins-artist -
+					%th year
+					%td#ins-year -
+					%th score
+					%td#ins-score -
+					%th played
+					%td#ins-played -
+				%tr
+					%th album
+					%td#ins-album -
+					%th length
+					%td#ins-length -
+					%th file
+					%td#ins-file -
+					%th skipped
+					%td#ins-skipped -
+
+		%script(src="rb3jay-controls.js")
+		%script(src="rb3jay-songlist.js")
+		%script(src="rb3jay-myqueue.js")
+		%script(src="rb3jay-livequeue.js")
+		%script(src="rb3jay-inspector.js")
+		%script(src="rb3jay.js")
