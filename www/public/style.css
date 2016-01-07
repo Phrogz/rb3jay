@@ -1,4 +1,4 @@
-* { margin:0; padding:0; box-sizing:border-box }
+* {/* margin:0; *//* padding:0; */ box-sizing:border-box}
 html,body { height:100%; min-height:100% }
 body { font-family:Calibri }
 #playing { position:fixed; top:0; left:0; width:100%; background:#cec; display:flex; flex-direction:row; height:80px; justify-content:space-around; flex-grow:0 }
@@ -25,7 +25,7 @@ body { font-family:Calibri }
 #queues { position:fixed; top:84px; left:0; width:100%; bottom:62px; overflow:hidden; display:flex; flex-direction:row; justify-content:space-between; align-items:flex-start; flex-grow:1 }
 #queues table { display:flex; flex-flow:column; height:100%; margin-right:4px; overflow:hidden }
 #queues table:last-child { margin-right:0 }
-#queues table caption { flex:0 0 auto; width:100%; display:block; height:34px }
+#queues table caption { flex:0 0 auto; width:100%; display:block; height:34px; line-height:24px }
 #queues table thead { flex:0 0 auto; width:calc(100% + 1px) } /* head takes the height it requires, and it's not scaled when table is resized */
 #queues table tbody { flex:1 1 auto; display:block; overflow-y:auto } /* body takes all the remaining available space */
 #queues table tbody tr { width:100% }
@@ -49,6 +49,7 @@ caption { background:#999; font-weight:bold; padding:5px }
 th { text-align:left; background:#ccc; color:rgba(0,0,0,0.4) }
 th, td { padding:1px 5px; }
 tr.selected td { background:#f6f6f6 }
+table:focus { outline:none }
 table:focus tr.selected td { background:#cdf }
 
 #songlist { width:34%; border-left:0 }
@@ -61,3 +62,9 @@ table:focus tr.selected td { background:#cdf }
 #search #search-input { height:20px; width:100%; padding:0 10px; border-radius:10px; border:0; }
 #search #search-clear { display:none; text-decoration:none; position:absolute; right:18px; top:54px; color:#b3b3b3 }
 #search #search-clear:hover { color:#8f8f8f }
+
+#login { position:fixed; top:0; left:0; right:0; bottom:0; background:rgba(20,20,20,0.9); display:none; text-align:center }
+#login .content { display:block; position:absolute; top:50%; left:50%; width:10em; height:4em; margin:-2em 0 0 -5em; color:white; text-align:center; left:50% }
+#login select { display:block; margin:0 auto }
+#login select option:first-child { color:#888; }
+#login button { display:block; width:100%; margin:1em auto }

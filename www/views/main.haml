@@ -8,6 +8,7 @@
 				%link(href="style.css" rel="stylesheet")
 				%script(src="jquery.js")
 				%script(src="bind-delayed.js")
+				%script(src="js.cookie.js")
 
 	%body
 		#playing
@@ -32,7 +33,6 @@
 			#volume
 				%input#scrubber(max="100" min="0" type="range" tabindex="3")/
 
-
 		#queues
 
 			%table#songlist(tabindex="10")
@@ -55,7 +55,9 @@
 				%tbody
 
 			%table#myqueue(tabindex="20")
-				%caption my queue
+				%caption
+					my queue
+					%button#logout logout
 				%thead
 					%tr
 						%th title
@@ -99,6 +101,19 @@
 					%td#ins-file -
 					%th skipped
 					%td#ins-skipped -
+
+		%form#login
+			.content
+				Wait, who are you?
+				%select(name="user" required oninvalid="this.setCustomValidity('You must identify yourself.')" onchange="setCustomValidity('')")
+					%option(value="") (on your honor)
+					%option(value="btuysserkani") Bijan
+					%option(value="smendoza") Doza
+					%option(value="gkistner") Gavin
+					%option(value="mfornander") Mattias
+					%option(value="sjones") Jones
+					%option(value="jebert") Justin
+				%button let me in
 
 		%script(src="rb3jay-controls.js")
 		%script(src="rb3jay-songlist.js")

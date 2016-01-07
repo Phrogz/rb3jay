@@ -6,12 +6,12 @@ var øcontrols  = new Controls('#playing'),
     ølive      = new LiveQueue('#livequeue tbody');
     øinspector = new Inspector('#inspector');
 
-øsongs.onSelectionChanged = function(songIds){
-	øinspector.inspect(songIds[0]);
-};
-øsongs.onDoubleClick = function(songIds){
-	songIds.forEach( øqueue.appendSong, øqueue );
-};
+øsongs.onSelectionChanged = function(songIds){ øinspector.inspect(songIds[0]) };
+øsongs.onDoubleClick      = function(songIds){ songIds.forEach( øqueue.appendSong, øqueue ) };
+øqueue.onSelectionChanged = function(songIds){ øinspector.inspect(songIds[0]) };
+øqueue.onDeleteSelection  = function(songIds){ øinspector.inspect() };
+
+checkLogin();
 
 function duration(seconds){
 	if (isNaN(seconds)) return '-';
@@ -33,9 +33,6 @@ function makeSelectable($tbody){
 	$tbody.on('click','tr',function($evt){
 		// TODO: OS X should not use control key for toggle; Windows should not use metaKey for toggle
 		_select( $(this), { extend:$evt.shiftKey, toggle:$evt.metaKey || $evt.ctrlKey } );
-		// $('table.'+FOCUSED).removeClass(FOCUSED);
-		// $table.addClass(FOCUSED);
-		// $tbody.focus();
 		$tbody.trigger( 'songSelectionChanged', [_selectedIds()] );
 	}).on('dblclick','tr',function(){
 		_select( $(this), {} );
@@ -74,6 +71,21 @@ function makeSelectable($tbody){
 	}
 }
 
-function songRow(song){
-	return $()
+function checkLogin(){
+	$('#login').on('submit',function(evt){
+		if (this.elements.user.value){
+			Cookies.set('username',this.elements.user.value,{expires:365});
+			$('#login').hide();
+			checkLogin();
+		}
+		evt.preventDefault();
+		return false;
+	});
+	$('#logout').on('click',function(evt){
+		Cookies.remove('username');
+		checkLogin();
+	});
+	var user = Cookies.get('username');
+	if (!user) $('#login').show();
+	else       $('#myqueue caption').contents().first().replaceWith( user+"'s queue " );
 }

@@ -1,4 +1,3 @@
-* Who am I
 * Load My Queue
 * Add/Remove from My Queue on server
 * Reorder My Queue

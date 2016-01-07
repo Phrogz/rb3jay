@@ -12,6 +12,7 @@ function MyQueue(selector){
 	});
 	this.$tbody.on('deleteSongs',function(evt,deletedSongIds){
 		self.removeSongs(deletedSongIds);
+		if (self.onDeleteSelection) self.onDeleteSelection(deletedSongIds);
 	});
 
 	tbody.addEventListener( 'dragenter', function(evt){
