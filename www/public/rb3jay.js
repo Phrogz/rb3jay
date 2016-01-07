@@ -6,10 +6,10 @@ var øcontrols  = new Controls('#playing'),
     ølive      = new LiveQueue('#livequeue tbody');
     øinspector = new Inspector('#inspector');
 
-øsongs.onSelectionChanged = function(songIds){ øinspector.inspect(songIds[0]) };
-øsongs.onDoubleClick      = function(songIds){ songIds.forEach( øqueue.appendSong, øqueue ) };
-øqueue.onSelectionChanged = function(songIds){ øinspector.inspect(songIds[0]) };
-øqueue.onDeleteSelection  = function(songIds){ øinspector.inspect() };
+øsongs.onSelectionChanged = function(files){ øinspector.inspect(files[0]) };
+øsongs.onDoubleClick      = function(files){ files.forEach( øqueue.appendSong, øqueue ) };
+øqueue.onSelectionChanged = function(files){ øinspector.inspect(files[0]) };
+øqueue.onDeleteSelection  = function(files){ øinspector.inspect() };
 
 checkLogin();
 
@@ -33,24 +33,24 @@ function makeSelectable($tbody){
 	$tbody.on('click','tr',function($evt){
 		// TODO: OS X should not use control key for toggle; Windows should not use metaKey for toggle
 		_select( $(this), { extend:$evt.shiftKey, toggle:$evt.metaKey || $evt.ctrlKey } );
-		$tbody.trigger( 'songSelectionChanged', [_selectedIds()] );
+		$tbody.trigger( 'songSelectionChanged', [_selectedFiles()] );
 	}).on('dblclick','tr',function(){
 		_select( $(this), {} );
-		$tbody.trigger( 'songDoubleClicked', [_selectedIds()] );
+		$tbody.trigger( 'songDoubleClicked', [_selectedFiles()] );
 	});
 
 	var table = $tbody.closest('table')[0];
 	$(document.body).on('keydown',function(evt){
 		// TODO: test on Safari; perhaps use :focus with jQuery instead
 		if (document.activeElement==table){
-			if (evt.keyCode==46) $tbody.trigger( 'deleteSongs', [_selectedIds()] );
+			if (evt.keyCode==46) $tbody.trigger( 'deleteSongs', [_selectedFiles()] );
 		}
 	});
 
 	return _select;
 
-	function _selectedIds(){
-		return $tbody.find('tr.'+SELECTED).map(function(){ return this.dataset.songid }).toArray();
+	function _selectedFiles(){
+		return $tbody.find('tr.'+SELECTED).map(function(){ return this.dataset.file }).toArray();
 	}
 
 	var $selectionStart;
@@ -74,7 +74,7 @@ function makeSelectable($tbody){
 function checkLogin(){
 	$('#login').on('submit',function(evt){
 		if (this.elements.user.value){
-			Cookies.set('username',this.elements.user.value,{expires:365});
+			activeUser(this.elements.user.value);
 			$('#login').hide();
 			checkLogin();
 		}
@@ -85,7 +85,20 @@ function checkLogin(){
 		Cookies.remove('username');
 		checkLogin();
 	});
-	var user = Cookies.get('username');
+	var user = activeUser();
 	if (!user) $('#login').show();
-	else       $('#myqueue caption').contents().first().replaceWith( user+"'s queue " );
+	else{
+		$('#myqueue caption').contents().first().replaceWith( user+"'s queue " );
+		$.get('/myqueue',{user:user},function(playlist){
+			playlist.songs.forEach(function(song){
+				øinspector.songInfo(song.file,song);
+				øqueue.loadSong(song.file);
+			})
+		});
+	}
+}
+
+function activeUser(username){
+	if (username) Cookies.set('username',username,{expires:365});
+	else return Cookies.get('username');
 }

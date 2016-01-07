@@ -38,13 +38,13 @@ get '/search' do
 				y1,y2 = y2,y1 if y1>y2
 				y1.upto(y2).flat_map{ |y| @mpd.where(date:y) }
 			else
-				@mpd.where( field=>str )
+				@mpd.where( {field=>str}, {limit:RB3Jay::MAX_RESULTS} )
 			end
 		end
 		.inject(:&)
 		.uniq[0..RB3Jay::MAX_RESULTS]
 		.sort_by(&RB3Jay::SONG_ORDER)
-		.map(&:summary)
+		.map(&:details)
 	end.to_json
 end
 
@@ -52,10 +52,29 @@ get '/playlists' do
 
 end
 
-get '/user-playlist' do
-	playlist_name = "user-#{@username}"
-	playlist = @mpd.playlists.find{ |pl| pl.name==playlist_name } || MPD::Playlist.new( @mpd, playlist:playlist_name )
-	playlist.details
+helpers do
+	def myqueue
+		# TODO: cache in session variable?
+		playlist_name = "user-#{params['user']}"
+		@mpd.playlists.find{ |pl| pl.name==playlist_name } || MPD::Playlist.new( @mpd, playlist:playlist_name )
+	end
+end
+
+get '/myqueue' do
+	content_type :json
+	playlist = myqueue
+	playlist.details.to_json
+end
+
+post '/myqueue/add' do
+	playlist = myqueue
+	playlist.add params[:file]
+	playlist.move params[:file], params[:position] if params[:position]
+end
+
+post '/myqueue/remove' do
+	playlist = myqueue
+	playlist.delete playlist.songs.index{ |song| song.file==params[:file] }
 end
 
 not_found do |*a|

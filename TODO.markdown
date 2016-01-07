@@ -1,6 +1,3 @@
-* Load My Queue
-* Add/Remove from My Queue on server
-* Reorder My Queue
 * Load Live Queue
 * Load Active Song Details
 	* Notice when songs change (polling needed?)
@@ -10,6 +7,7 @@
 * Control Next
 * Load Play/Pause
 * Load Artwork
+* Reorder My Queue
 * Control Rating
 * Calculate Rating
 * Load Rating
@@ -17,6 +15,7 @@
 * Populate Live Queue from My Queues
 * Calculate fallback playlist
 * Populate Live Queue from Fallback Playlist
+* Support composer and other metadata on demand
 ---
 * playback metadata, e.g. skips, play count, last played as stickers
 * add per-user ratings as stickers

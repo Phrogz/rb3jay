@@ -4,15 +4,15 @@ function MyQueue(selector){
       self  = this;
 
 	this.selectSong = makeSelectable( this.$tbody );
-	this.$tbody.on('songSelectionChanged',function(evt,selectedSongIds){
-		if (self.onSelectionChanged) self.onSelectionChanged( selectedSongIds );
+	this.$tbody.on('songSelectionChanged',function(evt,selectedFiles){
+		if (self.onSelectionChanged) self.onSelectionChanged( selectedFiles );
 	});
-	this.$tbody.on('songDoubleClicked',function(evt,selectedSongIds){
-		if (self.onDoubleClick) self.onDoubleClick( selectedSongIds );
+	this.$tbody.on('songDoubleClicked',function(evt,selectedFiles){
+		if (self.onDoubleClick) self.onDoubleClick( selectedFiles );
 	});
-	this.$tbody.on('deleteSongs',function(evt,deletedSongIds){
-		self.removeSongs(deletedSongIds);
-		if (self.onDeleteSelection) self.onDeleteSelection(deletedSongIds);
+	this.$tbody.on('deleteSongs',function(evt,deletedFiles){
+		self.removeSongs(deletedFiles);
+		if (self.onDeleteSelection) self.onDeleteSelection(deletedFiles);
 	});
 
 	tbody.addEventListener( 'dragenter', function(evt){
@@ -41,11 +41,11 @@ function MyQueue(selector){
 
 }
 
-MyQueue.prototype.addSong = function(songId,beforeIndex) {
+MyQueue.prototype.addSong = function(file,beforeIndex,viewOnly) {
 	var $tbody = this.$tbody;
 
-	$tbody.find('tr[data-songid="'+songId+'"]').remove();
-	var $tr = $(øinspector.songHTML(songId));
+	$tbody.find('tr[data-file="'+file+'"]').remove();
+	var $tr = $(øinspector.songHTML(file));
 	if (beforeIndex==null) $tr.appendTo($tbody);
 	else                   $tr.insertBefore( $tbody.find('tr:eq('+beforeIndex+')') )
 
@@ -58,7 +58,7 @@ MyQueue.prototype.addSong = function(songId,beforeIndex) {
 		self.selectSong($(this),{ extend:evt.shiftKey, toggle:evt.ctrlKey || evt.metaKey });
 		this.classList.add('drag');
 		evt.dataTransfer.effectAllowed = 'move';
-		evt.dataTransfer.setData( 'text', $tbody.find('tr.selected').map(function(){ return this.dataset.songid }).toArray().join("∆≈ƒ") );
+		evt.dataTransfer.setData( 'text', $tbody.find('tr.selected').map(function(){ return this.dataset.file }).toArray().join("∆≈ƒ") );
 		return false;
 	}, false );
 
@@ -67,16 +67,20 @@ MyQueue.prototype.addSong = function(songId,beforeIndex) {
 		return false;
 	}, false );
 
-	// TODO: inform the server
+	if (!viewOnly) $.post('/myqueue/add',{file:file,user:activeUser(),position:beforeIndex})
 };
 
-MyQueue.prototype.appendSong = function(songId){
-	this.addSong(songId);
+MyQueue.prototype.appendSong = function(file){
+	this.addSong(file);
 };
 
-MyQueue.prototype.removeSongs = function(songIds){
-	songIds.forEach(function(songId){
-		this.$tbody.find('tr[data-songid="'+songId+'"]').remove();
-		// TODO: inform the server
+MyQueue.prototype.loadSong = function(file){
+	this.addSong(file,null,true);
+};
+
+MyQueue.prototype.removeSongs = function(files){
+	files.forEach(function(file){
+		this.$tbody.find('tr[data-file="'+file+'"]').remove();
+		$.post('/myqueue/remove',{file:file,user:activeUser()})
 	},this);
 };

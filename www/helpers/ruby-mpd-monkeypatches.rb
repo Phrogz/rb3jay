@@ -1,3 +1,4 @@
+# encoding: utf-8
 class MPD::Playlist
 	def summary
 		{
@@ -14,7 +15,6 @@ end
 class MPD::Song
 	def summary
 		{
-			id:      file.gsub(' ','💔'),
 			file:    file,
 			title:   title,
 			artist:  artist,
@@ -34,7 +34,7 @@ class MPD::Song
 			disc:        disc,
 			albumartist: albumartist,
 			bpm:         bpm
-		})
+		}) #.delete_if{ |k,v| v.nil? }
 	end
 	def hash
 		file.hash

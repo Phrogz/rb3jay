@@ -8,11 +8,11 @@ SongList = (function(){
 		this.$clear = $(clearSelector);
 		var self = this;
 		this.selectSong = makeSelectable( this.$tbody );
-		this.$tbody.on('songSelectionChanged',function(evt,selectedSongIds){
-			if (self.onSelectionChanged) self.onSelectionChanged( selectedSongIds );
+		this.$tbody.on('songSelectionChanged',function(evt,selectedFiles){
+			if (self.onSelectionChanged) self.onSelectionChanged( selectedFiles );
 		});
-		this.$tbody.on('songDoubleClicked',function(evt,selectedSongIds){
-			if (self.onDoubleClick) self.onDoubleClick( selectedSongIds );
+		this.$tbody.on('songDoubleClicked',function(evt,selectedFiles){
+			if (self.onDoubleClick) self.onDoubleClick( selectedFiles );
 		});
 
 		var self = this;
@@ -37,8 +37,8 @@ SongList = (function(){
 	};
 
 	SongList.prototype.addSong = function(song){
-		øinspector.songInfo(song.id,song);
-		var $tr = $(øinspector.songHTML(song.id)).appendTo(this.$tbody);
+		øinspector.songInfo(song.file,song);
+		var $tr = $(øinspector.songHTML(song.file)).appendTo(this.$tbody);
 
 		// Native HTML5 dragging
 		var tr = $tr[0];
@@ -50,7 +50,7 @@ SongList = (function(){
 			self.selectSong($(this));
 			this.classList.add('drag');
 			evt.dataTransfer.effectAllowed = 'copy';
-			evt.dataTransfer.setData( 'text', tbody.find('tr.selected').map(function(){ return this.dataset.songid }).toArray().join("∆≈ƒ") );
+			evt.dataTransfer.setData( 'text', tbody.find('tr.selected').map(function(){ return this.dataset.file }).toArray().join("∆≈ƒ") );
 			return false;
 		}, false );
 
