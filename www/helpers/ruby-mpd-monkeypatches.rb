@@ -3,12 +3,12 @@ class MPD::Playlist
 	def summary
 		{
 			name:  name,
-			songs: songs.length,
+			songs: songs.select(&:time).length,
 			code:  nil
 		}
 	end
 	def details
-		summary.merge( songs:songs.map(&:summary) )
+		summary.merge( songs:songs.select(&:time).map(&:details) )
 	end
 end
 

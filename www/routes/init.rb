@@ -60,19 +60,27 @@ helpers do
 	end
 end
 
+get '/queue' do
+	content_type :json
+	@mpd.queue(0..RB3Jay::MAX_RESULTS).map(&:details).to_json
+end
+
 get '/myqueue' do
+	# TODO: clean up the playlist, removing any invalid or duplicate entries
 	content_type :json
 	playlist = myqueue
 	playlist.details.to_json
 end
 
 post '/myqueue/add' do
+	# TODO: clean up the playlist, removing any invalid or duplicate entries
 	playlist = myqueue
 	playlist.add params[:file]
 	playlist.move params[:file], params[:position] if params[:position]
 end
 
 post '/myqueue/remove' do
+	# TODO: clean up the playlist, removing any invalid or duplicate entries
 	playlist = myqueue
 	playlist.delete playlist.songs.index{ |song| song.file==params[:file] }
 end

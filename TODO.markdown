@@ -1,4 +1,3 @@
-* Load Live Queue
 * Load Active Song Details
 	* Notice when songs change (polling needed?)
 * Control Volume
@@ -7,10 +6,12 @@
 * Control Next
 * Load Play/Pause
 * Load Artwork
+* Arrow keys for inspection and shift+selection
 * Reorder My Queue
 * Control Rating
 * Calculate Rating
 * Load Rating
+* Keep Live Queue up-to-date when it changes
 * Record played/skipped (including whose queue it came from)
 * Populate Live Queue from My Queues
 * Calculate fallback playlist

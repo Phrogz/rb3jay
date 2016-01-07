@@ -10,6 +10,7 @@ var øcontrols  = new Controls('#playing'),
 øsongs.onDoubleClick      = function(files){ files.forEach( øqueue.appendSong, øqueue ) };
 øqueue.onSelectionChanged = function(files){ øinspector.inspect(files[0]) };
 øqueue.onDeleteSelection  = function(files){ øinspector.inspect() };
+ølive.onSelectionChanged  = function(files){ øinspector.inspect(files[0]) };
 
 checkLogin();
 
