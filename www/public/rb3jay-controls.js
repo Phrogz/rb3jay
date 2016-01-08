@@ -63,6 +63,6 @@ function updateControls(status){
 		this.$artalb.html( artalb.join(" — ") );
 	}else{
 		this.$title.html("");
-		this.$artalb.html("");
+		this.$artalb.html("(no song playing)");
 	}
 }
