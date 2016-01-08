@@ -6,7 +6,8 @@ SERVER_PORT    = 80
 Dir.chdir( File.dirname( __FILE__ ) )
 require 'sinatra'
 require 'sequel'
-require 'haml'
+require 'moneta'
+require 'rack/session/moneta'
 require 'logger'
 require 'json'
 require 'ruby-mpd'
@@ -17,7 +18,7 @@ require_relative 'helpers/init'
 require_relative 'routes/init'
 
 class RB3Jay < Sinatra::Application
-	use Rack::Session::Cookie, key:'rb3jay.session', path:'/', secret:'znoZgood'
+	use Rack::Session::Moneta, key:'rb3jay.session', path:'/', store: :LRUHash
 
 	MAX_RESULTS = 500
 

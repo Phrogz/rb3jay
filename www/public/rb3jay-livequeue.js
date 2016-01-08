@@ -6,12 +6,13 @@ function LiveQueue(selector){
 	}).bind(this));
 	this.fileByIndex = [];
 	setInterval( this.refresh.bind(this), 2000 );
-	this.refresh();
+	this.refresh(true);
 }
 
-LiveQueue.prototype.refresh = function(){
+LiveQueue.prototype.refresh = function(force){
 	var $tbody = this.$tbody;
-	$.get('/queue',(function(songs){
+	$.get('/queue',{force:force},(function(songs){
+		if (songs.nochange) return;
 		var newFiles = songs.map(function(s){ return s.file });
 		var oldFiles = this.$tbody.find('tr').map(function(){ return this.dataset.file }).toArray();
 		if (arraysEqual(newFiles,oldFiles)) return; // don't rebuild the HTML if it will be the same
@@ -27,8 +28,11 @@ LiveQueue.prototype.refresh = function(){
 
 LiveQueue.prototype.activeSongIndex = function(songIndex){
 	var file = this.fileByIndex[ songIndex ];
-	this.$tbody.find('tr.active').removeClass('active');
-	this.$tbody.find('tr:eq('+songIndex+')').addClass('active');
+	var active = this.$tbody.find('tr').eq(songIndex);
+	if (!active.hasClass('active')){
+		this.$tbody.find('tr.active').removeClass('active');
+		this.$tbody.find('tr:eq('+songIndex+')').addClass('active');
+	}
 	this.activeIndex = songIndex;
 	return øinspector.songInfo(file);
 };

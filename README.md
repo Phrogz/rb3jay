@@ -18,7 +18,7 @@ A democratic, crowd-controlled music player for the workplace.
   * This needs to run on a machine with fast file-level access to the "sticker" file for MPD. Most simply this means running on the same machine as MPD.
 * Editing tags requires the [`taglib-ruby`](http://robinst.github.io/taglib-ruby/) gem to be installed
   * This, in turn, requires that you have [`taglib`](http://developer.kde.org/~wheeler/taglib.html) installed along with header files.
-* Requires `sinatra`, and `haml` gems installed.
+* Requires `sinatra`, and `moneta` gems installed.
   * Suggest that you also install `thin` and use that to run the web server.
 * `gem install rb3jay`
 
