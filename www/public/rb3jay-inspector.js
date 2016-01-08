@@ -41,11 +41,8 @@ Inspector = (function(){
 		var html = songHTMLByFile[file];
 		if (!html){
 			var song = this.songInfo( file );
-			if (song.title || song.artist){
-				html = songHTMLByFile[file] = '<tr data-file="'+song.file+'"><td>'+(song.title || "????")+'</td><td>'+(song.artist || "????")+'</td></tr>';
-			}else{
-				html = songHTMLByFile[file] = '<tr data-file="'+song.file+'"><td>'+song.file.replace(/^.+\//,'')+'</td><td></td></tr>';
-			}
+			var title = song.title || song.file.replace(/^.+\//,'');
+			html = songHTMLByFile[file] = '<tr data-file="'+song.file+'"><td>'+title+'</td><td>'+(song.artist || "")+'</td></tr>';
 		}
 		return html;
 	};
