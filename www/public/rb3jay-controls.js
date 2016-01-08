@@ -10,7 +10,7 @@ function Controls(wrapSelector){
 
 	this.$toggle = this.$wrap.find('#toggle').on('click',(function(){
 		if (!this.lastStatus) return;
-		var action = this.lastStatus.state=='play' ? '/pause' : '/play'; 
+		var action = this.lastStatus.state=='play' ? '/pause' : '/play';
 		$.post(action,this.update.bind(this));
 	}).bind(this));
 
@@ -18,9 +18,11 @@ function Controls(wrapSelector){
 		$.post('/next',this.update.bind(this));
 	}).bind(this));
 
-	this.$volume = this.$wrap.find('#volume input').on('input',function(){
-		$.post('/volume',{volume:this.value});
-	});
+	this.$volume = this.$wrap.find('#volume input')
+	.on('input',     function(){ $.post('/volume',{volume:this.value})  })
+	.on('mouseenter',function(){ $(this).on('mousewheel',volumeWheel)   })
+	.on('mouseexit', function(){ $(this).off('mousewheel',volumeWheel)  });
+	function volumeWheel($evt){ this.value = this.value*1 + $evt.deltaY*2; $(this).trigger('input') }
 
 	var self = this;
 	this.$slider = this.$progress.find('input').on('input',function(){
@@ -59,5 +61,8 @@ function updateControls(status){
 		if (song.artist) artalb.push(song.artist);
 		if (song.album)  artalb.push(song.album);
 		this.$artalb.html( artalb.join(" — ") );
+	}else{
+		this.$title.html("");
+		this.$artalb.html("");
 	}
 }
