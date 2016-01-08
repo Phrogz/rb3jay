@@ -26,7 +26,7 @@
           <div id='artalb'></div>
           <div id='progress'>
             <div id='elapsed'>0:00</div>
-            <input max='100' min='0' type='range'>
+            <input min='0' max='1' step='0.001' type='range'>
             <div id='remaining'>0:00</div>
           </div>
         </div>
@@ -43,10 +43,9 @@
               playlist
               <select name='playlist' tabindex='11'>
                 <option value=''>(all songs)</option>
-                <option>{{playlist.name}}</option>
               </select>
             </label>
-            <section id='search' title='Shortcuts:&amp;#10;t:title    a:artist    b:album&amp;#10;y:year or y:1980-1989&amp;#10;g:genre    f:file'>
+            <section id='search' title='Shortcuts:&#10;t:title    a:artist    b:album&#10;y:year or y:1980-1989&#10;g:genre    f:file'>
               <label for='search-input'><i class='fa fa-search'></i></label>
               <input autocomplete='off' autocorrect='off' class='form-control input-lg' id='search-input' name='query' placeholder='search' spellcheck='false' tabindex='12'>
               <button class='fa fa-times-circle' id='search-clear'></button>

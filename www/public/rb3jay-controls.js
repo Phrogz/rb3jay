@@ -1,7 +1,5 @@
 function Controls(wrapSelector){
 	this.$wrap = $(wrapSelector);
-	this.playing = false;
-	this.volume	 = 75;
 	this.$progress  = this.$wrap.find('#progress');
 	this.$elapsed   = this.$wrap.find('#elapsed');
 	this.$remaining = this.$wrap.find('#remaining');
@@ -27,7 +25,7 @@ function Controls(wrapSelector){
 
 	var self = this;
 	this.$slider = this.$progress.find('input').on('input',function(){
-		var desiredTime = self.lastStatus.time[1] * this.value/100;
+		var desiredTime = self.lastStatus.time[1] * this.value;
 		$.post('/seek', {time:desiredTime}, updateControls.bind(self) );
 	});
 
@@ -49,7 +47,8 @@ function updateControls(status){
 	this.lastStatus = status;
 	this.$wrap.find('#progress').css('visibility',status.time?'':'hidden');
 	if (status.time){
-		this.$slider.val( 100*status.elapsed/status.time[1] );
+		this.$slider.val( status.elapsed/status.time[1] );
+		console.log( status.elapsed/status.time[1] );
 		this.$elapsed.html( duration(status.elapsed) );
 		this.$remaining.html( duration(status.time[1]-status.time[0]) );
 	}

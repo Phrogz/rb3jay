@@ -1,6 +1,6 @@
-* Load Artwork
 * Arrow keys for inspection and shift+selection
 * Reorder My Queue
+* Save Queue as a playlist
 * Control Rating
 * Calculate Rating
 * Load Rating
@@ -11,10 +11,12 @@
 * Populate Live Queue from Fallback Playlist
 * Support composer and other metadata on demand
 * Replace polling with better solution
+* Load Artwork
+
 ---
+
 * playback metadata, e.g. skips, play count, last played as stickers
 * add per-user ratings as stickers
-* simple playlists
 * calculated playlists
 	* compile to queries (or just expressed as query?)
 * shuffle weighted by ranking

@@ -22,14 +22,6 @@ class RB3Jay < Sinatra::Application
 
 	MAX_RESULTS = 500
 
-	YEAR_RANGE = /\A(\d{4})(?:-|\.\.)(\d{4})\Z/
-	SONG_ORDER = ->(s){ [
-		s.artist ? s.artist.downcase.sub(/\Athe /,'').gsub(/[^ _a-z0-9]+/,'') : "~~~~",
-		s.album  || "~~~~",
-		s.track  || 99,
-		s.title ? s.title.downcase.sub(/\Athe /,'').gsub(/[^ _a-z0-9]+/,'') : "~~~~"
-	]	}
-
 	def initialize(args={})
 		super()
 		args[:mpd_host] ||= ENV['MPD_HOST'] || '127.0.0.1'

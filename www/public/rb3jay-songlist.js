@@ -6,24 +6,28 @@ SongList = (function(){
 		this.$tbody = $(listSelector);
 		this.$inp   = $(searchSelector);
 		this.$clear = $(clearSelector);
-		var self = this;
 		this.selectSong = makeSelectable( this.$tbody );
-		this.$tbody.on('songSelectionChanged',function(evt,selectedFiles){
-			if (self.onSelectionChanged) self.onSelectionChanged( selectedFiles );
-		});
-		this.$tbody.on('songDoubleClicked',function(evt,selectedFiles){
-			if (self.onDoubleClick) self.onDoubleClick( selectedFiles );
-		});
 
-		var self = this;
+		this.$tbody.on('songSelectionChanged',(function(evt,selectedFiles){
+			if (this.onSelectionChanged) this.onSelectionChanged( selectedFiles );
+		}).bind(this));
+		this.$tbody.on('songDoubleClicked',(function(evt,selectedFiles){
+			if (this.onDoubleClick) this.onDoubleClick( selectedFiles );
+		}).bind(this));
+
+		var playlists = $('select[name="playlist"]')
+		.on('focus',refreshPlaylists)
+		.on('change',(function(){ this.$inp.trigger('keyup') }).bind(this) )
+		.trigger('focus');
+
 		var form = this.$inp.closest('form');
 		this.$inp.bindDelayed({
 			url:'/search',
+			delay:200,
 			data:function(){ return form.serialize() },
-			callback:this.load,
-			callbackScope:this,
+			callback:this.load.bind(this),
 			resendDuplicates:false
-		});
+		}).trigger('keyup');
 	}
 
 	SongList.prototype.load = function(songsArray){
@@ -59,6 +63,26 @@ SongList = (function(){
 			return false;
 		}, false );
 	};
+
+	var playlistsSet;
+	function refreshPlaylists($evt){
+		var force = !playlistsSet;
+		var options = {
+			async: !!force,
+			url:'/playlists',
+			success:updatePlaylists.bind(this)
+		};
+		if (force) options.data = {force:true};
+		$.ajax(options);
+		playlistsSet = true;
+	}
+
+	function updatePlaylists(playlists){
+		if (playlists.nochange) return;
+		this.options.length=1; // Leave the "(all songs)" entry
+		var $this = $(this);
+		playlists.forEach(function(name){ $this.append(new Option(name)) });
+	}
 
 	return SongList;
 })();
