@@ -1,7 +1,6 @@
 class RB3Jay < Sinatra::Application
 	get '/' do
-		content_type :html
-		haml :main
+		send_file File.expand_path('rb3jay.html',settings.public_folder)
 	end
 
 	get '/status' do
