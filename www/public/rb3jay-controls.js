@@ -19,10 +19,11 @@ function Controls(wrapSelector){
 	}).bind(this));
 
 	this.$volume = this.$wrap.find('#volume input')
-	.on('input',     function(){ $.post('/volume',{volume:this.value})  })
-	.on('mouseenter',function(){ $(this).on('mousewheel',volumeWheel)   })
-	.on('mouseexit', function(){ $(this).off('mousewheel',volumeWheel)  });
-	function volumeWheel($evt){ this.value = this.value*1 + $evt.deltaY*2; $(this).trigger('input') }
+	.on('input',      function(){ $.post('/volume',{volume:this.value})  })
+	.on('mousewheel', function($evt){
+		this.value = this.value*1 + $evt.deltaY*1;
+		$(this).trigger('input');
+	});
 
 	var self = this;
 	this.$slider = this.$progress.find('input').on('input',function(){
