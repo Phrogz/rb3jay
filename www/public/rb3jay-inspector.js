@@ -5,7 +5,7 @@ Inspector = (function(){
 		rating  : "rating",
 		composer: "composer",
 		artist  : "artist",
-		year    : "year",
+		year    : "date",
 		score   : "score",
 		played  : "played",
 		album   : "album",
@@ -31,7 +31,7 @@ Inspector = (function(){
 		var song = file ? songInfoByFile[file] : {};
 		for (var field in fieldMap){
 			var value = fieldMap[field];
-			if (typeof value==='string') value = song[field] || "-";
+			if (typeof value==='string') value = song[value] || "-";
 			else                         value = value(song);
 			this.$wrap.find('#ins-'+field).html(value);
 		}
@@ -41,7 +41,11 @@ Inspector = (function(){
 		var html = songHTMLByFile[file];
 		if (!html){
 			var song = this.songInfo( file );
-			html = songHTMLByFile[file] = '<tr data-file="'+song.file+'"><td>'+song.title+'</td><td>'+song.artist+'</td></tr>';
+			if (song.title || song.artist){
+				html = songHTMLByFile[file] = '<tr data-file="'+song.file+'"><td>'+(song.title || "????")+'</td><td>'+(song.artist || "????")+'</td></tr>';
+			}else{
+				html = songHTMLByFile[file] = '<tr data-file="'+song.file+'"><td>'+song.file.replace(/^.+\//,'')+'</td><td></td></tr>';
+			}
 		}
 		return html;
 	};
