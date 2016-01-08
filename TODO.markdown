@@ -1,10 +1,3 @@
-* Load Active Song Details
-	* Notice when songs change (polling needed?)
-* Control Volume
-* Load Volume
-* Control Play/Pause
-* Control Next
-* Load Play/Pause
 * Load Artwork
 * Arrow keys for inspection and shift+selection
 * Reorder My Queue
@@ -17,6 +10,7 @@
 * Calculate fallback playlist
 * Populate Live Queue from Fallback Playlist
 * Support composer and other metadata on demand
+* Replace polling with better solution
 ---
 * playback metadata, e.g. skips, play count, last played as stickers
 * add per-user ratings as stickers

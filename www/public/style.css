@@ -1,6 +1,6 @@
 * {/* margin:0; *//* padding:0; */ box-sizing:border-box}
 html,body { height:100%; min-height:100% }
-body { font-family:Calibri }
+body { font-family:"Calibri Light", Calibri;  }
 #playing { position:fixed; top:0; left:0; width:100%; background:#cec; display:flex; flex-direction:row; height:80px; justify-content:space-around; flex-grow:0 }
 #playing > * { flex-grow:1; display:flex; }
 
@@ -51,6 +51,8 @@ th, td { padding:1px 5px; }
 tr.selected td { background:#f6f6f6 }
 table:focus { outline:none }
 table:focus tr.selected td { background:#cdf }
+tr.active { font-weight:bold }
+tr.active td:first-child:before { content:'♫ '; }
 
 #songlist { width:34%; border-left:0 }
 #songlist caption { border-left:0 }

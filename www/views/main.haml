@@ -20,18 +20,15 @@
 			#song
 				#artwork artwork
 				#summary
-					#title {{controls.song.title}}
+					#title
 					#artalb
-						%span#artist {{controls.song.artist}}
-						—
-						%span#album {{controls.song.album}}
 					#progress
-						#elapsed {{controls.elapsed | duration}}
-						%input#scrubber(max="100" min="0" type="range")
-							#remaining {{controls.remaining | duration}}
+						#elapsed 0:00
+						%input(max="100" min="0" type="range")
+							#remaining 0:00
 				#rate(tabindex="2") rate
 			#volume
-				%input#scrubber(max="100" min="0" type="range" tabindex="3")/
+				%input(max="100" min="0" type="range" tabindex="3")
 
 		#queues
 

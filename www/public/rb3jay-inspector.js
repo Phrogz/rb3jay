@@ -19,6 +19,12 @@ Inspector = (function(){
 
 	function Inspector(selector){
 		this.$wrap = $(selector);
+		this.$wrap.on('mouseenter','td',function(){
+	    var $this = $(this);
+			if(this.offsetWidth<this.scrollWidth){
+				if (!this.title) this.title = $this.text();
+			} else if (this.title) this.title='';
+		});
 	}
 
 	Inspector.prototype.inspect = function(file){
@@ -29,7 +35,6 @@ Inspector = (function(){
 			else                         value = value(song);
 			this.$wrap.find('#ins-'+field).html(value);
 		}
-		this.$wrap.find('#ins-file').attr('title',file);
 	};
 
 	Inspector.prototype.songHTML = function(file) {
@@ -42,6 +47,7 @@ Inspector = (function(){
 	};
 
 	Inspector.prototype.songInfo = function(file,song) {
+		if (!file) return;
 		if (song) songInfoByFile[file] = song;
 		else{
 			song = songInfoByFile[file];

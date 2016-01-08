@@ -14,6 +14,7 @@ require 'ruby-mpd'
 # require_relative 'minify_resources'
 
 require_relative 'helpers/init'
+require_relative 'routes/init'
 
 class RB3Jay < Sinatra::Application
 	use Rack::Session::Cookie, key:'rb3jay.session', path:'/', secret:'znoZgood'
@@ -39,6 +40,8 @@ class RB3Jay < Sinatra::Application
 		@db = connect_to( args[:mpd_sticker_file] )
 	end
 
+	before{ content_type :json }
+
 	configure :production do
 		# set :css_files, :blob
 		# set :js_files,  :blob
@@ -63,5 +66,4 @@ class RB3Jay < Sinatra::Application
 	end
 end
 
-require_relative 'routes/init'
 

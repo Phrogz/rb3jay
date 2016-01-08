@@ -1,19 +1,18 @@
 function MyQueue(selector){
 	this.$tbody = $(selector);
-	var tbody = this.$tbody[0],
-      self  = this;
+	var tbody = this.$tbody[0];
 
 	this.selectSong = makeSelectable( this.$tbody );
-	this.$tbody.on('songSelectionChanged',function(evt,selectedFiles){
-		if (self.onSelectionChanged) self.onSelectionChanged( selectedFiles );
-	});
-	this.$tbody.on('songDoubleClicked',function(evt,selectedFiles){
-		if (self.onDoubleClick) self.onDoubleClick( selectedFiles );
-	});
-	this.$tbody.on('deleteSongs',function(evt,deletedFiles){
-		self.removeSongs(deletedFiles);
-		if (self.onDeleteSelection) self.onDeleteSelection(deletedFiles);
-	});
+	this.$tbody.on('songSelectionChanged',(function(evt,selectedFiles){
+		if (this.onSelectionChanged) this.onSelectionChanged( selectedFiles );
+	}).bind(this));
+	this.$tbody.on('songDoubleClicked',(function(evt,selectedFiles){
+		if (this.onDoubleClick) this.onDoubleClick( selectedFiles );
+	}).bind(this));
+	this.$tbody.on('deleteSongs',(function(evt,deletedFiles){
+		this.removeSongs(deletedFiles);
+		if (this.onDeleteSelection) this.onDeleteSelection(deletedFiles);
+	}).bind(this));
 
 	tbody.addEventListener( 'dragenter', function(evt){
 		this.classList.add('over');
@@ -32,13 +31,13 @@ function MyQueue(selector){
 		return false;
 	}, false );
 
+	var self = this;
 	tbody.addEventListener( 'drop', function(evt) {
 		this.classList.remove('over');
 		if (evt.stopPropagation) evt.stopPropagation(); // Stops some browsers from redirecting.
 		evt.dataTransfer.getData('Text').split('∆≈ƒ').forEach(self.appendSong,self);
 		return false;
 	}, false );
-
 }
 
 MyQueue.prototype.addSong = function(file,beforeIndex,viewOnly) {

@@ -28,16 +28,21 @@ function duration(seconds){
 	}
 }
 
-function makeSelectable($tbody){
+function makeSelectable($tbody,singleSelectOnly){
 	var FOCUSED  = 'focused',
 	    SELECTED = 'selected';
 	$tbody.on('click','tr',function($evt){
 		// TODO: OS X should not use control key for toggle; Windows should not use metaKey for toggle
-		_select( $(this), { extend:$evt.shiftKey, toggle:$evt.metaKey || $evt.ctrlKey } );
+		_select( $(this), { extend:!singleSelectOnly && $evt.shiftKey, toggle:!singleSelectOnly && ($evt.metaKey || $evt.ctrlKey) } );
 		$tbody.trigger( 'songSelectionChanged', [_selectedFiles()] );
 	}).on('dblclick','tr',function(){
 		_select( $(this), {} );
 		$tbody.trigger( 'songDoubleClicked', [_selectedFiles()] );
+	}).on('mouseenter','td',function(){
+    var $this = $(this);
+		if(this.offsetWidth<this.scrollWidth){
+			if (!this.title) this.title = $this.text();
+		} else if (this.title) this.title='';
 	});
 
 	var table = $tbody.closest('table')[0];
@@ -63,12 +68,12 @@ function makeSelectable($tbody){
 			var b = $tr.index();
 			if (a<b) $tbody.find('tr').slice(a+1,b+1).addClass(SELECTED);
 			else     $tbody.find('tr').slice(b,a).addClass(SELECTED);
-			document.getSelection().removeAllRanges(); // shift-clicking tends to select text on the page; deselect it
 		} else if (!$tr.hasClass(SELECTED)){
 			$tbody.find('tr.'+SELECTED).removeClass(SELECTED);
 			$tr.addClass(SELECTED);
 			$selectionStart = $tr;
 		}
+	document.getSelection().removeAllRanges(); // shift-clicking and double-clicking tends to select text on the page; deselect it
 	}
 }
 
@@ -102,4 +107,8 @@ function checkLogin(){
 function activeUser(username){
 	if (username) Cookies.set('username',username,{expires:365});
 	else return Cookies.get('username');
+}
+
+function arraysEqual(a,b){
+	return (a.length === b.length) && a.every(function(v,i){ return v === b[i] }); 
 }
