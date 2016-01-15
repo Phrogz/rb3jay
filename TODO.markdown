@@ -1,4 +1,5 @@
 * Arrow keys for inspection and shift+selection
+* Maintain client-side selection when Up Next queue changes
 * Reorder My Queue
 * Save Queue as a playlist
 * Control Rating

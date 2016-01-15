@@ -16,6 +16,7 @@ A democratic, crowd-controlled music player for the workplace.
 * Requires the [`ruby-mpd`](https://github.com/archSeer/ruby-mpd) gem to be installed
   * This, in turn, requires that you have [`mpd`](http://www.musicpd.org) installed.
   * This needs to run on a machine with fast file-level access to the "sticker" file for MPD. Most simply this means running on the same machine as MPD.
+  * Currently this requires that you have [`mpc`](http://www.musicpd.org/clients/mpc/) is installed on the same machine as RB3Jay.
 * Editing tags requires the [`taglib-ruby`](http://robinst.github.io/taglib-ruby/) gem to be installed
   * This, in turn, requires that you have [`taglib`](http://developer.kde.org/~wheeler/taglib.html) installed along with header files.
 * Requires `sinatra`, and `moneta` gems installed.
