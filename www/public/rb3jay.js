@@ -79,7 +79,7 @@ function makeSelectable($tbody,singleSelectOnly){
 			$tr.addClass(SELECTED);
 			$selectionStart = $tr;
 		}
-	document.getSelection().removeAllRanges(); // shift-clicking and double-clicking tends to select text on the page; deselect it
+		document.getSelection().removeAllRanges(); // shift-clicking and double-clicking tends to select text on the page; deselect it
 	}
 }
 
