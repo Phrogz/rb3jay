@@ -35,12 +35,12 @@ function MyQueue(selector){
 	tbody.addEventListener( 'drop', function(evt) {
 		this.classList.remove('over');
 		if (evt.stopPropagation) evt.stopPropagation(); // Stops some browsers from redirecting.
-		evt.dataTransfer.getData('Text').split('∆≈ƒ').forEach(self.appendSong,self);
+		self.appendSongs( evt.dataTransfer.getData('Text').split('∆≈ƒ') );
 		return false;
 	}, false );
 }
 
-MyQueue.prototype.addSong = function(file,beforeIndex,viewOnly) {
+MyQueue.prototype.addSong = function(file,beforeIndex) {
 	var $tbody = this.$tbody;
 
 	$tbody.find('tr[data-file="'+file+'"]').remove();
@@ -65,12 +65,13 @@ MyQueue.prototype.addSong = function(file,beforeIndex,viewOnly) {
 		this.classList.remove('drag');
 		return false;
 	}, false );
-
-	if (!viewOnly) $.post('/myqueue/add',{file:file,user:activeUser(),position:beforeIndex})
 };
 
-MyQueue.prototype.appendSong = function(file){
-	this.addSong(file);
+MyQueue.prototype.appendSongs = function(files,beforeIndex){
+	files.forEach(function(file){
+		this.addSong(file,beforeIndex);
+	},this);
+	$.post('/myqueue/add',{files:files,user:activeUser(),position:beforeIndex})
 };
 
 MyQueue.prototype.loadSong = function(file){
@@ -80,6 +81,6 @@ MyQueue.prototype.loadSong = function(file){
 MyQueue.prototype.removeSongs = function(files){
 	files.forEach(function(file){
 		this.$tbody.find('tr[data-file="'+file+'"]').remove();
-		$.post('/myqueue/remove',{file:file,user:activeUser()})
 	},this);
+	$.post('/myqueue/remove',{files:files,user:activeUser()})
 };
