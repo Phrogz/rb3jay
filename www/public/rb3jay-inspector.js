@@ -33,7 +33,7 @@ Inspector = (function(){
 			var value = fieldMap[field];
 			if (typeof value==='string') value = song[value] || "-";
 			else                         value = value(song);
-			this.$wrap.find('#ins-'+field).html(value);
+			this.$wrap.find('#ins-'+field).html(value).attr('title','');
 		}
 	};
 
