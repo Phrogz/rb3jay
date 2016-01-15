@@ -7,14 +7,16 @@ var øserver    = new Faye.Client('/faye', { retry:2, timeout:10 } ),
     ølive      = new LiveQueue('#livequeue tbody'),
     øinspector = new Inspector('#inspector');
 
-øsongs.onSelectionChanged = function(files){ øinspector.inspect(files[0]) };
-øsongs.onDoubleClick      = function(files){ files.forEach( øqueue.appendSong, øqueue ) };
-øqueue.onSelectionChanged = function(files){ øinspector.inspect(files[0]) };
+øsongs.onDoubleClick      = function(files){ øqueue.appendSongs(files) };
 øqueue.onDeleteSelection  = function(files){ øinspector.inspect() };
+
+øsongs.onSelectionChanged = function(files){ øinspector.inspect(files[0]) };
+øqueue.onSelectionChanged = function(files){ øinspector.inspect(files[0]) };
 ølive.onSelectionChanged  = function(files){ øinspector.inspect(files[0]) };
 
-øserver.subscribe('/status',øcontrols.update.bind(øcontrols));
-øserver.subscribe('/next',  ølive.update.bind(ølive)        );
+øserver.subscribe('/status',    øcontrols.update.bind(øcontrols)   );
+øserver.subscribe('/next',      ølive.update.bind(ølive)           );
+øserver.subscribe('/playlists', øsongs.updatePlaylists.bind(øsongs));
 
 checkLogin();
 

@@ -7,15 +7,6 @@ class RB3Jay < Sinatra::Application
 		s.title ? s.title.downcase.sub(/\Athe /,'').gsub(/[^ _a-z0-9]+/,'') : "~~~~"
 	]	}
 
-	get '/playlists' do
-		json = @mpd.playlists.map(&:name).grep(/^(?!user-)/).sort.to_json
-		if json!=session[:lastplaylists] || params[:force]
-			session[:lastplaylists] = json
-		else
-			'{"nochange":1}'
-		end
-	end
-
 	# Mapping query prefix that the user types to the MPD field to query
 	QUERY_FIELDS = {
 		"file"        => :file,

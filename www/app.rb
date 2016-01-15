@@ -1,6 +1,6 @@
-class Symbol; def ~; method(self); end; end
 %w[ eventmachine thin sinatra faye
-	rack/session/moneta ruby-mpd sequel json ].each(&~:require)
+	  rack/session/moneta ruby-mpd sequel json ].each{ |lib| require lib }
+
 require_relative 'environment'
 
 def run!
@@ -35,34 +35,51 @@ class RB3Jay < Sinatra::Application
 		super
 		@mpd = MPD.new( ENV['MPD_HOST'], ENV['MPD_PORT'] )
 		@mpd.connect
-		create_client
+		@faye = Faye::Client.new("http://#{ENV['RB3JAY_HOST']}:#{ENV['RB3JAY_PORT']}/faye")
+		watch_for_changes
 		require_relative 'model/init'
 		@db = connect_to( ENV['MPD_STICKERS'] )
 	end
 
-	def create_client
-		@faye = Faye::Client.new("http://#{ENV['RB3JAY_HOST']}:#{ENV['RB3JAY_PORT']}/faye")
+	def watch_for_changes
+		watch_status
+		watch_playlists
+		watch_upnext
+	end
 
-		# Ocassinoally send the status and/or up-next list only if they have changed
-		EM.add_periodic_timer(0.5) do
+	def watch_status
+		# Occasionally send the status and/or up-next list only if they have changed
+		EM.add_periodic_timer(0.25) do
 			if (info=mpd_status) != @last_status
 				@last_status = info
 				send_status( info )
 			end
 		end
-		EM.add_periodic_timer(2) do
-			if (songs=up_next) != @last_next
-				@last_next = songs
-				send_next( songs )
-			end
-		end
+	end
+
+	def watch_playlists
+		EM.defer(
+			->( ){ idle_until 'stored_playlist'    },
+			->(_){ send_playlists; watch_playlists }
+		)
+	end
+
+	def watch_upnext
+		EM.defer(
+			->( ){ idle_until 'playlist', 'database' },
+			->(_){ send_next; watch_upnext           }
+		)
+	end
+
+	def idle_until(*events)
+		`mpc -h #{ENV['MPD_HOST']} -p #{ENV['MPD_PORT']} idle #{events.join(' ')}`
 	end
 
 	before{ content_type :json }
 
 	get '/' do
 		content_type :html
-		send_file File.expand_path('rb3jay.html',settings.public_folder)
+		send_file File.expand_path('index.html',settings.public_folder)
 	end
 
 	helpers do
@@ -78,14 +95,26 @@ class RB3Jay < Sinatra::Application
 		def send_next( songs=up_next )
 			@faye.publish '/next', songs
 		end
+		def playlists
+			@mpd.playlists.map(&:name).grep(/^(?!user-)/).sort
+		end
+		def send_playlists( lists=playlists )
+			@faye.publish '/playlists', playlists
+		end
 	end
 
-	post('/play'){ @mpd.play;                    send_status }
-	post('/paus'){ @mpd.pause = true;            send_status }
-	post('/skip'){ @mpd.next;                    send_status; send_next }
-	post('/seek'){ @mpd.seek params[:time].to_f; send_status }
-	post('/volm'){ @mpd.volume = params[:volume].to_i; send_status }
-	get ('/next'){ up_next.to_json }
+	# We do not need to send_status/send_next after these
+	# because status updates are already sent when they change.
+	post('/play'){ @mpd.play                          }
+	post('/paws'){ @mpd.pause=true                    }
+	post('/skip'){ @mpd.next                          }
+	post('/seek'){ @mpd.seek params[:time].to_f       }
+	post('/volm'){ @mpd.volume = params[:volume].to_i }
+
+	# Clients poll for information on startup
+	get ('/next'){ up_next.to_json   }
+	get ('/list'){ playlists.to_json }
+
 	require_relative 'helpers/ruby-mpd-monkeypatches'
 	require_relative 'routes/songs'
 	require_relative 'routes/myqueue'
