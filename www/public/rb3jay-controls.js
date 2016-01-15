@@ -8,16 +8,16 @@ function Controls(wrapSelector){
 
 	this.$toggle = this.$wrap.find('#toggle').on('click',(function(){
 		if (!this.lastStatus) return;
-		var action = this.lastStatus.state=='play' ? '/pause' : '/play';
-		$.post(action,this.update.bind(this));
+		var action = this.lastStatus.state=='play' ? '/paus' : '/play';
+		$.post(action);
 	}).bind(this));
 
-	this.$wrap.find('#next').on('click',(function(){
-		$.post('/next',this.update.bind(this));
-	}).bind(this));
+	this.$wrap.find('#next').on('click',function(){
+		$.post('/skip');
+	});
 
 	this.$volume = this.$wrap.find('#volume input')
-	.on('input',      function(){ $.post('/volume',{volume:this.value})  })
+	.on('input',      function(){ $.post('/volm',{volume:this.value})  })
 	.on('mousewheel', function($evt){
 		this.value = this.value*1 + $evt.deltaY*1;
 		$(this).trigger('input');
@@ -26,29 +26,16 @@ function Controls(wrapSelector){
 	var self = this;
 	this.$slider = this.$progress.find('input').on('input',function(){
 		var desiredTime = self.lastStatus.time[1] * this.value;
-		$.post('/seek', {time:desiredTime}, updateControls.bind(self) );
+		$.post('/seek', {time:desiredTime} );
 	});
-
-	setInterval(this.refresh.bind(this),1000);
-	this.refresh();
 }
 
-Controls.prototype.refresh = function(){
-	$.get('/status',updateControls.bind(this));
-};
-
-Controls.prototype.update = function(){
-	ølive.refresh();
-	this.refresh();
-};
-
-function updateControls(status){
+Controls.prototype.update = function(status){
 	var playPause = { play:'fa fa-pause', pause:'fa fa-play', stop:'fa fa-play' };
 	this.lastStatus = status;
 	this.$wrap.find('#progress').css('visibility',status.time?'':'hidden');
 	if (status.time){
 		this.$slider.val( status.elapsed/status.time[1] );
-		console.log( status.elapsed/status.time[1] );
 		this.$elapsed.html( duration(status.elapsed) );
 		this.$remaining.html( duration(status.time[1]-status.time[0]) );
 	}
@@ -65,4 +52,4 @@ function updateControls(status){
 		this.$title.html("");
 		this.$artalb.html("(no song playing)");
 	}
-}
+};

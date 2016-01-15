@@ -1,9 +1,10 @@
 var songInfoById = {};
 
-var øcontrols  = new Controls('#playing'),
+var øserver    = new Faye.Client('/faye', { retry:2, timeout:10 } ),
+    øcontrols  = new Controls('#playing'),
     øsongs     = new SongList('#songlist tbody','#search-input','#search-clear'),
     øqueue     = new MyQueue('#myqueue tbody'),
-    ølive      = new LiveQueue('#livequeue tbody');
+    ølive      = new LiveQueue('#livequeue tbody'),
     øinspector = new Inspector('#inspector');
 
 øsongs.onSelectionChanged = function(files){ øinspector.inspect(files[0]) };
@@ -11,6 +12,9 @@ var øcontrols  = new Controls('#playing'),
 øqueue.onSelectionChanged = function(files){ øinspector.inspect(files[0]) };
 øqueue.onDeleteSelection  = function(files){ øinspector.inspect() };
 ølive.onSelectionChanged  = function(files){ øinspector.inspect(files[0]) };
+
+øserver.subscribe('/status',øcontrols.update.bind(øcontrols));
+øserver.subscribe('/next',  ølive.update.bind(ølive)        );
 
 checkLogin();
 
@@ -110,5 +114,5 @@ function activeUser(username){
 }
 
 function arraysEqual(a,b){
-	return (a.length === b.length) && a.every(function(v,i){ return v === b[i] }); 
+	return (a.length === b.length) && a.every(function(v,i){ return v === b[i] });
 }

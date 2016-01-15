@@ -41,6 +41,7 @@ SongList = (function(){
 	};
 
 	SongList.prototype.addSong = function(song){
+		if (!song || !song.file) return;
 		øinspector.songInfo(song.file,song);
 		var $tr = $(øinspector.songHTML(song.file)).appendTo(this.$tbody);
 

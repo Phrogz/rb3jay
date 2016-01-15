@@ -44,7 +44,6 @@ class RB3Jay < Sinatra::Application
 	PLAYLIST_ANY = %w[ title artist genre album date albumartist composer ]
 
 	get '/search' do
-
 		query = params[:query]
 		json = if params[:playlist] && !params[:playlist].empty?
 			playlist = @mpd.playlists.find{ |pl| pl.name==params[:playlist] }
@@ -93,7 +92,7 @@ class RB3Jay < Sinatra::Application
 			.sort_by(&SONG_ORDER)
 			.uniq
 		end
-		.slice(0,MAX_RESULTS)
+		.slice(0,ENV['RB3JAY_LISTLIMIT'].to_i)
 		.map(&:details)
 		.to_json
 

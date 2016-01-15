@@ -1,62 +1,95 @@
-# encoding: utf-8
+class Symbol; def ~; method(self); end; end
+%w[ eventmachine thin sinatra faye
+	rack/session/moneta ruby-mpd sequel json ].each(&~:require)
+require_relative 'environment'
 
-SERVER_ADDRESS = "bugbot"
-SERVER_PORT    = 80
+def run!
+	EM.run do
+		Faye::WebSocket.load_adapter('thin')
+		rb3jay = RB3Jay.new
+		server = Faye::RackAdapter.new(mount:'/', timeout:25)
 
-Dir.chdir( File.dirname( __FILE__ ) )
-require 'sinatra'
-require 'sequel'
-require 'moneta'
-require 'rack/session/moneta'
-require 'logger'
-require 'json'
-require 'ruby-mpd'
+		dispatch = Rack::Builder.app do
+			map('/'){     run rb3jay }
+			map('/faye'){ run server }
+		end
 
-# require_relative 'minify_resources'
-
-require_relative 'helpers/init'
-require_relative 'routes/init'
+		Rack::Server.start({
+			app:     dispatch,
+			Host:    ENV['RB3JAY_HOST'],
+			Port:    ENV['RB3JAY_PORT'],
+			server:  'thin',
+			signals: false,
+		})
+	end
+end
 
 class RB3Jay < Sinatra::Application
 	use Rack::Session::Moneta, key:'rb3jay.session', path:'/', store: :LRUHash
 
-	MAX_RESULTS = 500
+	configure do
+		set :threaded, false
+	end
 
-	def initialize(args={})
-		super()
-		args[:mpd_host] ||= ENV['MPD_HOST'] || '127.0.0.1'
-		args[:mpd_port] ||= ENV['MPD_PORT'] || 6600
-		args[:mpd_sticker_file] ||= ENV['MPD_STICKER_FILE']
-		@mpd = MPD.new( args[:mpd_host], args[:mpd_port] )
+	def initialize
+		super
+		@mpd = MPD.new( ENV['MPD_HOST'], ENV['MPD_PORT'] )
 		@mpd.connect
+		create_client
 		require_relative 'model/init'
-		@db = connect_to( args[:mpd_sticker_file] )
+		@db = connect_to( ENV['MPD_STICKERS'] )
+	end
+
+	def create_client
+		@faye = Faye::Client.new("http://#{ENV['RB3JAY_HOST']}:#{ENV['RB3JAY_PORT']}/faye")
+
+		# Ocassinoally send the status and/or up-next list only if they have changed
+		EM.add_periodic_timer(0.5) do
+			if (info=mpd_status) != @last_status
+				@last_status = info
+				send_status( info )
+			end
+		end
+		EM.add_periodic_timer(2) do
+			if (songs=up_next) != @last_next
+				@last_next = songs
+				send_next( songs )
+			end
+		end
 	end
 
 	before{ content_type :json }
 
-	configure :production do
-		# set :css_files, :blob
-		# set :js_files,  :blob
-		# MinifyResources.minify_all
-
-		set :haml, { :ugly=>true }
-		set :clean_trace, true
-
-		# Dir.mkdir('logs') unless File.exist?('logs')
-		# $logger = Logger.new('logs/common.log','weekly')
-		# $logger.level = Logger::WARN
-
-		# $stdout.reopen("logs/output.log", "w")
-		# $stdout.sync = true
-		# $stderr.reopen($stdout)
+	get '/' do
+		content_type :html
+		send_file File.expand_path('rb3jay.html',settings.public_folder)
 	end
 
-	configure :development do
-		# set :css_files, MinifyResources::CSS_FILES
-		# set :js_files,  MinifyResources::JS_FILES
-		$logger = Logger.new(STDOUT)
+	helpers do
+		def mpd_status
+			@mpd.status
+		end
+		def send_status( info=mpd_status )
+			@faye.publish '/status', info
+		end
+		def up_next
+			@mpd.queue.slice(0,ENV['RB3JAY_LISTLIMIT'].to_i).map(&:details)
+		end
+		def send_next( songs=up_next )
+			@faye.publish '/next', songs
+		end
 	end
+
+	post('/play'){ @mpd.play;                    send_status }
+	post('/paus'){ @mpd.pause = true;            send_status }
+	post('/skip'){ @mpd.next;                    send_status; send_next }
+	post('/seek'){ @mpd.seek params[:time].to_f; send_status }
+	post('/volm'){ @mpd.volume = params[:volume].to_i; send_status }
+	get ('/next'){ up_next.to_json }
+	require_relative 'helpers/ruby-mpd-monkeypatches'
+	require_relative 'routes/songs'
+	require_relative 'routes/myqueue'
+	require_relative 'routes/live'
 end
 
-
+run!
