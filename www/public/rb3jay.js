@@ -55,7 +55,19 @@ function makeSelectable($tbody,singleSelectOnly){
 	$(document.body).on('keydown',function(evt){
 		// TODO: test on Safari; perhaps use :focus with jQuery instead
 		if (document.activeElement==table){
-			if (evt.keyCode==46) $tbody.trigger( 'deleteSongs', [_selectedFiles()] );
+			switch(evt.keyCode){
+				case 46: // del
+					$tbody.trigger( 'deleteSongs', [_selectedFiles()] );
+				break;
+				case 40: //down arrow
+					_modifySelection(1,evt.shiftKey);
+				break;
+				case 38: //up arrow
+					_modifySelection(-1,evt.shiftKey);
+				break;
+				// default:
+				// 	console.log(table.id,evt.keyCode);
+			}
 		}
 	});
 
@@ -80,6 +92,18 @@ function makeSelectable($tbody,singleSelectOnly){
 			$selectionStart = $tr;
 		}
 		document.getSelection().removeAllRanges(); // shift-clicking and double-clicking tends to select text on the page; deselect it
+	}
+
+	function _modifySelection(offset,extendSelection){
+		var $rows = $tbody.find('tr');
+		var $end  = $tbody.find('tr.'+SELECTED)[offset>1 ? 'last' : 'first']();
+		var nextIndex = $end.index() + offset;
+
+		var $next = $rows.eq(nextIndex<0 ? undefined : nextIndex);
+		if ($next[0]){
+			_select($next,{extend:!singleSelectOnly && extendSelection});
+			$tbody.trigger( 'songSelectionChanged', [_selectedFiles()] );
+		}
 	}
 }
 
