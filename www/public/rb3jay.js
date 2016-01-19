@@ -96,7 +96,7 @@ function makeSelectable($tbody,singleSelectOnly){
 
 	function _modifySelection(offset,extendSelection){
 		var $rows = $tbody.find('tr');
-		var $end  = $tbody.find('tr.'+SELECTED)[offset>1 ? 'last' : 'first']();
+		var $end  = $tbody.find('tr.'+SELECTED)[offset>0 ? 'last' : 'first']();
 		var nextIndex = $end.index() + offset;
 
 		var $next = $rows.eq(nextIndex<0 ? undefined : nextIndex);

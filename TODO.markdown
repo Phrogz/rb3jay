@@ -1,7 +1,7 @@
-* Arrow keys for inspection and shift+selection
 * Maintain client-side selection when Up Next queue changes
 * Reorder My Queue
 * Save Queue as a playlist
+* Batch import ratings per user
 * Control Rating
 * Calculate Rating
 * Load Rating
