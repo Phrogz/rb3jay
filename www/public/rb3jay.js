@@ -18,6 +18,8 @@ var øserver    = new Faye.Client('/faye', { retry:2, timeout:10 } ),
 øserver.subscribe('/next',      ølive.update.bind(ølive)           );
 øserver.subscribe('/playlists', øsongs.updatePlaylists.bind(øsongs));
 
+$('#search-form').on('submit',false);
+
 checkLogin();
 
 function duration(seconds){
