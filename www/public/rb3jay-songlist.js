@@ -6,24 +6,28 @@ SongList = (function(){
 		this.$tbody = $(listSelector);
 		this.$inp   = $(searchSelector);
 		this.$clear = $(clearSelector);
-		var self = this;
 		this.selectSong = makeSelectable( this.$tbody );
-		this.$tbody.on('songSelectionChanged',function(evt,selectedSongIds){
-			if (self.onSelectionChanged) self.onSelectionChanged( selectedSongIds );
-		});
-		this.$tbody.on('songDoubleClicked',function(evt,selectedSongIds){
-			if (self.onDoubleClick) self.onDoubleClick( selectedSongIds );
-		});
 
-		var self = this;
+		this.$tbody.on('songSelectionChanged',(function(evt,selectedFiles){
+			if (this.onSelectionChanged) this.onSelectionChanged( selectedFiles );
+		}).bind(this));
+		this.$tbody.on('songDoubleClicked',(function(evt,selectedFiles){
+			if (this.onDoubleClick) this.onDoubleClick( selectedFiles );
+		}).bind(this));
+
+		this.$playlists = $('select[name="playlist"]')
+		.on('change',(function(){ this.$inp.trigger('keyup') }).bind(this) );
+
 		var form = this.$inp.closest('form');
 		this.$inp.bindDelayed({
 			url:'/search',
+			delay:200,
 			data:function(){ return form.serialize() },
-			callback:this.load,
-			callbackScope:this,
+			callback:this.load.bind(this),
 			resendDuplicates:false
-		});
+		}).trigger('keyup');
+
+		$.get('/list',this.updatePlaylists.bind(this));
 	}
 
 	SongList.prototype.load = function(songsArray){
@@ -37,8 +41,9 @@ SongList = (function(){
 	};
 
 	SongList.prototype.addSong = function(song){
-		øinspector.songInfo(song.id,song);
-		var $tr = $(øinspector.songHTML(song.id)).appendTo(this.$tbody);
+		if (!song || !song.file) return;
+		øinspector.songInfo(song.file,song);
+		var $tr = $(øinspector.songHTML(song.file)).appendTo(this.$tbody);
 
 		// Native HTML5 dragging
 		var tr = $tr[0];
@@ -50,7 +55,7 @@ SongList = (function(){
 			self.selectSong($(this));
 			this.classList.add('drag');
 			evt.dataTransfer.effectAllowed = 'copy';
-			evt.dataTransfer.setData( 'text', tbody.find('tr.selected').map(function(){ return this.dataset.songid }).toArray().join("∆≈ƒ") );
+			evt.dataTransfer.setData( 'text', tbody.find('tr.selected').map(function(){ return this.dataset.file }).toArray().join("∆≈ƒ") );
 			return false;
 		}, false );
 
@@ -58,6 +63,12 @@ SongList = (function(){
 			this.classList.remove('drag');
 			return false;
 		}, false );
+	};
+
+	SongList.prototype.updatePlaylists = function(playlists){
+		var $select = this.$playlists;
+		$select[0].options.length=1; // Leave the "(all songs)" entry
+		playlists.forEach(function(name){ $select.append(new Option(name)) });
 	};
 
 	return SongList;

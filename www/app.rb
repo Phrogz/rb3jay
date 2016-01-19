@@ -1,67 +1,124 @@
-# encoding: utf-8
+%w[ eventmachine thin sinatra faye
+	  rack/session/moneta ruby-mpd sequel json ].each{ |lib| require lib }
 
-SERVER_ADDRESS = "bugbot"
-SERVER_PORT    = 80
+require_relative 'environment'
 
-Dir.chdir( File.dirname( __FILE__ ) )
-require 'sinatra'
-require 'sequel'
-require 'haml'
-require 'logger'
-require 'json'
-require 'ruby-mpd'
+def run!
+	EM.run do
+		Faye::WebSocket.load_adapter('thin')
+		rb3jay = RB3Jay.new
+		server = Faye::RackAdapter.new(mount:'/', timeout:25)
 
-# require_relative 'minify_resources'
+		dispatch = Rack::Builder.app do
+			map('/'){     run rb3jay }
+			map('/faye'){ run server }
+		end
 
-require_relative 'helpers/init'
-
-class RB3Jay < Sinatra::Application
-	use Rack::Session::Cookie, key:'rb3jay.session', path:'/', secret:'znoZgood'
-
-	MAX_RESULTS = 500
-
-	YEAR_RANGE = /\A(\d{4})(?:-|\.\.)(\d{4})\Z/
-	SONG_ORDER = ->(s){ [
-		s.artist ? s.artist.downcase.sub(/\Athe /,'').gsub(/[^ _a-z0-9]+/,'') : "~~~~",
-		s.album  || "~~~~",
-		s.track  || 99,
-		s.title ? s.title.downcase.sub(/\Athe /,'').gsub(/[^ _a-z0-9]+/,'') : "~~~~"
-	]	}
-
-	def initialize(args={})
-		super()
-		args[:mpd_host] ||= ENV['MPD_HOST'] || '127.0.0.1'
-		args[:mpd_port] ||= ENV['MPD_PORT'] || 6600
-		args[:mpd_sticker_file] ||= ENV['MPD_STICKER_FILE']
-		@mpd = MPD.new( args[:mpd_host], args[:mpd_port] )
-		@mpd.connect
-		require_relative 'model/init'
-		@db = connect_to( args[:mpd_sticker_file] )
-	end
-
-	configure :production do
-		# set :css_files, :blob
-		# set :js_files,  :blob
-		# MinifyResources.minify_all
-
-		set :haml, { :ugly=>true }
-		set :clean_trace, true
-
-		# Dir.mkdir('logs') unless File.exist?('logs')
-		# $logger = Logger.new('logs/common.log','weekly')
-		# $logger.level = Logger::WARN
-
-		# $stdout.reopen("logs/output.log", "w")
-		# $stdout.sync = true
-		# $stderr.reopen($stdout)
-	end
-
-	configure :development do
-		# set :css_files, MinifyResources::CSS_FILES
-		# set :js_files,  MinifyResources::JS_FILES
-		$logger = Logger.new(STDOUT)
+		Rack::Server.start({
+			app:     dispatch,
+			Host:    ENV['RB3JAY_HOST'],
+			Port:    ENV['RB3JAY_PORT'],
+			server:  'thin',
+			signals: false,
+		})
 	end
 end
 
-require_relative 'routes/init'
+class RB3Jay < Sinatra::Application
+	use Rack::Session::Moneta, key:'rb3jay.session', path:'/', store: :LRUHash
 
+	configure do
+		set :threaded, false
+	end
+
+	def initialize
+		super
+		@mpd = MPD.new( ENV['MPD_HOST'], ENV['MPD_PORT'] )
+		@mpd.connect
+		@faye = Faye::Client.new("http://#{ENV['RB3JAY_HOST']}:#{ENV['RB3JAY_PORT']}/faye")
+		watch_for_changes
+		require_relative 'model/init'
+		@db = connect_to( ENV['MPD_STICKERS'] )
+	end
+
+	def watch_for_changes
+		watch_status
+		watch_playlists
+		watch_upnext
+	end
+
+	def watch_status
+		# Occasionally send the status and/or up-next list only if they have changed
+		EM.add_periodic_timer(0.25) do
+			if (info=mpd_status) != @last_status
+				@last_status = info
+				send_status( info )
+			end
+		end
+	end
+
+	def watch_playlists
+		EM.defer(
+			->( ){ idle_until 'stored_playlist'    },
+			->(_){ send_playlists; watch_playlists }
+		)
+	end
+
+	def watch_upnext
+		EM.defer(
+			->( ){ idle_until 'playlist', 'database' },
+			->(_){ send_next; watch_upnext           }
+		)
+	end
+
+	def idle_until(*events)
+		`mpc -h #{ENV['MPD_HOST']} -p #{ENV['MPD_PORT']} idle #{events.join(' ')}`
+	end
+
+	before{ content_type :json }
+
+	get '/' do
+		content_type :html
+		send_file File.expand_path('index.html',settings.public_folder)
+	end
+
+	helpers do
+		def mpd_status
+			@mpd.status
+		end
+		def send_status( info=mpd_status )
+			@faye.publish '/status', info
+		end
+		def up_next
+			@mpd.queue.slice(0,ENV['RB3JAY_LISTLIMIT'].to_i).map(&:details)
+		end
+		def send_next( songs=up_next )
+			@faye.publish '/next', songs
+		end
+		def playlists
+			@mpd.playlists.map(&:name).grep(/^(?!user-)/).sort
+		end
+		def send_playlists( lists=playlists )
+			@faye.publish '/playlists', playlists
+		end
+	end
+
+	# We do not need to send_status/send_next after these
+	# because status updates are already sent when they change.
+	post('/play'){ @mpd.play                          }
+	post('/paws'){ @mpd.pause=true                    }
+	post('/skip'){ @mpd.next                          }
+	post('/seek'){ @mpd.seek params[:time].to_f       }
+	post('/volm'){ @mpd.volume = params[:volume].to_i }
+
+	# Clients poll for information on startup
+	get ('/next'){ up_next.to_json   }
+	get ('/list'){ playlists.to_json }
+
+	require_relative 'helpers/ruby-mpd-monkeypatches'
+	require_relative 'routes/songs'
+	require_relative 'routes/myqueue'
+	require_relative 'routes/live'
+end
+
+run!

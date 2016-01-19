@@ -1,19 +1,18 @@
 function MyQueue(selector){
 	this.$tbody = $(selector);
-	var tbody = this.$tbody[0],
-      self  = this;
+	var tbody = this.$tbody[0];
 
 	this.selectSong = makeSelectable( this.$tbody );
-	this.$tbody.on('songSelectionChanged',function(evt,selectedSongIds){
-		if (self.onSelectionChanged) self.onSelectionChanged( selectedSongIds );
-	});
-	this.$tbody.on('songDoubleClicked',function(evt,selectedSongIds){
-		if (self.onDoubleClick) self.onDoubleClick( selectedSongIds );
-	});
-	this.$tbody.on('deleteSongs',function(evt,deletedSongIds){
-		self.removeSongs(deletedSongIds);
-		if (self.onDeleteSelection) self.onDeleteSelection(deletedSongIds);
-	});
+	this.$tbody.on('songSelectionChanged',(function(evt,selectedFiles){
+		if (this.onSelectionChanged) this.onSelectionChanged( selectedFiles );
+	}).bind(this));
+	this.$tbody.on('songDoubleClicked',(function(evt,selectedFiles){
+		if (this.onDoubleClick) this.onDoubleClick( selectedFiles );
+	}).bind(this));
+	this.$tbody.on('deleteSongs',(function(evt,deletedFiles){
+		this.removeSongs(deletedFiles);
+		if (this.onDeleteSelection) this.onDeleteSelection(deletedFiles);
+	}).bind(this));
 
 	tbody.addEventListener( 'dragenter', function(evt){
 		this.classList.add('over');
@@ -32,20 +31,20 @@ function MyQueue(selector){
 		return false;
 	}, false );
 
+	var self = this;
 	tbody.addEventListener( 'drop', function(evt) {
 		this.classList.remove('over');
 		if (evt.stopPropagation) evt.stopPropagation(); // Stops some browsers from redirecting.
-		evt.dataTransfer.getData('Text').split('∆≈ƒ').forEach(self.appendSong,self);
+		self.appendSongs( evt.dataTransfer.getData('Text').split('∆≈ƒ') );
 		return false;
 	}, false );
-
 }
 
-MyQueue.prototype.addSong = function(songId,beforeIndex) {
+MyQueue.prototype.addSong = function(file,beforeIndex) {
 	var $tbody = this.$tbody;
 
-	$tbody.find('tr[data-songid="'+songId+'"]').remove();
-	var $tr = $(øinspector.songHTML(songId));
+	$tbody.find('tr[data-file="'+file+'"]').remove();
+	var $tr = $(øinspector.songHTML(file));
 	if (beforeIndex==null) $tr.appendTo($tbody);
 	else                   $tr.insertBefore( $tbody.find('tr:eq('+beforeIndex+')') )
 
@@ -58,7 +57,7 @@ MyQueue.prototype.addSong = function(songId,beforeIndex) {
 		self.selectSong($(this),{ extend:evt.shiftKey, toggle:evt.ctrlKey || evt.metaKey });
 		this.classList.add('drag');
 		evt.dataTransfer.effectAllowed = 'move';
-		evt.dataTransfer.setData( 'text', $tbody.find('tr.selected').map(function(){ return this.dataset.songid }).toArray().join("∆≈ƒ") );
+		evt.dataTransfer.setData( 'text', $tbody.find('tr.selected').map(function(){ return this.dataset.file }).toArray().join("∆≈ƒ") );
 		return false;
 	}, false );
 
@@ -66,17 +65,22 @@ MyQueue.prototype.addSong = function(songId,beforeIndex) {
 		this.classList.remove('drag');
 		return false;
 	}, false );
-
-	// TODO: inform the server
 };
 
-MyQueue.prototype.appendSong = function(songId){
-	this.addSong(songId);
-};
-
-MyQueue.prototype.removeSongs = function(songIds){
-	songIds.forEach(function(songId){
-		this.$tbody.find('tr[data-songid="'+songId+'"]').remove();
-		// TODO: inform the server
+MyQueue.prototype.appendSongs = function(files,beforeIndex){
+	files.forEach(function(file){
+		this.addSong(file,beforeIndex);
 	},this);
+	$.post('/myqueue/add',{files:files,user:activeUser(),position:beforeIndex})
+};
+
+MyQueue.prototype.loadSong = function(file){
+	this.addSong(file,null,true);
+};
+
+MyQueue.prototype.removeSongs = function(files){
+	files.forEach(function(file){
+		this.$tbody.find('tr[data-file="'+file+'"]').remove();
+	},this);
+	$.post('/myqueue/remove',{files:files,user:activeUser()})
 };

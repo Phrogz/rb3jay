@@ -7,7 +7,6 @@
     delay:250, // milliseconds
     url:null,
     callback:null,
-    callbackScope:null,
     data:{}, // may be function or literal data
     dataType:'json',
     type:'get',
@@ -20,7 +19,7 @@
     return this.on(opts.events,function(){
       var element = this;
       var newData = opts.data && (typeof opts.data == 'function' ? opts.data.call(element) : opts.data);
-      var newDataString = JSON.stringify(newData)
+      var newDataString = JSON.stringify(newData);
       if (!opts.resendDuplicates && (lastDataString==newDataString)) return;
       lastDataString = newDataString;
       clearTimeout(timer);
@@ -34,10 +33,7 @@
           dataType:opts.dataType,
           success:function(data){
             xhr = null;
-            if (id==ct && opts.callback){
-              if (opts.callbackScope) opts.callback.call(opts.callbackScope,data);
-              else                    opts.callback.call(this,data);
-            }
+            if (id==ct && opts.callback) opts.callback.call(this,data);
           }
         });
       },opts.delay);

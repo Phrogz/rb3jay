@@ -1,26 +1,23 @@
-* Load My Queue
-* Add/Remove from My Queue on server
+* Arrow keys for inspection and shift+selection
+* Maintain client-side selection when Up Next queue changes
 * Reorder My Queue
-* Load Live Queue
-* Load Active Song Details
-	* Notice when songs change (polling needed?)
-* Control Volume
-* Load Volume
-* Control Play/Pause
-* Control Next
-* Load Play/Pause
-* Load Artwork
+* Save Queue as a playlist
 * Control Rating
 * Calculate Rating
 * Load Rating
+* Keep Live Queue up-to-date when it changes
 * Record played/skipped (including whose queue it came from)
 * Populate Live Queue from My Queues
 * Calculate fallback playlist
 * Populate Live Queue from Fallback Playlist
+* Support composer and other metadata on demand
+* Replace polling with better solution
+* Load Artwork
+
 ---
+
 * playback metadata, e.g. skips, play count, last played as stickers
 * add per-user ratings as stickers
-* simple playlists
 * calculated playlists
 	* compile to queries (or just expressed as query?)
 * shuffle weighted by ranking

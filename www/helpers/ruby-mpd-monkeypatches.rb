@@ -1,20 +1,20 @@
+# encoding: utf-8
 class MPD::Playlist
 	def summary
 		{
 			name:  name,
-			songs: songs.length,
+			songs: songs.select(&:time).length,
 			code:  nil
 		}
 	end
 	def details
-		summary.merge( songs:songs.map(&:summary) )
+		summary.merge( songs:songs.select(&:time).map(&:details) )
 	end
 end
 
 class MPD::Song
 	def summary
 		{
-			id:      file.gsub(' ','💔'),
 			file:    file,
 			title:   title,
 			artist:  artist,
@@ -34,7 +34,7 @@ class MPD::Song
 			disc:        disc,
 			albumartist: albumartist,
 			bpm:         bpm
-		})
+		}) #.delete_if{ |k,v| v.nil? }
 	end
 	def hash
 		file.hash
