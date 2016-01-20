@@ -1,18 +1,18 @@
-* Maintain client-side selection when Up Next queue changes
-* Reorder My Queue
-* Save Queue as a playlist
+* Server pushes when song metadata changes (e.g. rating); all UI elements referencing that song are updated
 * Batch import ratings per user
 * Control Rating
 * Calculate Rating
 * Load Rating
-* Keep Live Queue up-to-date when it changes
-* Record played/skipped (including whose queue it came from)
 * Populate Live Queue from My Queues
+* Reorder My Queue
+* Save Queue as a playlist
+* Record played/skipped (including whose queue it came from)
 * Calculate fallback playlist
 * Populate Live Queue from Fallback Playlist
 * Support composer and other metadata on demand
 * Replace polling with better solution
 * Load Artwork
+* Delete from Live (?)
 
 ---
 

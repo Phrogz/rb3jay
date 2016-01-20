@@ -34,6 +34,11 @@ class RB3Jay < Sinatra::Application
 	# ordered in terms of likelihood for optimal performance
 	PLAYLIST_ANY = %w[ title artist genre album date albumartist composer ]
 
+	get '/details' do
+		user_rating = @db[:user_ratings].where( user:params['user'], uri:params[:file] ).select_map(:rating).first
+		@mpd.where({file:params[:file]},{strict:true}).first.details.merge(rating:user_rating).to_json
+	end
+
 	get '/search' do
 		query = params[:query]
 		json = if params[:playlist] && !params[:playlist].empty?

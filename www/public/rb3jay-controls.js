@@ -5,8 +5,23 @@ function Controls(wrapSelector){
 	this.$remaining = this.$wrap.find('#remaining');
 	this.$title     = this.$wrap.find('#title');
 	this.$artalb    = this.$wrap.find('#artalb');
+	this.rating     = this.$wrap.find('#rate')[0];
 
 	var self = this;
+
+	$(document.body).on('keydown',function(evt){
+		// TODO: test on Safari; perhaps use :focus with jQuery instead
+		if (document.activeElement==self.rating){
+			switch(evt.keyCode){
+				case 40: //down arrow
+					_modifyRating(-1);
+				break;
+				case 38: //up arrow
+					_modifyRating(+1);
+				break;
+			}
+		}
+	});
 
 	this.$toggle = this.$wrap.find('#toggle').on('click',(function(){
 		if (!this.lastStatus) return;
@@ -35,6 +50,10 @@ function Controls(wrapSelector){
 		self.nextSeekUpdate = (new Date).getTime() + 1000;
 		$.post('/seek', {time:desiredTime} );
 	});
+
+	function _modifyRating(offset){
+		$.post('/adjust-active-song-rating',{user:activeUser(),change:offset},self.showRating.bind(self));
+	}
 }
 
 Controls.prototype.update = function(status){
@@ -59,8 +78,14 @@ Controls.prototype.update = function(status){
 		if (song.artist) artalb.push(song.artist);
 		if (song.album)  artalb.push(song.album);
 		this.$artalb.html( artalb.join(" — ") );
+		this.showRating( song.rating || "zero" );
 	}else{
 		this.$title.html("");
 		this.$artalb.html("(no song playing)");
+		this.showRating( null );
 	}
+};
+
+Controls.prototype.showRating = function(rating) {
+	if (this.rating.className != rating) this.rating.className = rating;
 };

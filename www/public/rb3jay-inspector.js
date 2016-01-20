@@ -2,7 +2,6 @@ Inspector = (function(){
 	var fieldMap = {
 		title   : "title",
 		genre   : "genre",
-		rating  : "rating",
 		composer: "composer",
 		artist  : "artist",
 		year    : "date",
@@ -27,13 +26,34 @@ Inspector = (function(){
 		});
 	}
 
-	Inspector.prototype.inspect = function(file){
+	var inspectId=0,inspectXHR,timer;
+	Inspector.prototype.inspect = function(file,localInfoOnly){
 		var song = file ? songInfoByFile[file] : {};
 		for (var field in fieldMap){
 			var value = fieldMap[field];
 			if (typeof value==='string') value = song[value] || "-";
-			else                         value = value(song);
+			else                         value = value(song) || "-";
 			this.$wrap.find('#ins-'+field).html(value).attr('title','');
+		}
+		$('#ins-rating')[0].className = song.rating || 'zero';
+
+		if (!localInfoOnly){
+			// Check to see if the metadata has changed
+			if (timer) clearTimeout(timer);
+			timer = setTimeout((function(){
+				timer = null;
+				if (inspectXHR) inspectXHR.abort();
+				inspectXHR = $.get('/details',{file:file,user:activeUser()},(function(requestId){
+					return (function(info){
+						inspectXHR = null;
+						if (requestId!=inspectId) return;
+						if (!info.nochange){
+							this.songInfo(file,info);
+							this.inspect(file,true);
+						}
+					}).bind(this);
+				}).bind(this)(++inspectId));
+			}).bind(this),200)
 		}
 	};
 
@@ -53,7 +73,6 @@ Inspector = (function(){
 		else{
 			song = songInfoByFile[file];
 			if (!song){
-				// TODO: synchronous fetch?
 				console.log('Error: RB3Jay wanted information about '+file+' but could not find it.');
 				song = { title:"NO TITLE", artist:"NO ARTIST", time:0 };
 			}

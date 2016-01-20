@@ -90,7 +90,7 @@ class RB3Jay < Sinatra::Application
 			@faye.publish '/status', info
 		end
 		def up_next
-			@mpd.queue.slice(0,ENV['RB3JAY_LISTLIMIT'].to_i).map(&:details)
+			@mpd.queue.slice(0,ENV['RB3JAY_LISTLIMIT'].to_i).map(&:summary)
 		end
 		def send_next( songs=up_next )
 			@faye.publish '/next', songs
@@ -115,6 +115,7 @@ class RB3Jay < Sinatra::Application
 	get ('/next'){ up_next.to_json   }
 	get ('/list'){ playlists.to_json }
 
+	require_relative 'routes/ratings'
 	require_relative 'helpers/ruby-mpd-monkeypatches'
 	require_relative 'routes/songs'
 	require_relative 'routes/myqueue'

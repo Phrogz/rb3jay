@@ -9,7 +9,7 @@ body { font-family:"Calibri Light", Calibri;  }
 #controls button:active { opacity:1; color:black }
 
 #song { background:#cde; justify-content:space-between; }
-#artwork, #rate { width:80px; height:80px; min-width:80px; background:green }
+#artwork, #rate { width:80px; height:80px; min-width:80px; text-align:center; line-height:80px; overflow:hidden }
 #summary { display:flex; flex-direction:column; justify-content:center; padding:0 20px; flex-grow:1 }
 #summary > * { margin:3px;}
 #title { font-weight:bold }
@@ -45,11 +45,13 @@ body { font-family:"Calibri Light", Calibri;  }
 #inspector { position:fixed; left:0; bottom:0; height:60px; width:100%; background:#ccc; flex-grow:0}
 #inspector th { width:4em; text-align:right; white-space:nowrap }
 #inspector td { white-space:nowrap; text-overflow:ellipsis; max-width:0; overflow:hidden }
+#inspector th:first-child + td { width:30% }
+#inspector td:last-child  { width:30% }
 
 table { border-collapse:collapse; width:33% }
 caption { background:#999; font-weight:bold; padding:5px }
 th { text-align:left; background:#ccc; color:rgba(0,0,0,0.4) }
-th, td { padding:1px 5px; }
+th, td { padding:1px 5px }
 tr.selected td { background:#f6f6f6 }
 table:focus { outline:none }
 table:focus tr.selected td { background:#cdf }
@@ -72,3 +74,10 @@ tr.active td:first-child:before { content:'♫ '; }
 #login select { display:block; margin:0 auto }
 #login select option:first-child { color:#888; }
 #login button { display:block; width:100%; margin:1em auto }
+
+.love, .like, .zero, .bleh, .hate { background:url('/zero.png') left center no-repeat; background-size:contain }
+.love { background-image:url('/love.png') }
+.like { background-image:url('/like.png') }
+.zero { background-image:url('/zero.png') }
+.bleh { background-image:url('/bleh.png') }
+.hate { background-image:url('/hate.png') }

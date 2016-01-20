@@ -8,7 +8,7 @@ class MPD::Playlist
 		}
 	end
 	def details
-		summary.merge( songs:songs.select(&:time).map(&:details) )
+		summary.merge( songs:songs.select(&:time).map(&:summary) )
 	end
 end
 
@@ -19,22 +19,21 @@ class MPD::Song
 			title:   title,
 			artist:  artist,
 			album:   album,
-			genre:   genre,
-			date:    date,
-			time:    time && time.respond_to?(:last) ? time.last : time,
-			rank:    0.5,    #TODO: calculate song rankings
-  		artwork: nil     #TODO: extract and store song artwork
 		}
 	end
-	def details
+	def details(user=nil)
 		summary.merge({
 			modified:    modified,
 			track:       track,
+			genre:       genre,
+			date:        date,
+			time:        time && time.respond_to?(:last) ? time.last : time,
 			composer:    composer,
 			disc:        disc,
 			albumartist: albumartist,
-			bpm:         bpm
-		}) #.delete_if{ |k,v| v.nil? }
+			bpm:         bpm,
+  		artwork:     nil     #TODO: extract and store song artwork
+		}).delete_if{ |k,v| v.nil? }
 	end
 	def hash
 		file.hash
