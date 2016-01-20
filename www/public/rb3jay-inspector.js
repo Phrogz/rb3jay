@@ -15,6 +15,7 @@ Inspector.prototype.inspect = function(file){
 	updateSongInfo(song); // force updating of all the inspector cells
 
 	// Now, let's make sure we have the latest details
+	// Extra 200ms delay in case we're moving the selection quickly and won't really need latest info
 	if (songInfoTimer) clearTimeout(songInfoTimer);
 	songInfoTimer = setTimeout(function(){
 		songInfoTimer = null;
