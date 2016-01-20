@@ -2,9 +2,9 @@
 class MPD::Playlist
 	def summary
 		{
-			name:  name,
-			songs: songs.select(&:time).length,
-			code:  nil
+			'name'  => name,
+			'songs' => songs.select(&:time).length,
+			'code'  => nil
 		}
 	end
 	def details
@@ -15,24 +15,24 @@ end
 class MPD::Song
 	def summary
 		{
-			file:    file,
-			title:   title,
-			artist:  artist,
-			album:   album,
+			'file'   => file,
+			'title'  => title,
+			'artist' => artist,
+			'album'  => album,
 		}
 	end
 	def details(user=nil)
 		summary.merge({
-			modified:    modified,
-			track:       track,
-			genre:       genre,
-			date:        date,
-			time:        time && time.respond_to?(:last) ? time.last : time,
-			composer:    composer,
-			disc:        disc,
-			albumartist: albumartist,
-			bpm:         bpm,
-  		artwork:     nil     #TODO: extract and store song artwork
+			'modified'    => modified,
+			'track'       => track,
+			'genre'       => genre,
+			'date'        => date,
+			'time'        => time && time.respond_to?(:last) ? time.last : time,
+			'composer'    => composer,
+			'disc'        => disc,
+			'albumartist' => albumartist,
+			'bpm'         => bpm,
+			'artwork'     => nil     #TODO: extract and store song artwork
 		}).delete_if{ |k,v| v.nil? }
 	end
 	def hash

@@ -3,24 +3,73 @@ var songInfoById = {};
 var øserver    = new Faye.Client('/faye', { retry:2, timeout:10 } ),
     øcontrols  = new Controls('#playing'),
     øsongs     = new SongList('#songlist tbody','#search-input','#search-clear'),
-    øqueue     = new MyQueue('#myqueue tbody'),
-    ølive      = new LiveQueue('#livequeue tbody'),
+    ømyqueue   = new MyQueue('#myqueue tbody'),
+    øupnext    = new UpNext('#upnext tbody'),
     øinspector = new Inspector('#inspector');
 
-øsongs.onDoubleClick      = function(files){ øqueue.appendSongs(files) };
-øqueue.onDeleteSelection  = function(files){ øinspector.inspect() };
+øsongs.onDoubleClick      = function(files){ ømyqueue.appendSongs(files) };
+ømyqueue.onDeleteSelection  = function(files){ øinspector.inspect() };
 
 øsongs.onSelectionChanged = function(files){ øinspector.inspect(files[0]) };
-øqueue.onSelectionChanged = function(files){ øinspector.inspect(files[0]) };
-ølive.onSelectionChanged  = function(files){ øinspector.inspect(files[0]) };
+ømyqueue.onSelectionChanged = function(files){ øinspector.inspect(files[0]) };
+øupnext.onSelectionChanged  = function(files){ øinspector.inspect(files[0]) };
 
-øserver.subscribe('/status',    øcontrols.update.bind(øcontrols)   );
-øserver.subscribe('/next',      ølive.update.bind(ølive)           );
-øserver.subscribe('/playlists', øsongs.updatePlaylists.bind(øsongs));
+øserver.subscribe('/status', function(status){
+	øcontrols.update(status);
+	øupnext.activeSong(status.file);
+});
+øserver.subscribe('/next',        øupnext.update.bind(øupnext)           );
+øserver.subscribe('/playlists',   øsongs.updatePlaylists.bind(øsongs));
+øserver.subscribe('/songdetails', updateSongInfo);
 
 $('#search-form').on('submit',false);
 
 checkLogin();
+
+var songInfoByFile={};
+var songHTMLByFile = {};
+function songHTML(song,forceUpdate){
+	var html = songHTMLByFile[song.file];
+	if (!html || forceUpdate){
+		var title = song.title || song.file.replace(/^.+\//,'');
+		html = songHTMLByFile[song.file] = '<tr data-file="'+song.file+'"><td class="song-title">'+title+'</td><td class="song-artist">'+(song.artist || "")+'</td></tr>';
+	}
+	return html;
+}
+
+var fieldMap = {
+	title   : "title",
+	genre   : "genre",
+	composer: "composer",
+	artist  : "artist",
+	year    : "date",
+	score   : "score",
+	played  : "played",
+	album   : "album",
+	length  : function(s){ return duration(s.time) },
+	file    : "file",
+	skipped : "skipped",
+	artalb  : function(s){
+		var artalb = [];
+		if (s.artist) artalb.push(s.artist);
+		if (s.album)  artalb.push(s.album);
+		return artalb.join(" — ");
+	}
+};
+function updateSongInfo(song){
+	// Song information has user-specific information (rating).
+	// The server pushes song details with a 'user' flag that indicates whom it is valid for.
+	if (song.user != activeUser()) return;
+
+	songInfoByFile[song.file] = song;
+	songHTML(song,true);
+	$.each(fieldMap,function(field,value){
+		if (typeof value==='string') value = song[value];
+		else                         value = value(song);
+		$('*[data-file="'+song.file+'"] .song-'+field).html(value || "-").attr('title','');
+	});
+	$('*[data-file="'+song.file+'"] .song-rating').attr('class','song-rating '+(song.rating||'zero'));
+}
 
 function duration(seconds){
 	if (isNaN(seconds)) return '-';
@@ -93,6 +142,7 @@ function makeSelectable($tbody,singleSelectOnly){
 			$tr.addClass(SELECTED);
 			$selectionStart = $tr;
 		}
+		if (opts.inspect) øinspector.inspect($tr[0].dataset.file);
 		document.getSelection().removeAllRanges(); // shift-clicking and double-clicking tends to select text on the page; deselect it
 	}
 
@@ -129,8 +179,7 @@ function checkLogin(){
 		$('#myqueue caption').contents().first().replaceWith( user+"'s queue " );
 		$.get('/myqueue',{user:user},function(playlist){
 			playlist.songs.forEach(function(song){
-				øinspector.songInfo(song.file,song);
-				øqueue.loadSong(song.file);
+				ømyqueue.loadSong(song);
 			})
 		});
 	}

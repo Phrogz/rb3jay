@@ -9,7 +9,7 @@ body { font-family:"Calibri Light", Calibri;  }
 #controls button:active { opacity:1; color:black }
 
 #song { background:#cde; justify-content:space-between; }
-#artwork, #rate { width:80px; height:80px; min-width:80px; text-align:center; line-height:80px; overflow:hidden }
+#artwork, #song .song-rating { width:80px; height:80px; min-width:80px; text-align:center; line-height:80px; overflow:hidden }
 #summary { display:flex; flex-direction:column; justify-content:center; padding:0 20px; flex-grow:1 }
 #summary > * { margin:3px;}
 #title { font-weight:bold }

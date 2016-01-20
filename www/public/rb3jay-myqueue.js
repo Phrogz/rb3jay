@@ -42,9 +42,10 @@ function MyQueue(selector){
 
 MyQueue.prototype.addSong = function(file,beforeIndex) {
 	var $tbody = this.$tbody;
-
 	$tbody.find('tr[data-file="'+file+'"]').remove();
-	var $tr = $(øinspector.songHTML(file));
+
+	var song = songInfoByFile[file];
+	var $tr = $(songHTML(song));
 	if (beforeIndex==null) $tr.appendTo($tbody);
 	else                   $tr.insertBefore( $tbody.find('tr:eq('+beforeIndex+')') )
 
@@ -74,8 +75,10 @@ MyQueue.prototype.appendSongs = function(files,beforeIndex){
 	$.post('/myqueue/add',{files:files,user:activeUser(),position:beforeIndex})
 };
 
-MyQueue.prototype.loadSong = function(file){
-	this.addSong(file,null,true);
+MyQueue.prototype.loadSong = function(song){
+	if (!songInfoByFile[song.file]) songInfoByFile[song.file] = song;
+	else for (var field in song) songInfoByFile[song.file][field] = song[field];
+	this.addSong(song.file,null,true);
 };
 
 MyQueue.prototype.removeSongs = function(files){

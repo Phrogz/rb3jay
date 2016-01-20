@@ -3,14 +3,14 @@ function Controls(wrapSelector){
 	this.$progress  = this.$wrap.find('#progress');
 	this.$elapsed   = this.$wrap.find('#elapsed');
 	this.$remaining = this.$wrap.find('#remaining');
-	this.$title     = this.$wrap.find('#title');
-	this.$artalb    = this.$wrap.find('#artalb');
-	this.rating     = this.$wrap.find('#rate')[0];
+	this.$song      = this.$wrap.find('#song');
+	this.$title     = this.$wrap.find('.song-title');
+	this.$artalb    = this.$wrap.find('.song-artalb');
+	this.rating     = this.$wrap.find('.song-rating')[0];
 
 	var self = this;
 
 	$(document.body).on('keydown',function(evt){
-		// TODO: test on Safari; perhaps use :focus with jQuery instead
 		if (document.activeElement==self.rating){
 			switch(evt.keyCode){
 				case 40: //down arrow
@@ -36,8 +36,8 @@ function Controls(wrapSelector){
 	this.$volume = this.$wrap.find('#volume input')
 	.on('input', function(){
 		$.post('/volm',{volume:this.value});
-		// Wait a second after updating before allowing status updates to change volume
-		// Stops the slider from jumping back and forth when dragging or rolling
+		// Wait a second after updating before allowing status updates to change volume.
+		// Stops the slider from jumping back and forth when dragging or rolling.
 		self.nextVolumeUpdate = (new Date).getTime() + 1000;
 	})
 	.on('mousewheel', function($evt){
@@ -52,7 +52,7 @@ function Controls(wrapSelector){
 	});
 
 	function _modifyRating(offset){
-		$.post('/adjust-active-song-rating',{user:activeUser(),change:offset},self.showRating.bind(self));
+		$.post('/adjust-active-song-rating',{user:activeUser(),change:offset});
 	}
 }
 
@@ -70,22 +70,15 @@ Controls.prototype.update = function(status){
 	if (!this.nextVolumeUpdate || (new Date).getTime() >= this.nextVolumeUpdate){
 		this.$volume.val( status.volume );
 	}
-	var song = ølive && ølive.activeSongIndex( status.song );
 	this.$toggle.find('i')[0].className = playPause[status.state];
-	if (song){
-		this.$title.html( song.title );
-		var artalb = [];
-		if (song.artist) artalb.push(song.artist);
-		if (song.album)  artalb.push(song.album);
-		this.$artalb.html( artalb.join(" — ") );
-		this.showRating( song.rating || "zero" );
+	if (status.file == this.lastFile) return;
+	this.lastFile = status.file;
+	if (status.file){
+		this.$song[0].dataset.file = status.file;
+		updateSongInfo(songInfoByFile[status.file]);
 	}else{
 		this.$title.html("");
 		this.$artalb.html("(no song playing)");
-		this.showRating( null );
+		this.rating.className = 'song-rating'; // removes any extra classes
 	}
-};
-
-Controls.prototype.showRating = function(rating) {
-	if (this.rating.className != rating) this.rating.className = rating;
 };

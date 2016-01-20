@@ -34,9 +34,20 @@ class RB3Jay < Sinatra::Application
 	# ordered in terms of likelihood for optimal performance
 	PLAYLIST_ANY = %w[ title artist genre album date albumartist composer ]
 
-	get '/details' do
-		user_rating = @db[:user_ratings].where( user:params['user'], uri:params[:file] ).select_map(:rating).first
-		@mpd.where({file:params[:file]},{strict:true}).first.details.merge(rating:user_rating).to_json
+	# See if the song details the client has are correct and detailed; if not, send off the right ones
+	post '/checkdetails' do
+		song = params[:song]
+		file = song[:file]
+		%w[track date time disc bpm].each{ |f| song[f] = song[f].to_i if song[f] }
+		song.each{ |k,v| song[k]=nil if v=='' }
+		user_rating = @db[:user_ratings].where( user:params['user'], uri:file ).select_map(:rating).first
+		details = @mpd.where({file:file},{strict:true}).first.details.merge( 'rating'=>user_rating, 'user'=>params['user'] )
+		if details == song
+			'"nochange"'
+		else
+			@faye.publish '/songdetails', details
+			'"needsupdate"'
+		end
 	end
 
 	get '/search' do

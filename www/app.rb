@@ -48,7 +48,6 @@ class RB3Jay < Sinatra::Application
 	end
 
 	def watch_status
-		# Occasionally send the status and/or up-next list only if they have changed
 		EM.add_periodic_timer(0.25) do
 			if (info=mpd_status) != @last_status
 				@last_status = info
@@ -84,7 +83,8 @@ class RB3Jay < Sinatra::Application
 
 	helpers do
 		def mpd_status
-			@mpd.status
+			current = @mpd.current_song
+			@mpd.status.merge(file:current && current.file)
 		end
 		def send_status( info=mpd_status )
 			@faye.publish '/status', info
@@ -119,7 +119,6 @@ class RB3Jay < Sinatra::Application
 	require_relative 'helpers/ruby-mpd-monkeypatches'
 	require_relative 'routes/songs'
 	require_relative 'routes/myqueue'
-	require_relative 'routes/live'
 end
 
 run!

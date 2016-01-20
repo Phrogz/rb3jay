@@ -42,8 +42,8 @@ SongList = (function(){
 
 	SongList.prototype.addSong = function(song){
 		if (!song || !song.file) return;
-		øinspector.songInfo(song.file,song);
-		var $tr = $(øinspector.songHTML(song.file)).appendTo(this.$tbody);
+		if (!songInfoByFile[song.file]) songInfoByFile[song.file] = song;
+		var $tr = $(songHTML(song)).appendTo(this.$tbody);
 
 		// Native HTML5 dragging
 		var tr = $tr[0];

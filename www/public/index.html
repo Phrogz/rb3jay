@@ -21,15 +21,15 @@
       <div id='song'>
         <div id='artwork'>artwork</div>
         <div id='summary'>
-          <div id='title'></div>
-          <div id='artalb'></div>
+          <div class='song-title'></div>
+          <div class='song-artalb'></div>
           <div id='progress'>
             <div id='elapsed'>0:00</div>
             <input min='0' max='1' step='0.001' type='range'>
             <div id='remaining'>0:00</div>
           </div>
         </div>
-        <div id='rate' tabindex='2'></div>
+        <div class='song-rating' tabindex='2'></div>
       </div>
       <div id='volume'><input max='100' min='0' tabindex='3' type='range'></div>
     </div>
@@ -61,7 +61,7 @@
         <tbody></tbody>
       </table>
 
-      <table id='livequeue' tabindex='30'>
+      <table id='upnext' tabindex='30'>
         <caption>up next</caption>
         <thead><tr><th>title</th><th>artist</th></tr></thead>
         <tbody></tbody>
@@ -71,22 +71,22 @@
     <table id='inspector'>
       <tbody>
         <tr>
-          <th>title    </th><td id='ins-title' >-</td>
-          <th>genre    </th><td id='ins-genre' >-</td>
-          <th>my rating</th><td id='ins-rating'></td>
-          <th>played   </th><td id='ins-played'>-</td>
+          <th>title    </th><td class='song-title' >-</td>
+          <th>genre    </th><td class='song-genre' >-</td>
+          <th>my rating</th><td class='song-rating'></td>
+          <th>played   </th><td class='song-played'>-</td>
         </tr>
         <tr>
-          <th>artist </th><td id='ins-artist' >-</td>
-          <th>year   </th><td id='ins-year'   >-</td>
-          <th>score  </th><td id='ins-score'  >-</td>
-          <th>skipped</th><td id='ins-skipped'>-</td>
+          <th>artist </th><td class='song-artist' >-</td>
+          <th>year   </th><td class='song-year'   >-</td>
+          <th>score  </th><td class='song-score'  >-</td>
+          <th>skipped</th><td class='song-skipped'>-</td>
         </tr>
         <tr>
-          <th>album   </th><td id='ins-album'   >-</td>
-          <th>length  </th><td id='ins-length'  >-</td>
-          <th>composer</th><td id='ins-composer'>-</td>
-          <th>file    </th><td id='ins-file'    >-</td>
+          <th>album   </th><td class='song-album'   >-</td>
+          <th>length  </th><td class='song-length'  >-</td>
+          <th>composer</th><td class='song-composer'>-</td>
+          <th>file    </th><td class='song-file'    >-</td>
         </tr>
       </tbody>
     </table>
@@ -108,7 +108,7 @@
     <script src='rb3jay-controls.js'></script>
     <script src='rb3jay-songlist.js'></script>
     <script src='rb3jay-myqueue.js'></script>
-    <script src='rb3jay-livequeue.js'></script>
+    <script src='rb3jay-upnext.js'></script>
     <script src='rb3jay-inspector.js'></script>
     <script src='rb3jay.js'></script>
   </body>
