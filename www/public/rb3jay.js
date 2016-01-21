@@ -38,18 +38,19 @@ function songHTML(song,forceUpdate){
 }
 
 var fieldMap = {
-	title   : "title",
-	genre   : "genre",
-	composer: "composer",
-	artist  : "artist",
-	year    : "date",
-	score   : "score",
-	played  : "played",
-	album   : "album",
-	length  : function(s){ return duration(s.time) },
-	file    : "file",
-	skipped : "skipped",
-	artalb  : function(s){
+	title      : "title",
+	genre      : "genre",
+	composer   : "composer",
+	artist     : "artist",
+	year       : "date",
+	score      : "score",
+	played     : function(s){ if (s.played) return s.played+"×" },
+	skipped    : function(s){ if (s.skipped) return s.skipped+"×" },
+	lastplayed : function(s){ return s.lastplayed ? ("(~"+timeSince(s.lastplayed)+")") : " " },
+	album      : "album",
+	length     : function(s){ return duration(s.time) },
+	file       : "file",
+	artalb     : function(s){
 		var artalb = [];
 		if (s.artist) artalb.push(s.artist);
 		if (s.album)  artalb.push(s.album);
@@ -193,3 +194,22 @@ function activeUser(username){
 function arraysEqual(a,b){
 	return (a.length === b.length) && a.every(function(v,i){ return v === b[i] });
 }
+
+// http://stackoverflow.com/a/23259289/405017
+function timeSince(date) {
+  if (typeof date !== 'object') date = new Date(date);
+  var seconds = Math.floor((new Date - date) / 1000);
+	var interval = Math.floor(seconds / 31536000);
+	if (interval >= 1) return pack('year');
+	interval = Math.floor(seconds / 2592000);
+	if (interval >= 1) return pack('month');
+	interval = Math.floor(seconds / 86400);
+	if (interval >= 1) return pack('day');
+	interval = Math.floor(seconds / 3600);
+	if (interval >= 1) return pack('hour');
+	interval = Math.floor(seconds / 60);
+	if (interval >= 1) return pack('minute');
+	interval = seconds;
+	return pack('second');
+	function pack(type){ return interval+' '+type+(interval==1 ? '' : 's')+' ago' }
+};

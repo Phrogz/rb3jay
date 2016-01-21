@@ -36,8 +36,7 @@ class RB3Jay < Sinatra::Application
 		new_rating = change_map[ [old_rating, params[:change].to_i] ]
 		if new_rating
 			set_rating(params[:user], file, new_rating)
-			# TODO: unify this code with /checkdetails
-			details = @mpd.where({file:file},{strict:true}).first.details.merge( 'rating'=>new_rating, 'user'=>params['user'] )
+			details = song_details(file,params['user'])
 			@faye.publish '/songdetails', details
 			new_rating
 		else

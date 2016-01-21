@@ -34,14 +34,27 @@ class RB3Jay < Sinatra::Application
 	# ordered in terms of likelihood for optimal performance
 	PLAYLIST_ANY = %w[ title artist genre album date albumartist composer ]
 
+	helpers do
+		def song_details(file,user)
+			user_rating = @db[:user_ratings].where( user:user, uri:file ).select_map(:rating).first
+			events  = Hash[ @db["select event,count(*) AS c,max(`when`) AS m from song_events where uri=? group by event",file].map{|h| v=h.values; [v.shift,v] } ]
+			details = @mpd.where({file:file},{strict:true}).first.details.merge(
+				'rating'  => user_rating,
+				'user'    => user,
+				'played'  => events['play'] && events['play'].first,
+				'skipped' => events['skip'] && events['skip'].first,
+				'lastplayed' => events['play'] && (Time.parse(events['play'].last).to_f * 1000).round,
+			)
+		end
+	end
+
 	# See if the song details the client has are correct and detailed; if not, send off the right ones
 	post '/checkdetails' do
 		song = params[:song]
 		file = song[:file]
 		%w[track date time disc bpm].each{ |f| song[f] = song[f].to_i if song[f] }
 		song.each{ |k,v| song[k]=nil if v=='' }
-		user_rating = @db[:user_ratings].where( user:params['user'], uri:file ).select_map(:rating).first
-		details = @mpd.where({file:file},{strict:true}).first.details.merge( 'rating'=>user_rating, 'user'=>params['user'] )
+		details = song_details(file,params['user'])
 		if details == song
 			'"nochange"'
 		else
