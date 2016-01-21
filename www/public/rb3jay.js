@@ -22,6 +22,32 @@ var øserver    = new Faye.Client('/faye', { retry:2, timeout:10 } ),
 øserver.subscribe('/playlists',   øsongs.updatePlaylists.bind(øsongs));
 øserver.subscribe('/songdetails', updateSongInfo);
 
+var $raterBase,rateShowTimer,rateHideTimer;
+var $rate = $('#rate').on('mouseover',showRater).on('mouseout',hideRater);
+$('.song-rating').on('mouseover',showRater).on('mouseout',hideRater);
+function showRater(){
+	if (this!=$rate[0]){
+		var $this = $(this);
+		$raterBase = $this;
+		var loc = $this.offset();
+		loc.left += $this.width()/2;
+		loc.top  += $this.height()/2;
+		$rate.css(loc);
+	}
+	clearTimeout(rateHideTimer);
+	rateShowTimer = setTimeout($rate.fadeIn.bind($rate,50),10);
+}
+function hideRater(){
+	clearTimeout(rateShowTimer);
+	rateHideTimer = setTimeout($rate.fadeOut.bind($rate,150),10);
+}
+$rate.on('click','span',function(){
+	var data = {user:activeUser()};
+	data[this.className] = [$raterBase.closest('*[data-file]').attr('data-file')];
+	$.post('/rate',data);
+});
+
+
 $('#search-form').on('submit',false);
 
 checkLogin();

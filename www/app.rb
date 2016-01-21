@@ -14,6 +14,8 @@ def run!
 			map('/faye'){ run server }
 		end
 
+		ENV['RACK_ENV'] = 'production'
+
 		Rack::Server.start({
 			app:     dispatch,
 			Host:    ENV['RB3JAY_HOST'],

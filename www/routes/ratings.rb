@@ -10,7 +10,10 @@ class RB3Jay < Sinatra::Application
 	post '/rate' do
 		if params['user']
 			%w[love like zero bleh hate].each do |level|
-				params[level].each{ |file| set_rating params[:user], file, level } if params[level]
+				params[level].each do |file|
+					set_rating(params['user'], file, level)
+					@faye.publish '/songdetails', song_details(file,params['user'])
+				end if params[level]
 			end
 			'"ok"'
 		else

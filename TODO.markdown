@@ -1,9 +1,9 @@
 * Populate Live Queue from My Queues
+* Control Rating for active song with keyboard
+* Control Rating for inspected song with keyboard
 * Batch import ratings per user
-* Control Rating for active song (with mouse and keyboard)
-* Control Rating for inspected song (with mouse and keyboard)
-* Calculate Rating
-* Load Rating
+* Calculate Ranking
+* Load Ranking
 * Reorder My Queue
 * Save Queue as a playlist
 * Calculate fallback playlist

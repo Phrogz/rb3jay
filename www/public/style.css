@@ -1,15 +1,15 @@
 * { box-sizing:border-box}
 html,body { height:100%; min-height:100%; overflow:hidden }
 body { font-family:"Calibri Light", Calibri;  }
-#playing { position:fixed; top:0; left:0; width:100%; background:#cec; display:flex; flex-direction:row; height:80px; justify-content:space-around; flex-grow:0 }
+#playing { position:fixed; top:0; left:0; width:100%; background:#ccc; display:flex; flex-direction:row; height:80px; justify-content:space-around; flex-grow:0 }
 #playing > * { flex-grow:1; display:flex; }
 
 #controls { display:flex; justify-content:center; flex-grow:0; padding:0 20px }
 #controls button { font-size:60px; background:none; border:0; width:70px; height:70px; margin:5px; opacity:0.5 }
 #controls button:active { opacity:1; color:black }
 
-#song { background:#cde; justify-content:space-between; }
-#artwork, #song .song-rating { width:80px; height:80px; min-width:80px; text-align:center; line-height:80px; overflow:hidden }
+#song { background:#eee; justify-content:space-between; }
+#artwork, #song .song-rating { width:80px; height:80px; min-width:80px; text-align:center; line-height:80px }
 #summary { display:flex; flex-direction:column; justify-content:center; padding:0 20px; flex-grow:1 }
 #summary > * { margin:3px;}
 #title { font-weight:bold }
@@ -81,3 +81,8 @@ tr.active td:first-child:before { content:'♫ '; }
 .zero { background-image:url('/zero.png') }
 .bleh { background-image:url('/bleh.png') }
 .hate { background-image:url('/hate.png') }
+
+#rate { display:none; position:absolute; white-space:nowrap; z-index:10; width:162px; height:34px; line-height:34px; left:50%; margin-left:-80px; top:50%; margin-top:-16px; background:rgba(255,255,255,0.7); border:1px solid rgba(0,0,0,0.8); border-radius:16px; box-shadow:4px 3px 2px rgba(0,0,0,0.2); overflow:hidden; }
+#rate span { display:inline-block; width:32px; height:32px; cursor:pointer }
+#rate span:hover { background-color:#cdf }
+
