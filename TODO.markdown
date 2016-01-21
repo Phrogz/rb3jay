@@ -1,12 +1,11 @@
+* Populate Live Queue from My Queues
 * Batch import ratings per user
 * Control Rating for active song (with mouse and keyboard)
 * Control Rating for inspected song (with mouse and keyboard)
 * Calculate Rating
 * Load Rating
-* Populate Live Queue from My Queues
 * Reorder My Queue
 * Save Queue as a playlist
-* Record played/skipped (including whose queue it came from)
 * Calculate fallback playlist
 * Populate Live Queue from Fallback Playlist
 * Support composer and other metadata on demand

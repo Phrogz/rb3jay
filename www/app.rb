@@ -46,6 +46,7 @@ class RB3Jay < Sinatra::Application
 		watch_status
 		watch_playlists
 		watch_upnext
+		populate_upnext
 	end
 
 	def watch_status
@@ -83,6 +84,16 @@ class RB3Jay < Sinatra::Application
 		EM.defer(
 			->( ){ idle_until 'playlist', 'database' },
 			->(_){ send_next; watch_upnext           }
+		)
+	end
+
+	def populate_upnext
+		EM.defer(
+			->( ){ idle_until 'player' },
+			->(_){
+
+				populate_upnext
+			}
 		)
 	end
 
