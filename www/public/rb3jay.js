@@ -7,10 +7,10 @@ var øserver    = new Faye.Client('/faye', { retry:2, timeout:10 } ),
     øupnext    = new UpNext('#upnext tbody'),
     øinspector = new Inspector('#inspector');
 
-øsongs.onDoubleClick      = function(files){ ømyqueue.appendSongs(files) };
+øsongs.onDoubleClick        = function(files){ ømyqueue.appendSongs(files) };
 ømyqueue.onDeleteSelection  = function(files){ øinspector.inspect() };
 
-øsongs.onSelectionChanged = function(files){ øinspector.inspect(files[0]) };
+øsongs.onSelectionChanged   = function(files){ øinspector.inspect(files[0]) };
 ømyqueue.onSelectionChanged = function(files){ øinspector.inspect(files[0]) };
 øupnext.onSelectionChanged  = function(files){ øinspector.inspect(files[0]) };
 
@@ -18,7 +18,7 @@ var øserver    = new Faye.Client('/faye', { retry:2, timeout:10 } ),
 	øcontrols.update(status);
 	øupnext.activeSong(status.file);
 });
-øserver.subscribe('/next',        øupnext.update.bind(øupnext)           );
+øserver.subscribe('/next',        øupnext.update.bind(øupnext)       );
 øserver.subscribe('/playlists',   øsongs.updatePlaylists.bind(øsongs));
 øserver.subscribe('/songdetails', updateSongInfo);
 
@@ -30,8 +30,13 @@ function showRater(){
 		var $this = $(this);
 		$raterBase = $this;
 		var loc = $this.offset();
-		loc.left += $this.width()/2;
-		loc.top  += $this.height()/2;
+		if (this.tagName=='TD'){
+			loc.left += $this.height()/2;
+			loc.top  += $this.height()/2;
+		}else{
+			loc.left += $this.width()/2;
+			loc.top  += $this.height()/2;
+		}
 		$rate.css(loc);
 	}
 	clearTimeout(rateHideTimer);
