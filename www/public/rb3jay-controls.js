@@ -71,7 +71,7 @@ Controls.prototype.update = function(status){
 		this.$volume.val( status.volume );
 	}
 	this.$toggle.find('i')[0].className = playPause[status.state];
-	if (status.file == this.lastFile) return;
+	// if (status.file == this.lastFile) return;
 	this.lastFile = status.file;
 	if (status.file){
 		this.$song[0].dataset.file = status.file;

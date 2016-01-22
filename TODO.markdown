@@ -2,6 +2,7 @@
 * Control Rating for active song with keyboard
 * Control Rating for inspected song with keyboard
 * Batch import ratings per user
+* Multiple-inspect - apply inspector ratings to all selected songs.
 * Calculate Ranking
 * Load Ranking
 * Reorder My Queue
