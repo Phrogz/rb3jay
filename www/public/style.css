@@ -49,7 +49,7 @@ body { font-family:"Calibri Light", Calibri;  }
 #inspector td:last-child  { width:30% }
 
 table { border-collapse:collapse; width:33% }
-caption { background:#999; font-weight:bold; padding:5px }
+caption { background:#999; font-weight:bold; padding:5px 2px }
 th { text-align:left; background:#ccc; color:rgba(0,0,0,0.4) }
 th, td { padding:1px 5px }
 tr.selected td { background:#f6f6f6 }
@@ -63,7 +63,9 @@ tr.active td:first-child:before { content:'♫ '; }
 #songlist label + label { margin-left:2em }
 #songlist input { margin:0 0.5em;}
 
-#search { display:inline-block; position:relative; font-size:18px }
+#search-form { white-space:nowrap }
+#search-form select { max-width:150px }
+#search { display:inline-block; position:relative; font-size:18px; max-width:calc(100% - 220px) }
 #search label { display:none; position:absolute; left:17px; top:51px }
 #search #search-input { height:20px; width:100%; padding:0 10px; border-radius:10px; border:0; }
 #search #search-clear { display:none; text-decoration:none; position:absolute; right:18px; top:54px; color:#b3b3b3 }
@@ -82,7 +84,7 @@ tr.active td:first-child:before { content:'♫ '; }
 .bleh { background-image:url('/bleh.png') }
 .hate { background-image:url('/hate.png') }
 
-#rate { display:none; position:absolute; white-space:nowrap; z-index:10; width:162px; height:34px; line-height:34px; left:50%; margin-left:-80px; top:50%; margin-top:-16px; background:rgba(255,255,255,0.7); border:1px solid rgba(0,0,0,0.8); border-radius:16px; box-shadow:4px 3px 2px rgba(0,0,0,0.2); overflow:hidden; }
-#rate span { display:inline-block; width:32px; height:32px; cursor:pointer }
+#rate { display:none; position:absolute; white-space:nowrap; z-index:10; width:242px; height:50px; line-height:50px; left:50%; margin-left:-121px; top:50%; margin-top:-25px; background:rgba(255,255,255,0.7); border:1px solid rgba(0,0,0,0.4); border-radius:24px; box-shadow:4px 3px 2px rgba(0,0,0,0.2); overflow:hidden; }
+#rate span { display:inline-block; width:48px; height:48px; cursor:pointer }
 #rate span:hover { background-color:#cdf }
 

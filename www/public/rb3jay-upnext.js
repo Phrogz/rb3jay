@@ -22,12 +22,12 @@ UpNext.prototype.update = function(songs){
 		if (song.file==this.lastActive) $tr.addClass('active');
 	}).bind(this));
 
-	if (selectedFile){
-		var $tr = this.$tbody.find( 'tr[data-file="'+selectedFile+'"]' );
-		if ($tr[0]){
-			øinspector.inspect( $tr[0].dataset.file );
-			this.selectSong( $tr );
-		}
+	var $rowToSelect;
+	if (selectedFile) $rowToSelect = this.$tbody.find( 'tr[data-file="'+selectedFile+'"]' );
+	if (!($rowToSelect && $rowToSelect[0])) $rowToSelect = this.$tbody.find( 'tr.active' );
+	if ($rowToSelect[0]){
+		øinspector.inspect( $rowToSelect[0].dataset.file );
+		this.selectSong( $rowToSelect );
 	}
 };
 

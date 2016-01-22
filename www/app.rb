@@ -54,19 +54,21 @@ class RB3Jay < Sinatra::Application
 	def watch_status
 		previous_song = nil
 		previous_time = nil
-		EM.add_periodic_timer(0.25) do
+		EM.add_periodic_timer(0.5) do
 			if (info=mpd_status) != @last_status
 				@last_status = info
 				send_status( info )
-				if !previous_song
-					previous_song = @mpd.song_with_id(info[:songid])
-				elsif previous_song.id != info[:songid]
-					duration = previous_song.time.respond_to?(:last) ? previous_song.time.last : previous_song.time
-					skipped = previous_time / duration <= SKIP_PERCENT
-					song_event previous_song.file, skipped ? 'skip' : 'play'
-					previous_song = @mpd.song_with_id(info[:songid])
+				if info[:songid]
+					if !previous_song
+						previous_song = @mpd.song_with_id(info[:songid])
+					elsif previous_song.id != info[:songid]
+						duration = previous_song.time.respond_to?(:last) ? previous_song.time.last : previous_song.time
+						skipped = previous_time / duration <= SKIP_PERCENT
+						song_event previous_song.file, skipped ? 'skip' : 'play'
+						previous_song = @mpd.song_with_id(info[:songid])
+					end
+					previous_time = info[:elapsed]
 				end
-				previous_time = info[:elapsed]
 			end
 		end
 	end
