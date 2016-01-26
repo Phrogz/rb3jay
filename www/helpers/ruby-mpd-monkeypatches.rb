@@ -15,10 +15,11 @@ end
 class MPD::Song
 	def summary
 		{
-			'file'   => file,
-			'title'  => title,
-			'artist' => artist,
-			'album'  => album,
+			'file'     => file,
+			'title'    => title,
+			'artist'   => artist,
+			'album'    => album,
+			'priority' => prio,
 		}
 	end
 	def details(user=nil)
