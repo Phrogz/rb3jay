@@ -133,8 +133,9 @@ class RB3Jay < Sinatra::Application
 			@faye.publish '/playlists', playlists
 		end
 		def add_to_upnext( songs, priority=0 )
+			start = @mpd.playing? ? 1 : 0
 			index = nil
-			@mpd.queue.find.with_index{ |song,i| prio = song.prio && song.prio.to_i || 0; index=i if prio<priority }
+			@mpd.queue[start..-1].find.with_index{ |song,i| prio = song.prio && song.prio.to_i || 0; index=i+start if prio<priority }
 			song_ids = Array(songs).reverse.map{ |path| @mpd.addid(path,index) }
 			@mpd.song_priority(priority,{id:song_ids}) if priority>0
 		end
