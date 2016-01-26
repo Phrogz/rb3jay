@@ -132,6 +132,12 @@ class RB3Jay < Sinatra::Application
 		def send_playlists( lists=playlists )
 			@faye.publish '/playlists', playlists
 		end
+		def add_to_upnext( songs, priority=0 )
+			index = nil
+			@mpd.queue.find.with_index{ |song,i| prio = song.prio && song.prio.to_i || 0; index=i if prio<priority }
+			song_ids = Array(songs).reverse.map{ |path| @mpd.addid(path,index) }
+			@mpd.song_priority(priority,{id:song_ids}) if priority>0
+		end
 	end
 
 	# We do not need to send_status/send_next after these
@@ -145,6 +151,8 @@ class RB3Jay < Sinatra::Application
 	# Clients poll for information on startup
 	get ('/next'){ up_next.to_json   }
 	get ('/list'){ playlists.to_json }
+
+	post('/qadd'){ add_to_upnext(params[:songs],params[:priority].to_i) }
 
 	require_relative 'routes/ratings'
 	require_relative 'helpers/ruby-mpd-monkeypatches'

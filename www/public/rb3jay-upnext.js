@@ -5,6 +5,33 @@ function UpNext(selector){
 		if (this.onSelectionChanged) this.onSelectionChanged( selectedFiles );
 	}).bind(this));
 	$.get('/next',this.update.bind(this));
+
+	var tbody = this.$tbody[0];
+	tbody.addEventListener( 'dragenter', function(evt){
+		this.classList.add('over');
+		return false;
+	}, false );
+
+	tbody.addEventListener( 'dragover', function(evt){
+		evt.dataTransfer.dropEffect = 'copy';
+		if (evt.preventDefault) evt.preventDefault();
+		this.classList.add('over');
+		return false;
+	}, false );
+
+	tbody.addEventListener( 'dragleave', function(evt){
+		this.classList.remove('over');
+		return false;
+	}, false );
+
+	var self = this;
+	tbody.addEventListener( 'drop', function(evt) {
+		this.classList.remove('over');
+		if (evt.stopPropagation) evt.stopPropagation(); // Stops some browsers from redirecting.
+		self.appendSongs( evt.dataTransfer.getData('Text').split('∆≈ƒ') );
+		return false;
+	}, false );
+
 }
 
 UpNext.prototype.update = function(songs){
@@ -20,6 +47,7 @@ UpNext.prototype.update = function(songs){
 		if (!songInfoByFile[song.file]) songInfoByFile[song.file] = song;
 		var $tr = $(songHTML(song)).appendTo(this.$tbody);
 		if (song.file==this.lastActive) $tr.addClass('active');
+		if (song.priority) $tr.addClass('priority');
 	}).bind(this));
 
 	var $rowToSelect;
@@ -37,4 +65,8 @@ UpNext.prototype.activeSong = function(file){
 	this.$tbody.find('tr.active').removeClass('active');
 	var $active = this.$tbody.find('tr[data-file="'+file+'"]').addClass('active');
 	if (!this.$tbody.find('tr.selected')[0]) this.selectSong($active,{inspect:true});
+};
+
+UpNext.prototype.appendSongs = function(songs){
+	$.post('/qadd',{songs:songs,priority:1});
 };
