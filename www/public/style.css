@@ -9,6 +9,7 @@ body { font-family:"Calibri Light", Calibri;  }
 #controls button:active { opacity:1; color:black }
 
 #song { background:#eee; justify-content:space-between; }
+#artwork { opacity:0.2 }
 #artwork, #song .song-rating { width:80px; height:80px; min-width:80px; text-align:center; line-height:80px }
 #summary { display:flex; flex-direction:column; justify-content:center; padding:0 20px; flex-grow:1 }
 #summary > * { margin:3px;}
@@ -37,6 +38,9 @@ body { font-family:"Calibri Light", Calibri;  }
 #queues tbody tr { cursor:default }
 #queues thead th:last-child,
 #queues tbody td:last-child { width:33%; }
+
+#upnext td { font-style:italic }
+#upnext tr.priority td { font-style:normal }
 
 #menu { width:20em }
 #menu li { list-style:none; padding:0.2em 1em }
