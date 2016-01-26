@@ -25,7 +25,9 @@ var øserver    = new Faye.Client('/faye', { retry:2, timeout:10 } ),
 var $raterBase,rateShowTimer,rateHideTimer;
 var $rate = $('#rate').on('mouseover',showRater).on('mouseout',hideRater);
 $('.song-rating').on('mouseover',showRater).on('mouseout',hideRater);
+var activeBeforeRater;
 function showRater(){
+	activeBeforeRater = document.activeElement;
 	if (this!=$rate[0]){
 		var $this = $(this);
 		$raterBase = $this;
@@ -47,6 +49,7 @@ function hideRater(){
 	rateHideTimer = setTimeout($rate.fadeOut.bind($rate,150),10);
 }
 $rate.on('click','span',function(){
+	if (activeBeforeRater && activeBeforeRater.focus) activeBeforeRater.focus();
 	var data = {user:activeUser()};
 	data[this.className] = [$raterBase.closest('*[data-file]').attr('data-file')];
 	$.post('/rate',data);
@@ -174,7 +177,7 @@ function makeSelectable($tbody,singleSelectOnly){
 			$tr.addClass(SELECTED);
 			$selectionStart = $tr;
 		}
-		if (opts.inspect) øinspector.inspect($tr[0].dataset.file);
+		if (opts.inspect && $tr[0]) øinspector.inspect($tr[0].dataset.file);
 		document.getSelection().removeAllRanges(); // shift-clicking and double-clicking tends to select text on the page; deselect it
 	}
 
