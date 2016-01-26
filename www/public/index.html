@@ -6,6 +6,7 @@
     <meta content='Gavin Kistner' name='author'>
     <link href='font-awesome.min.css' rel='stylesheet'>
     <link href='style.css' rel='stylesheet'>
+    <link rel='icon' href='3J_1.png?force' type="image/x-icon">
     <script src='jquery.js'></script>
     <script src='bind-delayed.js'></script>
     <script src='js.cookie.js'></script>
@@ -19,7 +20,7 @@
         <button id='next' tabindex='1'><i class='fa fa-step-forward'></i></button>
       </div>
       <div id='song'>
-        <div id='artwork'>artwork</div>
+        <img id='artwork' src='/3J_1.png'>
         <div id='summary'>
           <div class='song-title'></div>
           <div class='song-artalb'></div>
@@ -96,6 +97,7 @@
         <select name='user' onchange="setCustomValidity('')" oninvalid="this.setCustomValidity('You must identify yourself.')" required>
           <option value=''>(on your honor)</option>
           <option value='btuysserkani'>Bijan</option>
+          <option value='davida'>Dave</option>
           <option value='smendoza'>Doza</option>
           <option value='gkistner'>Gavin</option>
           <option value='mfornander'>Mattias</option>
