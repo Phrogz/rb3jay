@@ -75,7 +75,10 @@ Controls.prototype.update = function(status){
 	this.lastFile = status.file;
 	if (status.file){
 		this.$song[0].dataset.file = status.file;
-		updateSongInfo(songInfoByFile[status.file]);
+		var song = songInfoByFile[status.file]
+		updateSongInfo(song);
+		var desiredTitle = "3J: "+[song.title,song.artist].join(" — ");
+		if (document.title!=desiredTitle) document.title = desiredTitle;
 	}else{
 		this.$title.html("");
 		this.$artalb.html("(no song playing)");
