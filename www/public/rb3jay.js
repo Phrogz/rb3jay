@@ -94,16 +94,25 @@ var fieldMap = {
 function updateSongInfo(song){
 	// Song information has user-specific information (rating).
 	// The server pushes song details with a 'user' flag that indicates whom it is valid for.
-	if (song.user != activeUser()) return;
+	if (!song || (song.user!=activeUser() && !song.deleted)) return;
 
 	songInfoByFile[song.file] = song;
-	songHTML(song,true);
-	$.each(fieldMap,function(field,value){
-		if (typeof value==='string') value = song[value];
-		else                         value = value(song);
-		$('*[data-file="'+song.file+'"] .song-'+field).html(value || "-").attr('title','');
-	});
-	$('*[data-file="'+song.file+'"] .song-rating').attr('class','song-rating '+(song.rating||'zero'));
+	var displayPoints = $('*[data-file="'+song.file+'"]');
+	if (song.deleted){
+		var rows = displayPoints.filter('none').addBack('tr');
+		rows.remove();
+		$.each(fieldMap,function(field,value){
+			displayPoints.not(rows).find('.song-'+field).html('-').attr('title','');
+		});
+	}else{
+		songHTML(song,true);
+		$.each(fieldMap,function(field,value){
+			if (typeof value==='string') value = song[value];
+			else                         value = value(song);
+			displayPoints.find('.song-'+field).html(value || '-').attr('title','');
+		});
+		displayPoints.find('.song-rating').attr('class','song-rating '+(song.rating||'zero'));
+	}
 }
 
 function duration(seconds){

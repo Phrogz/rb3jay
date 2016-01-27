@@ -38,13 +38,14 @@ class RB3Jay < Sinatra::Application
 		def song_details(file,user)
 			user_rating = @db[:user_ratings].where( user:user, uri:file ).select_map(:rating).first
 			events  = Hash[ @db["select event,count(*) AS c,max(`when`) AS m from song_events where uri=? group by event",file].map{|h| v=h.values; [v.shift,v] } ]
-			details = @mpd.where({file:file},{strict:true}).first.details.merge(
+			song = @mpd.where({file:file},{strict:true}).first
+			song.details.merge(
 				'rating'  => user_rating,
 				'user'    => user,
 				'played'  => events['play'] && events['play'].first,
 				'skipped' => events['skip'] && events['skip'].first,
 				'lastplayed' => events['play'] && (Time.parse(events['play'].last).to_f * 1000).round,
-			)
+			) if song
 		end
 	end
 
@@ -55,11 +56,15 @@ class RB3Jay < Sinatra::Application
 		%w[track date time disc bpm].each{ |f| song[f] = song[f].to_i if song[f] }
 		song.each{ |k,v| song[k]=nil if v=='' }
 		details = song_details(file,params['user'])
-		if details == song
-			'"nochange"'
-		else
-			@faye.publish '/songdetails', details
-			'"needsupdate"'
+		case details
+			when nil
+				@faye.publish '/songdetails', {file:file,deleted:true}
+				'"deleted"'
+			when song
+				'"nochange"'
+			else
+				@faye.publish '/songdetails', details
+				'"needsupdate"'
 		end
 	end
 
