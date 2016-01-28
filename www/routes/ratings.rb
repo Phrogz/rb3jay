@@ -12,7 +12,7 @@ class RB3Jay < Sinatra::Application
 			%w[love like zero bleh hate].each do |level|
 				params[level].each do |file|
 					set_rating(params['user'], file, level)
-					@faye.publish '/songdetails', song_details(file,params['user'])
+					@faye.publish '/songdetails', song_details(file)
 				end if params[level]
 			end
 			'"ok"'

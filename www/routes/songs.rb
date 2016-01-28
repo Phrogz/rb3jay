@@ -35,15 +35,14 @@ class RB3Jay < Sinatra::Application
 	PLAYLIST_ANY = %w[ title artist genre album date albumartist composer ]
 
 	helpers do
-		def song_details(file,user)
-			user_rating = @db[:user_ratings].where( user:user, uri:file ).select_map(:rating).first
+		def song_details(file)
+			ratings = Hash[ @db[:user_ratings].where(uri:file).select_map([:user,:rating]) ]
 			events  = Hash[ @db["select event,count(*) AS c,max(`when`) AS m from song_events where uri=? group by event",file].map{|h| v=h.values; [v.shift,v] } ]
 			song = @mpd.where({file:file},{strict:true}).first
 			song.details.merge(
-				'rating'  => user_rating,
-				'user'    => user,
-				'played'  => events['play'] && events['play'].first,
-				'skipped' => events['skip'] && events['skip'].first,
+				'ratings'    => ratings,
+				'played'     => events['play'] && events['play'].first,
+				'skipped'    => events['skip'] && events['skip'].first,
 				'lastplayed' => events['play'] && (Time.parse(events['play'].last).to_f * 1000).round,
 			) if song
 		end
@@ -55,7 +54,7 @@ class RB3Jay < Sinatra::Application
 		file = song[:file]
 		%w[track date time disc bpm].each{ |f| song[f] = song[f].to_i if song[f] }
 		song.each{ |k,v| song[k]=nil if v=='' }
-		details = song_details(file,params['user'])
+		details = song_details(file)
 		case details
 			when nil
 				@faye.publish '/songdetails', {file:file,deleted:true}
