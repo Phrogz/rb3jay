@@ -2,6 +2,7 @@
 	  rack/session/moneta ruby-mpd json time ].each{ |lib| require lib }
 
 require_relative 'environment'
+require_relative 'helpers/ruby-mpd-monkeypatches'
 
 def run!
 	EM.run do
@@ -124,6 +125,7 @@ class RB3Jay < Sinatra::Application
 			@mpd.queue.slice(0,ENV['RB3JAY_LISTLIMIT'].to_i).map(&:summary)
 		end
 		def send_next( songs=up_next )
+			p :sending_next
 			@faye.publish '/next', songs
 		end
 		def playlists
@@ -131,13 +133,6 @@ class RB3Jay < Sinatra::Application
 		end
 		def send_playlists( lists=playlists )
 			@faye.publish '/playlists', playlists
-		end
-		def add_to_upnext( songs, priority=0 )
-			start = @mpd.playing? ? 1 : 0
-			index = nil
-			@mpd.queue[start..-1].find.with_index{ |song,i| prio = song.prio && song.prio.to_i || 0; index=i+start if prio<priority }
-			song_ids = Array(songs).reverse.map{ |path| @mpd.addid(path,index) }
-			@mpd.song_priority(priority,{id:song_ids}) if priority>0
 		end
 	end
 
@@ -153,12 +148,10 @@ class RB3Jay < Sinatra::Application
 	get ('/next'){ up_next.to_json   }
 	get ('/list'){ playlists.to_json }
 
-	post('/qadd'){ add_to_upnext(params[:songs],params[:priority].to_i) }
-
 	require_relative 'routes/ratings'
-	require_relative 'helpers/ruby-mpd-monkeypatches'
 	require_relative 'routes/songs'
 	require_relative 'routes/myqueue'
+	require_relative 'routes/upnext'
 end
 
 run!
