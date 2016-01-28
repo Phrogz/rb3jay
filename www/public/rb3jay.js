@@ -92,9 +92,12 @@ var fieldMap = {
 	}
 };
 function updateSongInfo(song){
+	// Highly-unlikely edge case
+	if (!song) return;
+
 	// Song information has user-specific information (rating).
 	// The server pushes song details with a 'user' flag that indicates whom it is valid for.
-	if (!song || (song.user!=activeUser() && !song.deleted)) return;
+	if (song.user && song.user!=activeUser()) return;
 
 	songInfoByFile[song.file] = song;
 	var displayPoints = $('*[data-file="'+song.file+'"]');
