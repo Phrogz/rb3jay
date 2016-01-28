@@ -1,4 +1,9 @@
 * Populate Live Queue from My Queues
+	* Add random songs in a stable pattern, minus added songs
+	* Limit by song length accumulated per day (live query db + proposed songs)
+	* Record the queue a song came from (via sticker; remove sticker when played, record with play event and time accumulation)
+	* Remove songs from user queues once played
+	* Limit random songs by weight
 * Control Rating for active song with keyboard
 * Control Rating for inspected song with keyboard
 * Batch import ratings per user
