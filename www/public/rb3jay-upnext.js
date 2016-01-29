@@ -68,5 +68,5 @@ UpNext.prototype.activeSong = function(file){
 };
 
 UpNext.prototype.appendSongs = function(songs){
-	$.post('/qadd',{songs:songs,priority:1});
+	$.post('/qadd',{songs:songs,priority:1,user:activeUser()});
 };

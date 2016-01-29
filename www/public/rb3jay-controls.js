@@ -30,7 +30,7 @@ function Controls(wrapSelector){
 	}).bind(this));
 
 	this.$wrap.find('#next').on('click',function(){
-		$.post('/skip');
+		$.post('/skip',{user:activeUser()});
 	});
 
 	this.$volume = this.$wrap.find('#volume input')

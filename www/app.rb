@@ -53,20 +53,22 @@ class RB3Jay < Sinatra::Application
 	end
 
 	def watch_status
-		previous_song = nil
+		@previous_song = nil
 		previous_time = nil
 		EM.add_periodic_timer(0.5) do
 			if (info=mpd_status) != @last_status
 				@last_status = info
 				send_status( info )
 				if info[:songid]
-					if !previous_song
-						previous_song = @mpd.song_with_id(info[:songid])
-					elsif previous_song.id != info[:songid]
-						duration = previous_song.time.respond_to?(:last) ? previous_song.time.last : previous_song.time
-						skipped = previous_time / duration <= SKIP_PERCENT
-						song_event previous_song.file, skipped ? 'skip' : 'play'
-						previous_song = @mpd.song_with_id(info[:songid])
+					if !@previous_song
+						@previous_song = @mpd.song_with_id(info[:songid])
+					elsif @previous_song.id != info[:songid]
+						duration = @previous_song.time.respond_to?(:last) ? @previous_song.time.last : @previous_song.time
+						if previous_time / duration > SKIP_PERCENT
+							stickers = @mpd.list_stickers 'song', @previous_song.file
+							record_event @previous_song.file, 'play', stickers['added-by']
+						end
+						@previous_song = @mpd.song_with_id(info[:songid])
 					end
 					previous_time = info[:elapsed]
 				end
@@ -74,8 +76,14 @@ class RB3Jay < Sinatra::Application
 		end
 	end
 
-	def song_event( file, event )
-		@db[:song_events] << { uri:file, event:event, when:Time.now }
+	def record_skip
+		if @previous_song
+			record_event( @previous_song.file, 'skip', params[:user] )
+		end
+	end
+
+	def record_event( file, event, user=nil )
+		@db[:recordevents] << { uri:file, event:event, when:Time.now, user:user }
 	end
 
 	def watch_playlists
@@ -103,6 +111,8 @@ class RB3Jay < Sinatra::Application
 	end
 
 	def idle_until(*events)
+		# This is a synchronous blocking call, that will
+		# return when one of the events finally occurs
 		`mpc -h #{ENV['MPD_HOST']} -p #{ENV['MPD_PORT']} idle #{events.join(' ')}`
 	end
 
@@ -125,7 +135,6 @@ class RB3Jay < Sinatra::Application
 			@mpd.queue.slice(0,ENV['RB3JAY_LISTLIMIT'].to_i).map(&:summary)
 		end
 		def send_next( songs=up_next )
-			p :sending_next
 			@faye.publish '/next', songs
 		end
 		def playlists
@@ -134,19 +143,28 @@ class RB3Jay < Sinatra::Application
 		def send_playlists( lists=playlists )
 			@faye.publish '/playlists', playlists
 		end
+		def add_to_upnext( songs, priority=0 )
+			start = @mpd.playing? ? 1 : 0
+			index = nil
+			@mpd.queue[start..-1].find.with_index{ |song,i| prio = song.prio && song.prio.to_i || 0; index=i+start if prio<priority }
+			song_ids = Array(songs).reverse.map{ |path| @mpd.addid(path,index) }
+			@mpd.song_priority(priority,{id:song_ids}) if priority>0
+		end
 	end
 
 	# We do not need to send_status/send_next after these
 	# because status updates are already sent when they change.
 	post('/play'){ @mpd.play                          }
 	post('/paws'){ @mpd.pause=true                    }
-	post('/skip'){ @mpd.next                          }
+	post('/skip'){ record_skip; @mpd.next             }
 	post('/seek'){ @mpd.seek params[:time].to_f       }
 	post('/volm'){ @mpd.volume = params[:volume].to_i }
 
 	# Clients poll for information on startup
 	get ('/next'){ up_next.to_json   }
 	get ('/list'){ playlists.to_json }
+
+	post('/qadd'){ add_to_upnext(params[:songs],params[:priority].to_i) }
 
 	require_relative 'routes/ratings'
 	require_relative 'routes/songs'
