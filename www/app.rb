@@ -48,8 +48,8 @@ class RB3Jay < Sinatra::Application
 	def watch_for_changes
 		watch_status
 		watch_playlists
+		watch_player
 		watch_upnext
-		populate_upnext
 	end
 
 	def watch_status
@@ -83,13 +83,17 @@ class RB3Jay < Sinatra::Application
 	end
 
 	def record_event( file, event, user=nil )
-		@db[:recordevents] << { uri:file, event:event, when:Time.now, user:user }
+		@db[:song_events] << { uri:file, event:event, when:Time.now, user:user }
 	end
 
 	def watch_playlists
 		EM.defer(
 			->( ){ idle_until 'stored_playlist'    },
-			->(_){ send_playlists; watch_playlists }
+			->(_){
+				send_playlists
+				recalc_up_next
+				watch_playlists
+			}
 		)
 	end
 
@@ -100,12 +104,12 @@ class RB3Jay < Sinatra::Application
 		)
 	end
 
-	def populate_upnext
+	def watch_player
 		EM.defer(
 			->( ){ idle_until 'player' },
 			->(_){
-
-				populate_upnext
+				recalc_up_next
+				watch_player
 			}
 		)
 	end

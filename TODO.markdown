@@ -7,9 +7,12 @@
 * Control Rating for active song with keyboard
 * Control Rating for inspected song with keyboard
 * Batch import ratings per user
-* Multiple-inspect - apply inspector ratings to all selected songs.
+* Multiple-inspect - apply inspector ratings to all selected songs
 * Calculate Ranking
 * Load Ranking
+* Bug: can't start playing when launching and idle
+* Bug: same song twice in playlist highlights both as active
+* Handle song changes not during `watch_status`, but during `watch_player`
 * Reorder My Queue
 * Save Queue as a playlist
 * Calculate fallback playlist

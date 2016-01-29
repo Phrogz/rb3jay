@@ -1,14 +1,17 @@
 class RB3Jay < Sinatra::Application
-	post('/qadd'){ add_to_upnext(params[:songs],params[:priority].to_i) }
+	post('/qadd'){ add_to_upnext( params[:songs], params[:user], params[:priority].to_i ) }
 	post('/calc'){ recalc_up_next }
 
 	helpers do
-		def add_to_upnext( songs, priority=0 )
+		def add_to_upnext( songs, user, priority=0 )
+			songs = Array(songs)
 			start = @mpd.playing? ? 1 : 0
 			index = nil
 			@mpd.queue[start..-1].find.with_index{ |song,i| prio = song.prio && song.prio.to_i || 0; index=i+start if prio<priority }
-			song_ids = Array(songs).reverse.map{ |path| @mpd.addid(path,index) }
+			song_ids = songs.reverse.map{ |path| @mpd.addid(path,index) }
 			@mpd.song_priority(priority,{id:song_ids}) if priority>0
+			songs.each{ |s| @mpd.set_sticker 'song', s, 'added-by', user }
+			'"done"'
 		end
 
 		def recalc_up_next
@@ -35,6 +38,7 @@ class RB3Jay < Sinatra::Application
 		first,*rest = queues
 		interleaved = (first + [nil]*(most-first.length)).zip(*rest).flatten.compact
 		first_index = @mpd.queue.length
+		# add_to_upnext( interleaved, )
 		interleaved.each{ |song| @mpd.add(song.file) }
 		@mpd.song_priority( 1, [first_index..-1] )
 	end
