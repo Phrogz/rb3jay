@@ -34,7 +34,8 @@ function MyQueue(selector){
 	var self = this;
 	tbody.addEventListener( 'drop', function(evt) {
 		this.classList.remove('over');
-		if (evt.stopPropagation) evt.stopPropagation(); // Stops some browsers from redirecting.
+		if (evt.stopPropagation) evt.stopPropagation();
+		if (evt.preventDefault)  evt.preventDefault();
 		self.appendSongs( evt.dataTransfer.getData('Text').split('∆≈ƒ') );
 		return false;
 	}, false );
