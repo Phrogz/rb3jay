@@ -10,7 +10,7 @@ class RB3Jay < Sinatra::Application
 
 	get '/myqueue' do
 		playlist = myqueue
-		playlist.details.to_json
+		playlist.songs.map(&:summary).to_json
 	end
 
 	post '/myqueue/add' do

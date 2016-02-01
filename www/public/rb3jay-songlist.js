@@ -26,8 +26,6 @@ SongList = (function(){
 			callback:this.load.bind(this),
 			resendDuplicates:false
 		}).trigger('keyup');
-
-		$.get('/list',this.updatePlaylists.bind(this));
 	}
 
 	SongList.prototype.load = function(songsArray){
@@ -60,6 +58,7 @@ SongList = (function(){
 		}, false );
 
 		tr.addEventListener( 'dragend', function(evt){
+			if (evt.preventDefault) evt.preventDefault();
 			this.classList.remove('drag');
 			return false;
 		}, false );

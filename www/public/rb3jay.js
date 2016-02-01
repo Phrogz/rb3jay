@@ -205,6 +205,7 @@ function makeSelectable($tbody,singleSelectOnly){
 	}
 }
 
+var playlistSubscription;
 function checkLogin(){
 	$('#login').on('submit',function(evt){
 		if (this.elements.user.value){
@@ -216,6 +217,7 @@ function checkLogin(){
 		return false;
 	});
 	$('#logout').on('click',function(evt){
+		if (playlistSubscription) playlistSubscription.cancel();
 		Cookies.remove('username');
 		checkLogin();
 	});
@@ -223,11 +225,14 @@ function checkLogin(){
 	if (!user) $('#login').show();
 	else{
 		$('#myqueue caption').contents().first().replaceWith( user+"'s queue " );
-		$.get('/myqueue',{user:user},function(playlist){
-			playlist.songs.forEach(function(song){
-				ømyqueue.loadSong(song);
-			})
+		var startup = øserver.subscribe('/startup-'+user, function(data){
+			øcontrols.update(data.status);
+			øupnext.update(data.upnext);
+			øupnext.activeSong(data.status.file);
+			øsongs.updatePlaylists(data.playlists);
+			startup.cancel();
 		});
+		playlistSubscription = øserver.subscribe('/playlist/'+user,ømyqueue.update.bind(ømyqueue));
 	}
 }
 

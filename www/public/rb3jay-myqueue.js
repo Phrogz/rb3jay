@@ -40,7 +40,33 @@ function MyQueue(selector){
 	}, false );
 }
 
-MyQueue.prototype.addSong = function(file,beforeIndex) {
+MyQueue.prototype.update = function(songs){
+	this.$tbody.empty();
+	songs.forEach(function(song){
+		var $tr = $(songHTML(song))
+		$tr.appendTo(this.$tbody);
+
+		// Native HTML5 dragging
+		var tr = $tr[0];
+		tr.draggable = true;
+
+		var self = this;
+		tr.addEventListener( 'dragstart', function(evt){
+			self.selectSong($(this),{ extend:evt.shiftKey, toggle:evt.ctrlKey || evt.metaKey });
+			this.classList.add('drag');
+			evt.dataTransfer.effectAllowed = 'move';
+			evt.dataTransfer.setData( 'text', $tbody.find('tr.selected').map(function(){ return this.dataset.file }).toArray().join("∆≈ƒ") );
+			return false;
+		}, false );
+
+		tr.addEventListener( 'dragend', function(evt){
+			this.classList.remove('drag');
+			return false;
+		}, false );
+	},this);
+};
+
+MyQueue.prototype.addSong = function(file,beforeIndex){
 	var $tbody = this.$tbody;
 	$tbody.find('tr[data-file="'+file+'"]').remove();
 
