@@ -2,6 +2,7 @@
 * Pad Up Next with Random songs
 	* Add random songs in a stable pattern, minus added songs
 	* Limit random songs by weight
+	* Preserve songs added from other players behind queues, ahead of random. (Priority 0/1/2?)
 * Show last n played songs above "up next", allow ranking
 * Control Rating for active song with keyboard
 * Control Rating for inspected song(s) with keyboard
