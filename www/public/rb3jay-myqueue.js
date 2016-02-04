@@ -44,6 +44,7 @@ function MyQueue(selector){
 MyQueue.prototype.update = function(songs){
 	this.$tbody.empty();
 	songs.forEach(function(song){
+		songInfoByFile[song.file] = song; // TODO: don't overwrite richer data
 		var $tr = $(songHTML(song))
 		$tr.appendTo(this.$tbody);
 

@@ -50,20 +50,22 @@ class RB3Jay < Sinatra::Application
 
 	# See if the song details the client has are correct and detailed; if not, send off the right ones
 	post '/checkdetails' do
-		song = params[:song]
-		file = song[:file]
-		%w[track date time disc bpm].each{ |f| song[f] = song[f].to_i if song[f] }
-		song.each{ |k,v| song[k]=nil if v=='' }
-		details = song_details(file)
-		case details
-			when nil
-				@faye.publish '/songdetails', {file:file,deleted:true}
-				'"deleted"'
-			when song
-				'"nochange"'
-			else
-				@faye.publish '/songdetails', details
-				'"needsupdate"'
+		if song=params[:song]
+			file = song[:file]
+			%w[track date time disc bpm].each{ |f| song[f] = song[f].to_i if song[f] }
+			song.each{ |k,v| song[k]=nil if v=='' }
+			details = song_details(file)
+			case details
+				when nil
+					@faye.publish '/songdetails', {file:file,deleted:true}
+					'"deleted"'
+				when song
+					'"nochange"'
+				else
+					@faye.publish '/songdetails', details
+					'"needsupdate"'
+			end
+		else
 		end
 	end
 

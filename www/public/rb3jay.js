@@ -92,7 +92,6 @@ var fieldMap = {
 	}
 };
 function updateSongInfo(song){
-	// Highly-unlikely edge case
 	if (!song) return;
 
 	songInfoByFile[song.file] = song;
@@ -226,10 +225,11 @@ function checkLogin(){
 	else{
 		$('#myqueue caption').contents().first().replaceWith( user+"'s queue " );
 		var startup = øserver.subscribe('/startup-'+user, function(data){
-			øcontrols.update(data.status);
 			øupnext.update(data.upnext);
 			øupnext.activeSong(data.status.file);
+			ømyqueue.update(data.myqueue);
 			øsongs.updatePlaylists(data.playlists);
+			øcontrols.update(data.status);
 			startup.cancel();
 		});
 		playlistSubscription = øserver.subscribe('/playlist/'+user,ømyqueue.update.bind(ømyqueue));

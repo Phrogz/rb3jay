@@ -89,9 +89,7 @@ class RB3Jay < Sinatra::Application
 							if queue=@mpd.playlists.find{ |pl| pl.name=="user-#{user}" }
 								if index=queue.songs.index{ |song| song.file==@previous_song.file }
 									queue.delete index
-									send_playlist queue
-								else
-									p queue.songs
+									send_playlist_for user, queue
 								end
 							end
 						end
@@ -172,23 +170,21 @@ class RB3Jay < Sinatra::Application
 		def playlists
 			@mpd.playlists.map(&:name).grep(/^(?!user-)/).sort
 		end
-		def playlist_songs_for(user)
-			pl = @mpd.playlists.find{ |pl| pl.name=="user-#{user}" }
-			pl ? pl.songs.map(&:summary) : []
-		end
 		def send_playlists( lists=playlists )
 			@faye.publish '/playlists', playlists
 		end
-		def send_playlist( list )
-			name = list.name.sub('user-','')
-			@faye.publish "/playlist/#{name}", list.songs.map(&:summary)
+		def playlist_songs_for(user,list=nil)
+			list ||= @mpd.playlists.find{ |pl| pl.name=="user-#{user}" }
+			if list
+				missing = list.songs.map.with_index{ |song,i| i unless @mpd.where({file:song.file},{strict:true}).first }.compact
+				missing.reverse.each{ |index| list.delete(index) }
+				list.songs.map(&:summary)
+			else
+				[]
+			end
 		end
-		def add_to_upnext( songs, priority=0 )
-			start = @mpd.playing? ? 1 : 0
-			index = nil
-			@mpd.queue[start..-1].find.with_index{ |song,i| prio = song.prio && song.prio.to_i || 0; index=i+start if prio<priority }
-			song_ids = Array(songs).reverse.map{ |path| @mpd.addid(path,index) }
-			@mpd.song_priority(priority,{id:song_ids}) if priority>0
+		def send_playlist_for(user,list=nil)
+			@faye.publish "/playlist/#{user}", playlist_songs_for(user,list)
 		end
 	end
 
