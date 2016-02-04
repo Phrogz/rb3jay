@@ -162,10 +162,11 @@ class RB3Jay < Sinatra::Application
 			@faye.publish '/status', info
 		end
 		def up_next
-			@mpd.queue.slice(0,ENV['RB3JAY_LISTLIMIT'].to_i).map(&:summary)
+			{ done: @db[:song_events].order(:when).select(:uri___file,:user).last(3).reverse,
+				next: @mpd.queue.slice(0,ENV['RB3JAY_LISTLIMIT'].to_i).map(&:summary) }
 		end
-		def send_next( songs=up_next )
-			@faye.publish '/next', songs
+		def send_next
+			@faye.publish '/next', up_next
 		end
 		def playlists
 			@mpd.playlists.map(&:name).grep(/^(?!user-)/).sort

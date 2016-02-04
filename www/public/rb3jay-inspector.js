@@ -20,6 +20,6 @@ Inspector.prototype.inspect = function(file){
 	if (songInfoTimer) clearTimeout(songInfoTimer);
 	songInfoTimer = setTimeout(function(){
 		songInfoTimer = null;
-		$.post('/checkdetails',{song:song,user:activeUser()});
+		$.post('/checkdetails',{song:song});
 	},200)
 };

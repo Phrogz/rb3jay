@@ -7,15 +7,17 @@ function UpNext(selector){
 }
 
 UpNext.prototype.update = function(songs){
-	var newFiles = songs.map(function(s){ return s.file });
-	var oldFiles = this.$tbody.find('tr').map(function(){ return this.dataset.file }).toArray();
-	if (arraysEqual(newFiles,oldFiles)) return; // don't rebuild the HTML if it will be the same
-
 	var selectedFile = this.$tbody.find('tr.selected')[0];
 	selectedFile = selectedFile && selectedFile.dataset.file;
 
 	this.$tbody.empty();
-	songs.forEach((function(song,i){
+	songs.done.forEach((function(song){
+		if (!songInfoByFile[song.file]) $.post('/checkdetails',{song:song});
+		var $tr = $(songHTML(song)).appendTo(this.$tbody);
+		$tr.addClass('played');
+		if (song.priority) $tr.addClass('priority');
+	}).bind(this));
+	songs.next.forEach((function(song){
 		if (!songInfoByFile[song.file]) songInfoByFile[song.file] = song;
 		var $tr = $(songHTML(song)).appendTo(this.$tbody);
 		if (song.file==this.lastActive) $tr.addClass('active');
