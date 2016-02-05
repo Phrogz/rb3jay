@@ -26,7 +26,7 @@ body { font-family:"Calibri Light", Calibri;  }
 #volume input { width:94% }
 
 #queues { position:fixed; top:84px; left:0; width:100%; bottom:62px; overflow:hidden; display:flex; flex-direction:row; justify-content:space-between; align-items:flex-start; flex-grow:1 }
-#queues table { display:flex; flex-flow:column; height:100%; margin-right:4px; overflow:hidden }
+#queues table { display:flex; flex-flow:column; height:100%; margin-right:4px; overflow:hidden; table-layout:fixed }
 #queues table:last-child { margin-right:0 }
 #queues table caption { flex:0 0 auto; width:100%; display:block; height:34px; line-height:24px }
 #queues table thead { flex:0 0 auto; width:calc(100% + 1px) } /* head takes the height it requires, and it's not scaled when table is resized */
@@ -36,9 +36,10 @@ body { font-family:"Calibri Light", Calibri;  }
 #queues table tbody tr { display:table; table-layout:fixed }
 #queues td { max-width:0; overflow:hidden; white-space:nowrap; text-overflow:ellipsis }
 #queues tbody tr { cursor:default }
-#queues tr > *:nth-child(1) { width:calc(100% - 14em) }
-#queues tr > *:nth-child(2) { width:10em }
-#queues tr > *:nth-child(3) { width:4em; text-align:right }
+
+#queues tr > *:nth-child(1) {  }
+#queues tr > *:nth-child(2) { width:30% }
+#queues tr > *:nth-child(3) { width:4em; min-width:4em; text-align:right }
 
 #upnext td { font-style:italic }
 #upnext tr.priority td { font-style:normal }

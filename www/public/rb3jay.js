@@ -66,7 +66,7 @@ function songHTML(song,forceUpdate){
 	var html = songHTMLByFile[song.file];
 	if (!html || forceUpdate){
 		var title = song.title || song.file.replace(/^.+\//,'');
-		html = songHTMLByFile[song.file] = '<tr data-file="'+song.file+'"><td class="song-title">'+title+'</td><td class="song-artist">'+(song.artist || "")+'</td><td>'+duration(song.time)+'</td></tr>';
+		html = songHTMLByFile[song.file] = '<tr data-file="'+song.file+'"><td class="song-title">'+title+'</td><td class="song-artist">'+(song.artist || "")+'</td><td class="song-length">'+duration(song.time)+'</td></tr>';
 	}
 	return html;
 }
