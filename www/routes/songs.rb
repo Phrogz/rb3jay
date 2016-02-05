@@ -2,9 +2,10 @@ class RB3Jay < Sinatra::Application
 	YEAR_RANGE = /\A(\d{4})(?:-|\.\.)(\d{4})\Z/ # "1980-1989" or "1980..1989"
 	SONG_ORDER = ->(s){ [
 		s.artist ? s.artist.downcase.sub(/\Athe /,'').gsub(/[^ _a-z0-9]+/,'') : "~~~~",
-		s.album  || "~~~~",
-		s.track  || 99,
-		s.title ? s.title.downcase.sub(/\Athe /,'').gsub(/[^ _a-z0-9]+/,'') : "~~~~"
+		# s.album  || "~~~~",
+		# s.track  || 99,
+		s.title ? s.title.downcase.sub(/\Athe /,'').gsub(/[^ _a-z0-9]+/,'') : "~~~~",
+		s.year  ? -s.year.to_i : 999
 	]	}
 
 	# Mapping query prefix that the user types to the MPD field to query
@@ -82,7 +83,7 @@ class RB3Jay < Sinatra::Application
 						_,y1,y2 = str.match(YEAR_RANGE).to_a
 						y1,y2 = y1.to_i,y2.to_i
 						range = y1>y2 ? y2..y1 : y1..y2
-						songs = songs.select{ |song| range===song.date }
+						songs = songs.select{ |song| range===song.year }
 					else
 						re = /#{Regexp.escape(str)}/i
 						if field==:any
