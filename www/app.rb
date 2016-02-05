@@ -184,6 +184,14 @@ class RB3Jay < Sinatra::Application
 				[]
 			end
 		end
+		def shuffle_playlist(user)
+			list = @mpd.playlists.find{ |pl| pl.name=="user-#{user}" }
+			songs = list.songs
+			songs.map.with_index.to_a.shuffle.each.with_index do |(song,old_index),new_index|
+				list.move old_index, new_index
+			end
+			send_playlist_for(user,list)
+		end
 		def send_playlist_for(user,list=nil)
 			@faye.publish "/playlist/#{user}", playlist_songs_for(user,list)
 		end
@@ -196,6 +204,8 @@ class RB3Jay < Sinatra::Application
 	post('/skip'){ @mpd.next; record_event('skip',params[:user]); '"ok"' }
 	post('/seek'){ @mpd.seek params[:time].to_f                 ; '"ok"' }
 	post('/volm'){ @mpd.volume = params[:volume].to_i           ; '"ok"' }
+
+	post('/shuffle'){ shuffle_playlist params[:user]            ; '"ok"' }
 
 	require_relative 'routes/ratings'
 	require_relative 'routes/songs'

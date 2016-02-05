@@ -2,6 +2,10 @@ function MyQueue(selector){
 	this.$tbody = $(selector);
 	var tbody = this.$tbody[0];
 
+	$('#shuffle-playlist').on('click',function(){
+		$.post('/shuffle',{user:activeUser()});
+	});
+
 	this.selectSong = makeSelectable( this.$tbody );
 	this.$tbody.on('songSelectionChanged',(function(evt,selectedFiles){
 		if (this.onSelectionChanged) this.onSelectionChanged( selectedFiles );
