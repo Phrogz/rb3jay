@@ -19,6 +19,7 @@ class MPD::Song
 			'title'    => title,
 			'artist'   => artist,
 			'album'    => album,
+			'time'     => track_length,
 			'priority' => prio,
 		}
 	end
@@ -28,13 +29,15 @@ class MPD::Song
 			'track'       => track,
 			'genre'       => genre,
 			'date'        => date,
-			'time'        => time && time.respond_to?(:last) ? time.last : time,
 			'composer'    => composer,
 			'disc'        => disc,
 			'albumartist' => albumartist,
 			'bpm'         => bpm,
 			'artwork'     => nil     #TODO: extract and store song artwork
 		}).delete_if{ |k,v| v.nil? }
+	end
+	def year
+		date && Array(date).first
 	end
 	def hash
 		file.hash

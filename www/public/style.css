@@ -36,8 +36,9 @@ body { font-family:"Calibri Light", Calibri;  }
 #queues table tbody tr { display:table; table-layout:fixed }
 #queues td { max-width:0; overflow:hidden; white-space:nowrap; text-overflow:ellipsis }
 #queues tbody tr { cursor:default }
-#queues thead th:last-child,
-#queues tbody td:last-child { width:33%; }
+#queues tr > *:nth-child(1) { width:calc(100% - 14em) }
+#queues tr > *:nth-child(2) { width:10em }
+#queues tr > *:nth-child(3) { width:4em; text-align:right }
 
 #upnext td { font-style:italic }
 #upnext tr.priority td { font-style:normal }

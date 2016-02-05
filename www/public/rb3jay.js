@@ -66,7 +66,7 @@ function songHTML(song,forceUpdate){
 	var html = songHTMLByFile[song.file];
 	if (!html || forceUpdate){
 		var title = song.title || song.file.replace(/^.+\//,'');
-		html = songHTMLByFile[song.file] = '<tr data-file="'+song.file+'"><td class="song-title">'+title+'</td><td class="song-artist">'+(song.artist || "")+'</td></tr>';
+		html = songHTMLByFile[song.file] = '<tr data-file="'+song.file+'"><td class="song-title">'+title+'</td><td class="song-artist">'+(song.artist || "")+'</td><td>'+duration(song.time)+'</td></tr>';
 	}
 	return html;
 }
@@ -119,8 +119,8 @@ function updateSongInfo(song){
 function duration(seconds){
 	if (isNaN(seconds)) return '-';
 	var hours   = Math.floor(seconds/3600);
-	var minutes = Math.floor((seconds%3600)/60);
-	seconds = Math.round(seconds % 60);
+	var minutes = Math.floor(seconds/60%60);
+	seconds     = Math.round(seconds % 60);
 	if (seconds<10) seconds = "0"+seconds;
 	if (hours>=1){
 		if (minutes<10) minutes = "0"+minutes;
