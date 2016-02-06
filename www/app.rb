@@ -162,8 +162,9 @@ class RB3Jay < Sinatra::Application
 			@faye.publish '/status', info
 		end
 		def up_next
+			adders = @mpd.find_sticker('song','','added-by')
 			{ done: @db[:song_events].order(:when).select(:uri___file,:user).last(3).reverse,
-				next: @mpd.queue.slice(0,ENV['RB3JAY_LISTLIMIT'].to_i).map(&:summary) }
+				next: @mpd.queue.slice(0,ENV['RB3JAY_LISTLIMIT'].to_i).map(&:summary).map{ |info| info.merge!('added-by'=>adders[info['file']]) } }
 		end
 		def send_next
 			@faye.publish '/next', up_next
