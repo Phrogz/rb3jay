@@ -7,12 +7,12 @@ var øserver    = new Faye.Client('/faye', { retry:2, timeout:10 } ),
     øupnext    = new UpNext('#upnext tbody'),
     øinspector = new Inspector('#inspector');
 
-øsongs.onDoubleClick        = function(files){ ømyqueue.appendSongs(files) };
-ømyqueue.onDeleteSelection  = function(files){ øinspector.inspect() };
+øsongs.onDoubleClick        = ømyqueue.appendSongs.bind(ømyqueue);
+ømyqueue.onDeleteSelection  = øinspector.inspect.bind(øinspector);
 
-øsongs.onSelectionChanged   = function(files){ øinspector.inspect(files[0]) };
-ømyqueue.onSelectionChanged = function(files){ øinspector.inspect(files[0]) };
-øupnext.onSelectionChanged  = function(files){ øinspector.inspect(files[0]) };
+øsongs.onSelectionChanged   = øinspector.inspect.bind(øinspector);
+ømyqueue.onSelectionChanged = øinspector.inspect.bind(øinspector);
+øupnext.onSelectionChanged  = øinspector.inspect.bind(øinspector);
 
 øserver.subscribe('/status', function(status){
 	øcontrols.update(status);

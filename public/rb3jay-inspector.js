@@ -11,6 +11,7 @@ function Inspector(selector){
 var songInfoTimer;
 Inspector.prototype.inspect = function(file){
 	if (!file) return;
+	if (Array.isArray(file)) file = file[0];
 	this.$wrap[0].dataset.file = file;
 	var song = songInfoByFile[file];
 	updateSongInfo(song); // force updating of all the inspector cells
