@@ -75,7 +75,7 @@ class RB3Jay < Sinatra::Application
 		json = if params[:playlist] && !params[:playlist].empty?
 			playlist = @mpd.playlists.find{ |pl| pl.name==params[:playlist] }
 			if playlist
-				songs = playlist.songs
+				songs = playlist.songs.select(&:time) # If @time is nil, the file likely no longer exists.
 				query.split(/\s+/).map do |piece|
 					*field,str = piece.split(':')
 					field = QUERY_FIELDS[field.first]
