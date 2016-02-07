@@ -16,12 +16,15 @@ UpNext.prototype.update = function(songs){
 		var $tr = $(songHTML(song)).appendTo(this.$tbody);
 		$tr.addClass('played');
 		if (song.priority) $tr.addClass('priority');
+		if (song.user) $tr.addClass( 'user-'+song.user );
 	}).bind(this));
+
 	songs.next.forEach((function(song){
 		if (!songInfoByFile[song.file]) songInfoByFile[song.file] = song;
 		var $tr = $(songHTML(song)).appendTo(this.$tbody);
 		if (song.file==this.lastActive) $tr.addClass('active');
 		if (song.priority) $tr.addClass('priority');
+		if (song.user) $tr.addClass( 'user-'+song.user );
 	}).bind(this));
 
 	var $rowToSelect;

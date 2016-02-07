@@ -43,7 +43,18 @@ body { font-family:"Calibri Light", Calibri;  }
 
 #upnext td { font-style:italic }
 #upnext tr.priority td { font-style:normal }
-#upnext tr.played td { opacity:0.5 }
+#upnext tr.played td { opacity:0.3 }
+#upnext tr.priority td:last-child:after,
+#upnext tr.played td:last-child:after {
+	content:'??'; background:#000; /* customized per user */
+	display:inline-block;
+	width:1.9em; height:1.9em;
+	line-height:1.9em; text-align:center;
+	font-size:7pt; color:white;
+	margin-left:0.5em;
+	font-style:normal; vertical-align:bottom
+}
+
 #menu { width:20em }
 #menu li { list-style:none; padding:0.2em 1em }
 #menu li.active { background:#ccc; font-weight:bold }

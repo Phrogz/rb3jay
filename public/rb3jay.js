@@ -206,7 +206,7 @@ function makeSelectable($tbody,singleSelectOnly){
 
 var playlistSubscription;
 function checkLogin(){
-	$('#login').on('submit',function(evt){
+	var $form = $('#login').on('submit',function(evt){
 		if (this.elements.user.value){
 			activeUser(this.elements.user.value);
 			$('#login').hide();
@@ -215,14 +215,22 @@ function checkLogin(){
 		evt.preventDefault();
 		return false;
 	});
+
 	$('#logout').on('click',function(evt){
 		if (playlistSubscription) playlistSubscription.cancel();
 		Cookies.remove('username');
 		checkLogin();
 	});
+
 	var user = activeUser();
-	if (!user) $('#login').show();
-	else{
+	if (!user){
+		$('#login').show();
+		$.get('/users',function(users){
+			var $select = $form.find('select');
+			$select[0].options.length = 1;
+			users.forEach(function(user){ $select.append(new Option(user.name,user.login)) });
+		});
+	}else{
 		$('#myqueue caption').contents().first().replaceWith( user+"'s queue " );
 		var startup = øserver.subscribe('/startup-'+user, function(data){
 			øupnext.update(data.upnext);

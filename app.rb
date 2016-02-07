@@ -45,6 +45,7 @@ class RB3Jay < Sinatra::Application
 		watch_for_changes
 		require_relative 'model/init'
 		@db = connect_to( ENV['MPD_STICKERS'] )
+		@user_by_login = Hash[ @db[:users].all.map{|u| [u[:login],u] } ]
 	end
 
 	def watch_for_subscriptions
@@ -162,9 +163,14 @@ class RB3Jay < Sinatra::Application
 			@faye.publish '/status', info
 		end
 		def up_next
+			played = @db[:song_events].order(:when).select(:uri___file,:user).last(3).reverse.map do |hash|
+				hash.merge! user:hash[:user]
+			end
 			adders = @mpd.find_sticker('song','','added-by')
-			{ done: @db[:song_events].order(:when).select(:uri___file,:user).last(3).reverse,
-				next: @mpd.queue.slice(0,ENV['RB3JAY_LISTLIMIT'].to_i).map(&:summary).map{ |info| info.merge!('added-by'=>adders[info['file']]) } }
+			coming = @mpd.queue.slice(0,ENV['RB3JAY_LISTLIMIT'].to_i).map(&:summary).map do |info|
+				info.merge!('user' => adders[info['file']])
+			end
+			{ done:played, next:coming }
 		end
 		def send_next
 			@faye.publish '/next', up_next
@@ -208,10 +214,21 @@ class RB3Jay < Sinatra::Application
 
 	post('/shuffle'){ shuffle_playlist params[:user]            ; '"ok"' }
 
+	get('/users'){ @user_by_login.values.sort_by{ |u| u[:name] }.to_json }
+
 	require_relative 'routes/ratings'
 	require_relative 'routes/songs'
 	require_relative 'routes/myqueue'
 	require_relative 'routes/upnext'
+	get('/users.css') do
+		content_type :css
+		@db[:users].flat_map do |user|
+			[
+				"#upnext tr.user-#{user[:login]} td:last-child:after { content:'#{user[:initials]}'; background:#{user[:color]} }",
+				"#upnext tr.user-#{user[:login]} td { color:#{user[:color]} }"
+			]
+		end.join("\n")
+	end
 end
 
 run!
