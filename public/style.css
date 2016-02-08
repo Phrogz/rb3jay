@@ -40,6 +40,7 @@ body { font-family:"Calibri Light", Calibri;  }
 #queues tr > *:nth-child(1) {  }
 #queues tr > *:nth-child(2) { width:30% }
 #queues tr > *:nth-child(3) { width:4em; min-width:4em; text-align:right }
+#upnext tr > *:nth-child(3) { width:6em; min-width:6em }
 
 #myqueue tbody.paused td { opacity:0.3 }
 
@@ -56,6 +57,7 @@ body { font-family:"Calibri Light", Calibri;  }
 	margin-left:0.5em;
 	font-style:normal; vertical-align:bottom
 }
+
 
 #menu { width:20em }
 #menu li { list-style:none; padding:0.2em 1em }
