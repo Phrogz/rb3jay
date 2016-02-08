@@ -1,6 +1,6 @@
 class RB3Jay < Sinatra::Application
 	helpers do
-		def recalc_up_next
+		def recalc_upnext
 			clear_all_but_playing
 			add_user_queues
 			add_random_songs
@@ -23,20 +23,25 @@ class RB3Jay < Sinatra::Application
 
 	def add_user_queues
 		start_time = lap_time = Time.now
+
 		songs_in_list = Set.new @mpd.queue.map(&:file)
 		initial_song_count = songs_in_list.length
-		puts "%-20s: %.3fs" % ["songs_in_list",(t=Time.now)-lap_time]; lap_time=t
+		# puts "%-20s: %.3fs" % ["songs_in_list",(t=Time.now)-lap_time]; lap_time=t
+
 		sql = "SELECT user,sum(duration) FROM song_events WHERE user NOT NULL AND event='play' AND strftime('%Y-%m-%d',`when`)=:today GROUP BY user"
 		played_by_user = Hash[ @db[sql,today:Date.today.strftime('%Y-%m-%d')].map(&:values) ]
-		puts "%-20s: %.3fs" % ["played_by_user",(t=Time.now)-lap_time]; lap_time=t
+		# puts "%-20s: %.3fs" % ["played_by_user",(t=Time.now)-lap_time]; lap_time=t
+
+		active_playlists = Set.new @db[:users].filter(active:true).select_map(:login).map{ |s| "user-#{s}" }
 		queues_by_user = Hash[
 			@mpd.playlists
-			.select{ |pl| pl.name.start_with?('user-') && !pl.songs.empty? }
+			.select{ |pl| active_playlists.include?(pl.name) && !pl.songs.empty? }
 			.sort_by(&:name)
 			.map{ |pl| [ pl.name.sub('user-',''), pl.songs ] }
 		]
+		original_queue_count = queues_by_user.length
 		queues_by_user.each{ |user,songs| played_by_user[user] ||= 0 }
-		puts "%-20s: %.3fs" % ["queues_by_user",(t=Time.now)-lap_time]; lap_time=t
+		# puts "%-20s: %.3fs" % ["queues_by_user",(t=Time.now)-lap_time]; lap_time=t
 
 		files_and_users = []
 		until queues_by_user.empty?
@@ -53,19 +58,19 @@ class RB3Jay < Sinatra::Application
 				queues_by_user.delete lowest_user
 			end
 		end
-		puts "%-20s: %.3fs" % ["calculate upnext",(t=Time.now)-lap_time]; lap_time=t
+		# puts "%-20s: %.3fs" % ["calculate upnext",(t=Time.now)-lap_time]; lap_time=t
 
 		@mpd.command_list do
 			files_and_users.each{ |file,_| add file }
 		end
-		puts "%-20s: %.3fs" % ["add #{files_and_users.length} songs",(t=Time.now)-lap_time]; lap_time=t
+		# puts "%-20s: %.3fs" % ["add #{files_and_users.length} songs",(t=Time.now)-lap_time]; lap_time=t
 
 		unless files_and_users.empty?
 			begin
 				@mpd.song_priority(2,[initial_song_count..-1])
 			rescue MPD::ServerArgumentError
 			end
-			puts "%-20s: %.3fs" % ["set song priority",(t=Time.now)-lap_time]; lap_time=t
+			# puts "%-20s: %.3fs" % ["set song priority",(t=Time.now)-lap_time]; lap_time=t
 		end
 
 		@db[:sticker]
@@ -74,9 +79,9 @@ class RB3Jay < Sinatra::Application
 			[:type,:name,:uri,:value],
 			files_and_users.map{ |file,user| ['song','added-by',file,user] }
 		)
-		puts "%-20s: %.3fs" % ["set all stickers",(t=Time.now)-lap_time]; lap_time=t
+		# puts "%-20s: %.3fs" % ["set all stickers",(t=Time.now)-lap_time]; lap_time=t
 
-		puts "%-20s: %.3fs" % ["DONE",Time.now-start_time]
+		puts( "Recalculated upnext for #{original_queue_count} users in %.3fs" % (Time.now-start_time) )
 	end
 
 	def add_random_songs

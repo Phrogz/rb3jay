@@ -57,6 +57,7 @@ class RB3Jay < Sinatra::Application
 					upnext:up_next,
 					status:mpd_status
 				}
+				user_active user, active:true
 			end
 		end
 	end
@@ -118,7 +119,7 @@ class RB3Jay < Sinatra::Application
 			->( ){ idle_until 'stored_playlist'    },
 			->(_){
 				send_playlists
-				recalc_up_next
+				recalc_upnext
 				watch_playlists
 			}
 		)
@@ -135,7 +136,7 @@ class RB3Jay < Sinatra::Application
 		EM.defer(
 			->( ){ idle_until 'player' },
 			->(_){
-				# recalc_up_next
+				# recalc_upnext
 				watch_player
 			}
 		)
@@ -200,7 +201,7 @@ class RB3Jay < Sinatra::Application
 			send_playlist_for(user,list)
 		end
 		def send_playlist_for(user,list=nil)
-			@faye.publish "/playlist/#{user}", playlist_songs_for(user,list)
+			@faye.publish "/user-#{user}", {myqueue:playlist_songs_for(user,list)}
 		end
 	end
 
@@ -211,8 +212,6 @@ class RB3Jay < Sinatra::Application
 	post('/skip'){ @mpd.next; record_event('skip',params[:user]); '"ok"' }
 	post('/seek'){ @mpd.seek params[:time].to_f                 ; '"ok"' }
 	post('/volm'){ @mpd.volume = params[:volume].to_i           ; '"ok"' }
-
-	post('/shuffle'){ shuffle_playlist params[:user]            ; '"ok"' }
 
 	get('/users'){ @user_by_login.values.sort_by{ |u| u[:name] }.to_json }
 

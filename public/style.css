@@ -41,6 +41,8 @@ body { font-family:"Calibri Light", Calibri;  }
 #queues tr > *:nth-child(2) { width:30% }
 #queues tr > *:nth-child(3) { width:4em; min-width:4em; text-align:right }
 
+#myqueue tbody.paused td { opacity:0.3 }
+
 #upnext td { font-style:italic }
 #upnext tr.priority td { font-style:normal }
 #upnext tr.played td { opacity:0.3 }

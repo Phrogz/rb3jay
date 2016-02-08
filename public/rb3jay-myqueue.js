@@ -1,10 +1,14 @@
 function MyQueue(selector){
 	this.$tbody = $(selector);
 	var tbody = this.$tbody[0];
+	this.activeFlag = true;
 
-	$('#shuffle-playlist').on('click',function(){
+	$('#myqueue-shuffle').on('click',function(){
 		$.post('/shuffle',{user:activeUser()});
 	});
+	$('#myqueue-toggle').on('click',(function(){
+		this.makeActive( !this.activeFlag );
+	}).bind(this));
 
 	this.selectSong = makeSelectable( this.$tbody );
 	this.$tbody.on('songSelectionChanged',(function(evt,selectedFiles){
@@ -37,6 +41,7 @@ function MyQueue(selector){
 
 	var self = this;
 	tbody.addEventListener( 'drop', function(evt) {
+		self.makeActive(true);
 		this.classList.remove('over');
 		if (evt.stopPropagation) evt.stopPropagation();
 		if (evt.preventDefault)  evt.preventDefault();
@@ -45,7 +50,7 @@ function MyQueue(selector){
 	}, false );
 }
 
-MyQueue.prototype.update = function(songs){
+MyQueue.prototype.updateQueue = function(songs){
 	this.$tbody.empty();
 	songs.forEach(function(song){
 		songInfoByFile[song.file] = song; // TODO: don't overwrite richer data
@@ -118,4 +123,14 @@ MyQueue.prototype.removeSongs = function(files){
 		this.$tbody.find('tr[data-file="'+file+'"]').remove();
 	},this);
 	$.post('/myqueue/remove',{files:files,user:activeUser()})
+};
+
+MyQueue.prototype.updateActive = function(activeFlag){
+	$('#myqueue-toggle').find('i')[0].className = 'fa fa-'+(activeFlag ? 'pause' : 'play');
+	this.$tbody.toggleClass('paused',!activeFlag);
+	this.activeFlag = activeFlag;
+};
+
+MyQueue.prototype.makeActive = function(active){
+	$.post('/myqueue/'+(active ? 'active' : 'away'),{user:activeUser()});
 };
