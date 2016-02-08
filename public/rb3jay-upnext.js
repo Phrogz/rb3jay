@@ -1,5 +1,6 @@
 function UpNext(selector){
 	this.$tbody = $(selector);
+	this.$caption = this.$tbody.closest('table').find('caption');
 	this.selectSong = makeSelectable( this.$tbody, true );
 	this.$tbody.on('songSelectionChanged',(function(evt,selectedFiles){
 		if (this.onSelectionChanged) this.onSelectionChanged( selectedFiles );
@@ -19,12 +20,17 @@ UpNext.prototype.update = function(songs){
 		if (song.user) $tr.addClass( 'user-'+song.user );
 	}).bind(this));
 
+	var seconds=0, uniqueUsers={};
 	songs.next.forEach((function(song){
 		if (!songInfoByFile[song.file]) songInfoByFile[song.file] = song;
 		var $tr = $(songHTML(song)).appendTo(this.$tbody);
 		if (song.file==this.lastActive) $tr.addClass('active');
 		if (song.priority) $tr.addClass('priority');
-		if (song.user) $tr.addClass( 'user-'+song.user );
+		if (song.user){
+			$tr.addClass( 'user-'+song.user );
+			uniqueUsers[song.user] = true;
+		}
+		seconds += song.time;
 	}).bind(this));
 
 	var $rowToSelect;
@@ -34,6 +40,15 @@ UpNext.prototype.update = function(songs){
 		øinspector.inspect( $rowToSelect[0].dataset.file );
 		this.selectSong( $rowToSelect );
 	}
+
+	var userCount  = Object.keys(uniqueUsers).length;
+	var timeString = seconds > 3600 ? ((seconds/3600).toFixed(1)+" hours") : ((seconds/60).toFixed(1)+" minutes");
+	var statString = [
+		songs.next.length+' song'+(songs.next.length==1 ? '' : 's'),
+		userCount+' user'+(userCount==1 ? '' : 's'),
+		timeString
+	].join(', ')
+	this.$caption.text('up next ('+statString+')');
 };
 
 UpNext.prototype.activeSong = function(file){
