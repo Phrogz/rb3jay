@@ -26,16 +26,22 @@ function Controls(wrapSelector){
 	this.$toggle = this.$wrap.find('#toggle').on('click',(function(){
 		if (!this.lastStatus) return;
 		var action = this.lastStatus.state=='play' ? '/paws' : '/play';
-		$.post(action);
+		$.post(action,{user:activeUser()});
 	}).bind(this));
 
 	this.$wrap.find('#next').on('click',function(){
 		$.post('/skip',{user:activeUser()});
 	});
 
+	var volumeTimeout;
 	this.$volume = this.$wrap.find('#volume input')
 	.on('input', function(){
-		$.post('/volm',{volume:this.value});
+		var newVolume = this.value;
+		clearTimeout(volumeTimeout);
+		volumeTimeout = setTimeout(function(){
+			$.post('/volm',{ volume:newVolume, user:activeUser() });
+		},200);
+		
 		// Wait a second after updating before allowing status updates to change volume.
 		// Stops the slider from jumping back and forth when dragging or rolling.
 		self.nextVolumeUpdate = (new Date).getTime() + 1000;
@@ -45,10 +51,14 @@ function Controls(wrapSelector){
 		$(this).trigger('input');
 	});
 
+	var seekTimeout;
 	this.$slider = this.$progress.find('input').on('input',function(){
 		var desiredTime = self.lastStatus.time[1] * this.value;
-		self.nextSeekUpdate = (new Date).getTime() + 1000;
-		$.post('/seek', {time:desiredTime} );
+		self.nextSeekUpdate = (new Date).getTime() + 1200;
+		clearTimeout(seekTimeout);
+		seekTimeout = setTimeout(function(){
+			$.post('/seek', { time:desiredTime, user:activeUser() } );
+		},1000);
 	});
 
 	function _modifyRating(offset){
