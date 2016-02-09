@@ -21,6 +21,7 @@ Inspector.prototype.inspect = function(file){
 	if (songInfoTimer) clearTimeout(songInfoTimer);
 	songInfoTimer = setTimeout(function(){
 		songInfoTimer = null;
+		// Do not pass along user, or else automated re-inspection will keep the user active
 		$.post('/checkdetails',{song:song});
 	},200)
 };

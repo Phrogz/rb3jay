@@ -13,11 +13,13 @@ UpNext.prototype.update = function(songs){
 
 	this.$tbody.empty();
 	songs.done.forEach((function(song){
-		if (!songInfoByFile[song.file]) $.post('/checkdetails',{song:song});
 		var $tr = $(songHTML(song)).appendTo(this.$tbody);
 		$tr.addClass('played');
 		if (song.priority) $tr.addClass('priority');
 		if (song.user) $tr.addClass( 'user-'+song.user );
+
+		// Do not pass along user, or else automated re-inspection will keep the user active
+		if (!songInfoByFile[song.file]) $.post('/checkdetails',{ song:song });
 	}).bind(this));
 
 	var seconds=0, uniqueUsers={};

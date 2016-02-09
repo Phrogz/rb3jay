@@ -148,7 +148,10 @@ class RB3Jay < Sinatra::Application
 		`mpc -h #{ENV['MPD_HOST']} -p #{ENV['MPD_PORT']} idle #{events.join(' ')}`
 	end
 
-	before{ content_type :json }
+	before do
+		content_type :json
+		touch_user
+	end
 
 	get '/' do
 		content_type :html

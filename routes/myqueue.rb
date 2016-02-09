@@ -6,6 +6,7 @@ class RB3Jay < Sinatra::Application
 			playlist_name = "user-#{params['user']}"
 			@mpd.playlists.find{ |pl| pl.name==playlist_name } || MPD::Playlist.new( @mpd, playlist:playlist_name )
 		end
+
 		def user_active(login, active:, skip_update:false)
 			@user_active_timer ||= {}
 			if user = @db[:users][login:login]
@@ -21,6 +22,12 @@ class RB3Jay < Sinatra::Application
 						user_active( login, active:false )
 					end
 				end
+			end
+		end
+
+		def touch_user
+			if (user=params[:user]) && @db[:users][ login:user, active:true ]
+				user_active user, active:true
 			end
 		end
 	end
