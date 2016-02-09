@@ -41,7 +41,6 @@ function MyQueue(selector){
 
 	var self = this;
 	tbody.addEventListener( 'drop', function(evt) {
-		self.makeActive(true);
 		this.classList.remove('over');
 		if (evt.stopPropagation) evt.stopPropagation();
 		if (evt.preventDefault)  evt.preventDefault();
