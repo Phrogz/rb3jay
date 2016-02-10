@@ -21,8 +21,8 @@ SongList = (function(){
 		var form = this.$inp.closest('form');
 		this.$inp.bindDelayed({
 			url:'/search',
-			delay:200,
-			data:function(){ return form.serialize() },
+			delay:400,
+			data:function(){ return form.serialize()+'&user='+activeUser() },
 			callback:this.load.bind(this),
 			resendDuplicates:false
 		}).trigger('keyup');
