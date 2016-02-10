@@ -66,7 +66,7 @@ SongList = (function(){
 
 	SongList.prototype.updatePlaylists = function(playlists){
 		var $select = this.$playlists;
-		$select[0].options.length=2; // Leave the "(all songs)" and "(my played)" entries
+		$select[0].options.length=3; // Leave persistent entries
 		playlists.forEach(function(name){ $select.append(new Option(name)) });
 	};
 

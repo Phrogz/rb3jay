@@ -77,15 +77,30 @@ class RB3Jay < Sinatra::Application
 			when nil,"" then nil
 			when "øplayedø"
 				uris = @db[
-					"SELECT uri FROM song_events WHERE user=? AND event='play' GROUP BY uri LIMIT ?",
+					"SELECT uri,max(`when`) AS played FROM song_events WHERE user=? AND event='play' GROUP BY uri ORDER BY played LIMIT ?",
 					params[:user],
 					ENV['RB3JAY_LISTLIMIT'].to_i
 				].select_map(:uri)
 
 				@mpd.command_list(results:true){ uris.each{ |uri| where({file:uri},{strict:true}) } }
-				.compact
 				.map{ |hash| MPD::Song.new(@mpd,hash) }
-				.sort_by(&SONG_ORDER)
+
+			when "øilikeyø"
+				rating_by_uri = Hash[
+					@db[
+						"SELECT uri,rating FROM user_ratings WHERE user=? AND (rating='like' OR rating='love') ORDER BY rating DESC LIMIT ?",
+						params[:user],
+						ENV['RB3JAY_LISTLIMIT'].to_i
+					].select_map([:uri,:rating])
+				]
+
+				@mpd.command_list(results:true){ rating_by_uri.keys.each{ |uri| where({file:uri},{strict:true}) } }
+				.map{ |hash| MPD::Song.new(@mpd,hash) }
+				.sort_by{ |s| [
+					rating_by_uri[s.file]=='love' ? 0 : 1,
+					*SONG_ORDER[s]
+				]}
+
 			else
 				if pl=@mpd.playlists.find{ |pl| pl.name==params[:playlist] }
 					pl.songs.select(&:time) # If @time is nil, the file likely no longer exists.
