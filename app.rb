@@ -78,13 +78,13 @@ class RB3Jay < Sinatra::Application
 				send_status( info )
 				if info[:songid]
 					if !@previous_song
-						@previous_song = @mpd.song_with_id(info[:songid])
+						@previous_song = @mpd.song_with_id(info[:songid]) rescue nil
 					elsif @previous_song.id != info[:songid]
 						if @previous_time / @previous_song.track_length > SKIP_PERCENT
 							stickers = @mpd.list_stickers 'song', @previous_song.file
 							record_event 'play', stickers['added-by']
 						end
-						@previous_song = @mpd.song_with_id(info[:songid])
+						@previous_song = @mpd.song_with_id(info[:songid]) rescue nil
 
 						# Remove the newly-playing song from the playist it game from
 						if user=@mpd.list_stickers('song', @previous_song.file)['added-by']
