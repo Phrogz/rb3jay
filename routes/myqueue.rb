@@ -15,7 +15,7 @@ class RB3Jay < Sinatra::Application
 					@db[:users].filter(login:login).update(active:active)
 					@faye.publish("/user-#{login}",{active:active})
 					recalc_upnext unless skip_update
-				end				
+				end
 				if active
 					# Automatically set a user to be inactive after a period of time
 					@user_active_timer[login] = EM.add_timer(ENV['RB3JAY_USERIDLE'].to_i) do

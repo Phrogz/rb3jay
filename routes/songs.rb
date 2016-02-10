@@ -73,9 +73,26 @@ class RB3Jay < Sinatra::Application
 	get '/search' do
 		query = params[:query]
 		json = if params[:playlist] && !params[:playlist].empty?
-			playlist = @mpd.playlists.find{ |pl| pl.name==params[:playlist] }
-			if playlist
-				songs = playlist.songs.select(&:time) # If @time is nil, the file likely no longer exists.
+			songs = case params[:playlist]
+			when nil,"" then nil
+			when "øplayedø"
+				uris = @db[
+					"SELECT uri FROM song_events WHERE user=? AND event='play' GROUP BY uri LIMIT ?",
+					params[:user],
+					ENV['RB3JAY_LISTLIMIT'].to_i
+				].select_map(:uri)
+
+				@mpd.command_list(results:true){ uris.each{ |uri| where({file:uri},{strict:true}) } }
+				.compact
+				.map{ |hash| MPD::Song.new(@mpd,hash) }
+				.sort_by(&SONG_ORDER)
+			else
+				if pl=@mpd.playlists.find{ |pl| pl.name==params[:playlist] }
+					pl.songs.select(&:time) # If @time is nil, the file likely no longer exists.
+				end
+			end
+
+			if songs
 				query.split(/\s+/).map do |piece|
 					*field,str = piece.split(':')
 					field = QUERY_FIELDS[field.first]
