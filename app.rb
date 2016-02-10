@@ -81,8 +81,8 @@ class RB3Jay < Sinatra::Application
 						@previous_song = @mpd.song_with_id(info[:songid]) rescue nil
 					elsif @previous_song.id != info[:songid]
 						if @previous_time / @previous_song.track_length > SKIP_PERCENT
-							stickers = @mpd.list_stickers 'song', @previous_song.file
-							record_event 'play', stickers['added-by']
+							stickers = @mpd.list_stickers 'song', @previous_song.file rescue nil # If the previous song was removed from the database, this will error
+							record_event 'play', stickers['added-by'] if stickers
 						end
 						@previous_song = @mpd.song_with_id(info[:songid]) rescue nil
 
