@@ -93,8 +93,10 @@ var fieldMap = {
 };
 function updateSongInfo(song){
 	if (!song) return;
+	if (!song.title) song.title = song.file.replace(/^.+\//,'');
 
 	songInfoByFile[song.file] = song;
+
 	var displayPoints = $('*[data-file="'+song.file+'"]');
 	if (song.deleted){
 		var rows = displayPoints.filter('none').addBack('tr');
