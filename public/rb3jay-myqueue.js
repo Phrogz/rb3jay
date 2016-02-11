@@ -3,12 +3,24 @@ function MyQueue(selector){
 	var tbody = this.$tbody[0];
 	this.activeFlag = true;
 
+	var $actions = $('#overflow-actions');
+	$actions.on('mouseenter',function(){ $actions.fadeIn(50)   });
+	$actions.on('mouseleave',function(){ $actions.fadeOut(400) });
+	$('#overflow').on('mouseover', $actions.trigger.bind($actions,'mouseenter') );
+	$actions.on('click', $actions.trigger.bind($actions,'mouseleave'));
+
 	$('#myqueue-shuffle').on('click',function(){
 		$.post('/shuffle',{user:activeUser()});
 	});
 	$('#myqueue-toggle').on('click',(function(){
 		this.makeActive( !this.activeFlag );
 	}).bind(this));
+	$('#myqueue-rollcall').on('click',function(){
+		$.post('/rollcall',{user:activeUser()});
+	});
+	$('#myqueue-rescan').on('click',function(){
+		$.post('/scan',{user:activeUser()});
+	});
 
 	this.selectSong = makeSelectable( this.$tbody );
 	this.$tbody.on('songSelectionChanged',(function(evt,selectedFiles){

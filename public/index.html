@@ -62,9 +62,14 @@
       <table id='myqueue' tabindex='20'>
         <caption>
           my queue
-          <button id='logout'>logout</button>
-          <button id='myqueue-shuffle'><i class='fa fa-random'></i></button>
-          <button id='myqueue-toggle'><i class='fa fa-pause'></i></button>
+          <button id='overflow'><i class='fa fa-bars'></i></button>
+          <ul id='overflow-actions'>
+            <li id='myqueue-toggle'><i class='fa fa-pause'></i></li>
+            <li id='myqueue-shuffle' title='shuffle your playlist'><i class='fa fa-random'></i></li>
+            <li id='myqueue-rollcall' title='force everyone to be paused'>roll call</li>
+            <li id='myqueue-rescan' title='find changes in your database'>rescan</li>
+            <li id='logout' title='go impersonate someone else'>logout</li>
+          </ul>
         </caption>
         <thead><tr><th>title</th><th>artist</th><th>time</th></tr></thead>
         <tbody></tbody>

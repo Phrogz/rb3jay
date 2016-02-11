@@ -215,6 +215,7 @@ class RB3Jay < Sinatra::Application
 	post('/skip'){ @mpd.next; record_event('skip',params[:user]); '"ok"' }
 	post('/seek'){ @mpd.seek params[:time].to_f                 ; '"ok"' }
 	post('/volm'){ @mpd.volume = params[:volume].to_i           ; '"ok"' }
+	post('/scan'){ @mpd.update                                  ; '"ok"' } # TODO: look up user account and scan only that directory
 
 	get('/users'){ @user_by_login.values.sort_by{ |u| u[:name] }.to_json }
 
