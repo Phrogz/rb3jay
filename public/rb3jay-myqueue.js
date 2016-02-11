@@ -4,9 +4,9 @@ function MyQueue(selector){
 	this.activeFlag = true;
 
 	var $actions = $('#overflow-actions');
-	$actions.on('mouseenter',function(){ $actions.fadeIn(50)   });
-	$actions.on('mouseleave',function(){ $actions.fadeOut(400) });
-	$('#overflow').on('mouseover', $actions.trigger.bind($actions,'mouseenter') );
+	$('#overflow-pieces')
+		.on('mouseenter',function(){ $actions.fadeIn(50)   })
+		.on('mouseleave',function(){ $actions.fadeOut(400) });
 	$actions.on('click', $actions.trigger.bind($actions,'mouseleave'));
 
 	$('#myqueue-shuffle').on('click',function(){
