@@ -44,6 +44,8 @@ body { font-family:"Calibri Light", Calibri;  }
 
 #myqueue caption { position:relative }
 #myqueue tbody.paused td { opacity:0.3 }
+#myqueue #myqueue-toggle { position:absolute; top:0; left:0; width:34px; height:34px; border:0; padding:0; background:none; cursor:pointer; font-size:16px }
+#myqueue #myqueue-toggle:hover { background:rgba(255,255,255,0.15) }
 #myqueue #overflow { padding:0 10px; border:0; margin:0; background:none; position:absolute; top:0; right:0; height:34px; font-size:150%; line-height:34px; cursor:pointer }
 #myqueue #overflow-pieces:hover #overflow { background:rgba(255,255,255,0.15) }
 #myqueue #overflow:focus { outline:none }
