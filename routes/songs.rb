@@ -53,7 +53,7 @@ class RB3Jay < Sinatra::Application
 	post '/checkdetails' do
 		if song=params[:song]
 			file = song[:file]
-			%w[track date time disc bpm].each{ |f| song[f] = song[f].to_i if song[f] }
+			%w[track date time disc bpm].each{ |f| song[f] = Array(song[f]).first.to_i if song[f] }
 			song.each{ |k,v| song[k]=nil if v=='' }
 			details = song_details(file)
 			case details
