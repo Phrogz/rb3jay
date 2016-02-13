@@ -41,6 +41,7 @@ class RB3Jay < Sinatra::Application
 		@mpd = MPD.new( ENV['MPD_HOST'], ENV['MPD_PORT'] )
 		@mpd.connect
 		@faye = Faye::Client.new("http://#{ENV['RB3JAY_HOST']}:#{ENV['RB3JAY_PORT']}/faye")
+		watch_status
 		watch_for_subscriptions
 		watch_for_changes
 		require_relative 'model/init'
@@ -63,10 +64,23 @@ class RB3Jay < Sinatra::Application
 	end
 
 	def watch_for_changes
-		watch_status
-		watch_playlists
-		watch_player
-		watch_upnext
+		handle_event = {
+			"stored_playlist" => ->{ send_playlists; recalc_upnext },
+			"playlist"        => ->{ send_upnext },
+			# "database"        => ->{ send_upnext },
+		}
+		EM.defer(
+			->( ){
+				# This is a synchronous blocking call, that will
+				# return when one of the events finally occurs.
+				# TODO: implement @mpd.idle in ruby-mpd and move this to there
+				`mpc -h #{ENV['MPD_HOST']} -p #{ENV['MPD_PORT']} idle #{handle_event.keys.join(' ')}`.strip
+			},
+			->(change){
+				watch_for_changes
+				handle_event[change].call
+			}
+		)
 	end
 
 	def watch_status
@@ -114,40 +128,6 @@ class RB3Jay < Sinatra::Application
 		end
 	end
 
-	def watch_playlists
-		EM.defer(
-			->( ){ idle_until 'stored_playlist'    },
-			->(_){
-				send_playlists
-				recalc_upnext
-				watch_playlists
-			}
-		)
-	end
-
-	def watch_upnext
-		EM.defer(
-			->( ){ idle_until 'playlist', 'database' },
-			->(_){ send_next; watch_upnext           }
-		)
-	end
-
-	def watch_player
-		EM.defer(
-			->( ){ idle_until 'player' },
-			->(_){
-				# recalc_upnext
-				watch_player
-			}
-		)
-	end
-
-	def idle_until(*events)
-		# This is a synchronous blocking call, that will
-		# return when one of the events finally occurs
-		`mpc -h #{ENV['MPD_HOST']} -p #{ENV['MPD_PORT']} idle #{events.join(' ')}`
-	end
-
 	before do
 		content_type :json
 		touch_user
@@ -176,7 +156,7 @@ class RB3Jay < Sinatra::Application
 			end
 			{ done:played, next:coming }
 		end
-		def send_next
+		def send_upnext
 			@faye.publish '/next', up_next
 		end
 		def playlists
