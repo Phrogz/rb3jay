@@ -28,7 +28,7 @@ class MPD::Song
 			'modified'    => modified,
 			'track'       => track,
 			'genre'       => genre,
-			'date'        => date,
+			'date'        => date && Array(date).first.to_i,
 			'composer'    => composer,
 			'disc'        => disc,
 			'albumartist' => albumartist,
