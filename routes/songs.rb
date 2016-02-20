@@ -82,8 +82,7 @@ class RB3Jay < Sinatra::Application
 					ENV['RB3JAY_LISTLIMIT'].to_i
 				].select_map(:uri)
 
-				@mpd.command_list(results:true){ uris.each{ |uri| where({file:uri},{strict:true}) } }
-				.map{ |hash| MPD::Song.new(@mpd,hash) }
+				@mpd.command_list(:songs){ uris.each{ |uri| where({file:uri},{strict:true}) } }
 
 			when "øilikeyø"
 				rating_by_uri = Hash[
@@ -94,8 +93,7 @@ class RB3Jay < Sinatra::Application
 					].select_map([:uri,:rating])
 				]
 
-				@mpd.command_list(results:true){ rating_by_uri.keys.each{ |uri| where({file:uri},{strict:true}) } }
-				.map{ |hash| MPD::Song.new(@mpd,hash) }
+				@mpd.command_list(:songs){ rating_by_uri.keys.each{ |uri| where({file:uri},{strict:true}) } }
 				.sort_by{ |s| [
 					rating_by_uri[s.file]=='love' ? 0 : 1,
 					*SONG_ORDER[s]
