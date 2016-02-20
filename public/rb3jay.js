@@ -97,7 +97,7 @@ function updateSongInfo(song){
 
 	songInfoByFile[song.file] = song;
 
-	var displayPoints = $('*[data-file="'+song.file+'"]');
+	var displayPoints = $('*[data-file="'+song.file.replace(/\\/g,'\\\\')+'"]');
 	if (song.deleted){
 		var rows = displayPoints.filter('none').addBack('tr');
 		rows.remove();
