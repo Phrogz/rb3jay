@@ -203,15 +203,6 @@ class RB3Jay < Sinatra::Application
 	require_relative 'routes/songs'
 	require_relative 'routes/myqueue'
 	require_relative 'routes/upnext'
-	get('/users.css') do
-		content_type :css
-		@db[:users].flat_map do |user|
-			[
-				"#upnext tr.user-#{user[:login]} td:last-child:after { content:'#{user[:initials]}'; background:#{user[:color]} }",
-				"#upnext tr.user-#{user[:login]} td { color:#{user[:color]} }"
-			]
-		end.join("\n")
-	end
 end
 
 run!
