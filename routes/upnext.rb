@@ -1,5 +1,3 @@
-require 'digest' # for calculating stable sorting
-
 class RB3Jay < Sinatra::Application
 	helpers do
 		def recalc_upnext
@@ -13,8 +11,8 @@ class RB3Jay < Sinatra::Application
 		content_type :css
 		@db[:users].flat_map do |user|
 			[
-				"#upnext tr.priority.user-#{user[:login]} td:last-child:after { content:'#{user[:initials]}'; background:#{user[:color]} }",
-				"#upnext tr.priority.user-#{user[:login]} td { color:#{user[:color]} }"
+				"#upnext tr.user-#{user[:login]} td:last-child:after { content:'#{user[:initials]}'; background:#{user[:color]} }",
+				"#upnext tr.user-#{user[:login]} td { color:#{user[:color]} }"
 			]
 		end.join("\n")
 	end
@@ -85,6 +83,9 @@ class RB3Jay < Sinatra::Application
 			# puts "%-20s: %.3fs" % ["set song priority",(t=Time.now)-lap_time]; lap_time=t
 		end
 
+		# This removes the ID for the currently-playing song, which we don't want
+		# @db[:sticker].where(name:'added-by').delete
+
 		@db[:sticker]
 		.insert_conflict(:replace)
 		.import(
@@ -109,8 +110,7 @@ class RB3Jay < Sinatra::Application
 			puts "%-20s: %.3fs" % ["find recent",(t=Time.now)-t2]; t2=t
 
 			disallowed_files = hated + recent + @songs_in_list
-			files = @mpd.songs.map(&:file).reject{ |file| disallowed_files.include?(file) }
-			extra = files.sort_by{ |file| Digest::MD5.digest(file) }.slice(0,extra_needed)
+			extra = (@filler - disallowed_files).to_a.slice(0,extra_needed)
 			puts "%-20s: %.3fs" % ["sort #{extra_needed} randsongs",(t=Time.now)-t2]; t2=t
 
 			@mpd.command_list{ extra.each{ |file| add file } }

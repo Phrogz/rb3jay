@@ -1,5 +1,5 @@
 %w[ eventmachine thin sinatra faye sequel set
-	  rack/session/moneta ruby-mpd json time ].each{ |lib| require lib }
+	  rack/session/moneta ruby-mpd json time digest ].each{ |lib| require lib }
 
 require_relative 'environment'
 require_relative 'helpers/ruby-mpd-monkeypatches'
@@ -47,6 +47,7 @@ class RB3Jay < Sinatra::Application
 		require_relative 'model/init'
 		@db = connect_to( ENV['MPD_STICKERS'] )
 		@user_by_login = Hash[ @db[:users].all.map{|u| [u[:login],u] } ]
+		prepare_filler
 	end
 
 	def watch_for_subscriptions
@@ -67,7 +68,7 @@ class RB3Jay < Sinatra::Application
 		handle_event = {
 			"stored_playlist" => ->{ send_playlists; recalc_upnext },
 			"playlist"        => ->{ send_upnext },
-			# "database"        => ->{ send_upnext },
+			"database"        => ->{ prepare_filler },
 		}
 		EM.defer(
 			->( ){
@@ -83,6 +84,10 @@ class RB3Jay < Sinatra::Application
 		)
 	end
 
+	def prepare_filler
+		@filler = Set.new @mpd.songs.map(&:file).sort_by{ |file| Digest::MD5.digest(file) }
+	end
+
 	def watch_status
 		@previous_song = nil
 		@previous_time = nil
@@ -94,14 +99,15 @@ class RB3Jay < Sinatra::Application
 					if !@previous_song
 						@previous_song = @mpd.song_with_id(info[:songid]) rescue nil
 					elsif @previous_song.id != info[:songid]
+						@mpd.delete_sticker('song', @previous_song.file, 'added-by') if @mpd.list_stickers('song', @previous_song.file)['added-by']
 						if @previous_time / @previous_song.track_length > SKIP_PERCENT
 							stickers = @mpd.list_stickers 'song', @previous_song.file rescue nil # If the previous song was removed from the database, this will error
 							record_event 'play', stickers['added-by'] if stickers
 						end
 						@previous_song = @mpd.song_with_id(info[:songid]) rescue nil
 
-						# Remove the newly-playing song from the playist it game from
 						if user=@mpd.list_stickers('song', @previous_song.file)['added-by']
+							# Remove the newly-playing song from the playist it came from
 							if queue=@mpd.playlists.find{ |pl| pl.name=="user-#{user}" }
 								if index=queue.songs.index{ |song| song.file==@previous_song.file }
 									queue.delete index
