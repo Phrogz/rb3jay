@@ -103,13 +103,14 @@ class RB3Jay < Sinatra::Application
 		extra_needed = ENV['RB3JAY_NEXTLIMIT'].to_i - @songs_in_list.length
 		unless extra_needed<=0
 			start_time = t2 = Time.now
-			hated  = Set.new @db[:user_ratings].filter(rating:'hate').distinct.select_map(:uri)
-			puts "%-20s: %.3fs" % ["find hated",(t=Time.now)-t2]; t2=t
-			three_weeks = Date.today - 3*7
-			recent = Set.new @db["SELECT uri FROM song_events WHERE event='play' AND `when`>?", three_weeks ].select_map(:uri)
+			disliked  = Set.new @db[:user_ratings].filter(rating:'hate').or(rating:'bleh').distinct.select_map(:uri)
+			puts "%-20s: %.3fs" % ["find disliked",(t=Time.now)-t2]; t2=t
+
+			four_weeks = Date.today - 4*7
+			recent = Set.new @db["SELECT uri FROM song_events WHERE `when`>?", four_weeks ].select_map(:uri)
 			puts "%-20s: %.3fs" % ["find recent",(t=Time.now)-t2]; t2=t
 
-			disallowed_files = hated + recent + @songs_in_list
+			disallowed_files = disliked + recent + @songs_in_list
 			extra = (@filler - disallowed_files).to_a.slice(0,extra_needed)
 			puts "%-20s: %.3fs" % ["sort #{extra_needed} randsongs",(t=Time.now)-t2]; t2=t
 
