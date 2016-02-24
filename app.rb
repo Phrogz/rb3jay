@@ -157,8 +157,8 @@ class RB3Jay < Sinatra::Application
 			@faye.publish '/status', info
 		end
 		def up_next
-			played = @db[:song_events].order(:when).select(:uri___file,:user).last(3).reverse.map do |hash|
-				hash.merge! user:hash[:user]
+			played = @db[:song_events].order(:when).select(:uri___file,:user,:event).last(3).reverse.each do |hash|
+				hash.delete(:user) if hash[:event]=="skip"
 			end
 			adders = @mpd.find_sticker('song','','added-by')
 			coming = @mpd.queue.slice(0,ENV['RB3JAY_LISTLIMIT'].to_i).map(&:summary).map do |info|
