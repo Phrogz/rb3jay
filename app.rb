@@ -79,7 +79,11 @@ class RB3Jay < Sinatra::Application
 			},
 			->(change){
 				watch_for_changes
-				handle_event[change].call
+				if handle_event[change]
+					handle_event[change].call
+				else
+					warn "Cannot handle event #{change.inspect}"
+				end
 			}
 		)
 	end
