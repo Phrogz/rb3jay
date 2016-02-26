@@ -1,4 +1,4 @@
-%w[ eventmachine thin sinatra faye sequel set
+%w[ eventmachine thin sinatra faye sequel set haml
 	  rack/session/moneta ruby-mpd json time digest ].each{ |lib| require lib }
 
 require_relative 'environment'
@@ -103,11 +103,11 @@ class RB3Jay < Sinatra::Application
 					if !@previous_song
 						@previous_song = @mpd.song_with_id(info[:songid]) rescue nil
 					elsif @previous_song.id != info[:songid]
-						@mpd.delete_sticker('song', @previous_song.file, 'added-by') if @mpd.list_stickers('song', @previous_song.file)['added-by']
+						stickers = @mpd.list_stickers 'song', @previous_song.file rescue nil # If the previous song was removed from the database, this will error
 						if @previous_time / @previous_song.track_length > SKIP_PERCENT
-							stickers = @mpd.list_stickers 'song', @previous_song.file rescue nil # If the previous song was removed from the database, this will error
 							record_event 'play', stickers['added-by'] if stickers
 						end
+						@mpd.delete_sticker('song', @previous_song.file, 'added-by') if stickers && stickers['added-by']
 						@previous_song = @mpd.song_with_id(info[:songid]) rescue nil
 
 						if user=@mpd.list_stickers('song', @previous_song.file)['added-by']
@@ -213,6 +213,7 @@ class RB3Jay < Sinatra::Application
 	require_relative 'routes/songs'
 	require_relative 'routes/myqueue'
 	require_relative 'routes/upnext'
+	require_relative 'routes/stats'
 end
 
 run!
