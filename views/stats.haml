@@ -1,0 +1,36 @@
+!!! 5
+%html
+	%head
+		%meta(charset='utf-8')
+		%title 3J Stats
+		%link(rel='stylesheet' href='/style.css')
+		%link(rel='stylesheet' href='/meta.css')
+	%body#stats
+		%table
+			%caption Server Overview
+			<tr><td>Database has <b>#{commas @stats[:songs]}</b> songs (#{commas @stats[:artists]} artist#{:s unless @stats[:artists]==1}) totaling <b>#{duration @stats[:db_playtime]}</b> of play time</td></tr>
+			<tr><td>Server has been up for <b>#{duration @stats[:uptime]}</b> and played <b>#{duration @stats[:playtime]}</b> of music</td></tr>
+
+		%table#users
+			%caption User Stats
+			%thead
+				%tr
+					%th user
+					%th(colspan='2') library
+					%th played
+					%th skipped
+					%th.icon.hate
+					%th.icon.bleh
+					%th.icon.like
+					%th.icon.love
+			- @user_stats.sort_by(&:first).each do |user,stats|
+				%tr
+					%th= user
+					%td.libsong #{commas stats[:own_songs], '0'} songs
+					%td.libtime #{duration stats[:song_time]}
+					%td #{commas stats[:play_count]}
+					%td #{commas stats[:skip_count]}
+					%td #{commas stats['hate']}
+					%td #{commas stats['bleh']}
+					%td #{commas stats['like']}
+					%td #{commas stats['love']}

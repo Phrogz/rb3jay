@@ -1,0 +1,10 @@
+body#stats { background:#ccc; font-family:Tahoma,sans-serif; font-size:14pt; margin:20px }
+body#stats table { border-collapse:collapse; margin:2em auto; width:auto }
+body#stats table caption { font-size:100%; margin:0; background:#333; color:#ddd; padding:0.2em 0.5em; text-align:center }
+body#stats thead th { padding:0 0.5em; background-color:#444; color:#999; text-align:center }
+body#stats tbody th { text-align:right }
+body#stats tbody th, tbody td { vertical-align:top; padding:0.2em 0.5em; text-align:center }
+body#stats th:first-child { text-align:right }
+body#stats table#users td.libsong { text-align:right }
+body#stats table#users td.libtime { text-align:left }
+body#stats th.icon { background-position:center center }
