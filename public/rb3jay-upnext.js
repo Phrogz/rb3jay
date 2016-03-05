@@ -1,6 +1,7 @@
 function UpNext(selector){
 	this.$tbody = $(selector);
-	this.$caption = this.$tbody.closest('table').find('caption');
+	this.$table = this.$tbody.closest('table');
+	this.$caption = this.$table.find('caption');
 	this.selectSong = makeSelectable( this.$tbody, true );
 	this.$tbody.on('songSelectionChanged',(function(evt,selectedFiles){
 		if (this.onSelectionChanged) this.onSelectionChanged( selectedFiles );
@@ -39,7 +40,9 @@ UpNext.prototype.update = function(songs){
 	if (selectedFile) $rowToSelect = this.$tbody.find( 'tr[data-file="'+selectedFile+'"]' );
 	if (!($rowToSelect && $rowToSelect[0])) $rowToSelect = this.$tbody.find( 'tr.active' );
 	if ($rowToSelect[0]){
-		øinspector.inspect( $rowToSelect[0].dataset.file );
+		if (document.activeElement==this.$table[0]){
+			øinspector.inspect( $rowToSelect[0].dataset.file );
+		}
 		this.selectSong( $rowToSelect );
 	}
 

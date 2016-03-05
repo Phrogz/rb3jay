@@ -23,14 +23,63 @@
 					%th.icon.bleh
 					%th.icon.like
 					%th.icon.love
-			- @user_stats.sort_by(&:first).each do |user,stats|
+			%tbody
+				- @user_stats.sort_by(&:first).each do |user,stats|
+					%tr
+						%th= user
+						%td.libsong #{commas stats[:own_songs], '0'} songs
+						%td.libtime #{duration stats[:song_time]}
+						%td #{commas stats[:play_count]}
+						%td #{commas stats[:skip_count]}
+						%td #{commas stats['hate']}
+						%td #{commas stats['bleh']}
+						%td #{commas stats['like']}
+						%td #{commas stats['love']}
+
+		%table#played
+			%caption Most Played
+			%thead
 				%tr
-					%th= user
-					%td.libsong #{commas stats[:own_songs], '0'} songs
-					%td.libtime #{duration stats[:song_time]}
-					%td #{commas stats[:play_count]}
-					%td #{commas stats[:skip_count]}
-					%td #{commas stats['hate']}
-					%td #{commas stats['bleh']}
-					%td #{commas stats['like']}
-					%td #{commas stats['love']}
+					%th plays
+					%th.title title
+					%th.artist artist
+			%tbody
+				- @most_played.each do |song,count|
+					%tr
+						%td= count
+						- song=song.file if MPD::Song===song && !song.title
+						- if MPD::Song===song
+							%td.title= song.title || song.file
+							%td.artist= song.artist
+						- else
+							%td.title(colspan=2)= song
+
+		%table#skipped
+			%caption Most Skipped
+			%thead
+				%tr
+					%th skips
+					%th.title title
+					%th.artist artist
+			%tbody
+				- @most_skipped.each do |song,count|
+					%tr
+						%td= count
+						- song=song.file if MPD::Song===song && !song.title
+						- if MPD::Song===song
+							%td.title= song.title
+							%td.artist= song.artist
+						- else
+							%td.title(colspan=2)= song
+
+		- if @dups
+			%table#dups
+				%caption #{@dups.length} Possible Duplicates
+				- @dups.each do |sig,dups|
+					%tbody
+						- dups.each do |song|
+							%tr
+								%td.title{title:song.title}= song.title
+								%td.artist{title:song.artist}= song.artist
+								%td.length= song.length
+								%td.uri{title:song.file}= song.file

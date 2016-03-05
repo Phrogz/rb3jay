@@ -41,7 +41,7 @@ function Controls(wrapSelector){
 		volumeTimeout = setTimeout(function(){
 			$.post('/volm',{ volume:newVolume, user:activeUser() });
 		},200);
-		
+
 		// Wait a second after updating before allowing status updates to change volume.
 		// Stops the slider from jumping back and forth when dragging or rolling.
 		self.nextVolumeUpdate = (new Date).getTime() + 1000;
@@ -92,6 +92,7 @@ Controls.prototype.update = function(status){
 	}else{
 		this.$title.html("");
 		this.$artalb.html("(no song playing)");
+		console.log('controls removing rating');
 		this.rating.className = 'song-rating'; // removes any extra classes
 	}
 };

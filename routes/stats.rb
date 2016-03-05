@@ -17,11 +17,18 @@ class RB3Jay < Sinatra::Application
 				parts << "#{t} second#{:s if t!=1}" if (t=seconds%60)>0
 			end.slice(0,2).join(", ")
 		end
+		def time(label,&blk)
+			t1 = Time.now
+			blk.call.tap{ puts "%.3fs : #{label}" % (Time.now-t1) }
+		end
 	end
 	get('/stats') do
 		@stats = @mpd.stats
 		@user_stats = {}
+
 		songs = @mpd.songs
+		songs_by_file = songs.map{ |s| [s.file,s] }.to_h
+
 		songs.group_by{ |song| song.file[%r{^[^/]+}] }.each do |directory,songs|
 			# FIXME: this assumes that the directory name is the nice user name
 			user_name = directory.capitalize
@@ -29,6 +36,7 @@ class RB3Jay < Sinatra::Application
 			@user_stats[user_name][:own_songs] = songs.length
 			@user_stats[user_name][:song_time] = songs.map(&:track_length).inject(:+)
 		end
+
 		@db["SELECT user,count(*) AS ct FROM song_events WHERE user NOT NULL AND event='play' GROUP BY user ORDER BY user"].each do |hash|
 			user_name = @user_by_login[ hash[:user] ][:name]
 			@user_stats[user_name] ||= {}
@@ -44,6 +52,20 @@ class RB3Jay < Sinatra::Application
 			@user_stats[user_name] ||= {}
 			@user_stats[user_name][hash[:rating]] = hash[:ct]
 		end
+
+		@most_skipped = @db["SELECT uri,count(*) AS skips FROM song_events WHERE event='skip' GROUP BY uri ORDER BY skips DESC LIMIT 30"].map do |hash|
+			[ songs_by_file[hash[:uri]] || hash[:uri], hash[:skips] ] if hash[:skips]>1
+		end.compact
+
+		@most_played = @db["SELECT uri,count(*) AS plays FROM song_events WHERE event='play' GROUP BY uri ORDER BY plays DESC LIMIT 30"].map do |hash|
+			[ songs_by_file[hash[:uri]] || hash[:uri], hash[:plays] ] if hash[:plays]>1
+		end.compact
+
+		@dups = songs.select{ |s| s.title && s.artist }
+		             .group_by{ |s| [s.title.downcase.gsub(/\W+/,''), s.artist.downcase, (s.track_length/10.0).round] }
+		             .reject{ |sig,a| a.length==1 }
+		             .sort_by{ |sig,a| [-a.length,sig[1],sig[0]] }
+
 		content_type :html
 		haml :stats
 	end

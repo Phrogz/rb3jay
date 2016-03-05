@@ -114,7 +114,7 @@ class RB3Jay < Sinatra::Application
 			extra = (@filler - disallowed_files).to_a.slice(0,extra_needed)
 			puts "%-20s: %.3fs" % ["sort #{extra_needed} randsongs",(t=Time.now)-t2]; t2=t
 
-			@mpd.command_list{ extra.each{ |file| add file } }
+			@mpd.command_list{ extra.each{ |file| add(file) rescue nil } }
 			puts "%-20s: %.3fs" % ["add #{extra_needed} randsongs",(t=Time.now)-t2]; t2=t
 
 			puts( "Added #{extra_needed} files in %.3fs" % (Time.now-start_time) )

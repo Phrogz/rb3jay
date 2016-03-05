@@ -112,9 +112,10 @@ function updateSongInfo(song){
 			else                         value = value(song);
 			displayPoints.find('.song-'+field).html(value || '-').attr('title','');
 		});
-		if (song.ratings){
-			displayPoints.find('.song-rating').attr('class','song-rating '+(song.ratings[activeUser()] || 'zero'));
-		}
+		displayPoints.find('.song-rating').attr(
+			'class',
+			'song-rating '+(song.ratings && song.ratings[activeUser()] || 'zero')
+		);
 	}
 }
 

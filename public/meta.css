@@ -1,4 +1,5 @@
-body#stats { background:#ccc; font-family:Tahoma,sans-serif; font-size:14pt; margin:20px }
+html { overflow:auto }
+body#stats { background:#ccc; font-family:Tahoma,sans-serif; font-size:10pt; margin:20px; margin-bottom:100px; height:auto }
 body#stats table { border-collapse:collapse; margin:2em auto; width:auto }
 body#stats table caption { font-size:100%; margin:0; background:#333; color:#ddd; padding:0.2em 0.5em; text-align:center }
 body#stats thead th { padding:0 0.5em; background-color:#444; color:#999; text-align:center }
@@ -8,3 +9,18 @@ body#stats th:first-child { text-align:right }
 body#stats table#users td.libsong { text-align:right }
 body#stats table#users td.libtime { text-align:left }
 body#stats th.icon { background-position:center center }
+
+body#stats .title,
+body#stats .artist,
+body#stats .uri { text-align:left }
+
+body#stats .time { text-align:right }
+
+body#stats table#dups { table-layout:fixed }
+body#stats table#dups td.title  { width:15em; max-width:15em }
+body#stats table#dups td.artist { width:10em; max-width:10em }
+body#stats table#dups td.time   { width:4em; max-width:4em }
+body#stats table#dups td { overflow:hidden; white-space:nowrap; text-overflow:ellipsis }
+
+body#stats table#dups tbody tr:last-child td { border-bottom:1px solid #999 }
+

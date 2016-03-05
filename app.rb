@@ -1,4 +1,4 @@
-%w[ eventmachine thin sinatra faye sequel set haml
+%w[ eventmachine thin sinatra faye sequel set haml tilt/haml
 	  rack/session/moneta ruby-mpd json time digest ].each{ |lib| require lib }
 
 require_relative 'environment'
@@ -110,7 +110,7 @@ class RB3Jay < Sinatra::Application
 						@mpd.delete_sticker('song', @previous_song.file, 'added-by') if stickers && stickers['added-by']
 						@previous_song = @mpd.song_with_id(info[:songid]) rescue nil
 
-						if user=@mpd.list_stickers('song', @previous_song.file)['added-by']
+						if @previous_song && @previous_song.file && (user=@mpd.list_stickers('song', @previous_song.file)['added-by'])
 							# Remove the newly-playing song from the playist it came from
 							if queue=@mpd.playlists.find{ |pl| pl.name=="user-#{user}" }
 								if index=queue.songs.index{ |song| song.file==@previous_song.file }
@@ -157,7 +157,7 @@ class RB3Jay < Sinatra::Application
 			@faye.publish '/status', info
 		end
 		def up_next
-			played = @db[:song_events].order(:when).select(:uri___file,:user,:event).last(3).reverse.each do |hash|
+			played = @db[:song_events].order(:when).select(:uri___file,:user,:event).last(5).reverse.each do |hash|
 				hash.delete(:user) if hash[:event]=="skip"
 			end
 			adders = @mpd.find_sticker('song','','added-by')
