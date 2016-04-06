@@ -100,21 +100,33 @@ class RB3Jay < Sinatra::Application
 	end
 
 	def add_random_songs
+		today = Date.today.iso8601
+		unless @date_random_sorted==today
+			@date_random_sorted=today
+			@filler = Set.new @filler.sort_by{ |f| Digest::MD5.digest("#{today}#{f}") }
+		end
 		extra_needed = ENV['RB3JAY_NEXTLIMIT'].to_i - @songs_in_list.length
 		unless extra_needed<=0
 			start_time = t2 = Time.now
 			disliked  = Set.new @db[:user_ratings].filter(rating:'hate').or(rating:'bleh').distinct.select_map(:uri)
 			puts "%-20s: %.3fs" % ["find disliked",(t=Time.now)-t2]; t2=t
 
-			four_weeks = Date.today - 4*7
-			recent = Set.new @db["SELECT uri FROM song_events WHERE `when`>?", four_weeks ].select_map(:uri)
+			seven_weeks = Date.today - 7*7
+			recent = Set.new @db["SELECT uri FROM song_events WHERE `when`>?", seven_weeks ].select_map(:uri)
 			puts "%-20s: %.3fs" % ["find recent",(t=Time.now)-t2]; t2=t
 
 			disallowed_files = disliked + recent + @songs_in_list
 			extra = (@filler - disallowed_files).to_a.slice(0,extra_needed)
 			puts "%-20s: %.3fs" % ["sort #{extra_needed} randsongs",(t=Time.now)-t2]; t2=t
 
-			@mpd.command_list{ extra.each{ |file| add(file) rescue nil } }
+			@mpd.command_list do
+				extra.each do |file|
+					begin
+						add(file)
+					rescue MPD::NotFound
+					end
+				end
+			end
 			puts "%-20s: %.3fs" % ["add #{extra_needed} randsongs",(t=Time.now)-t2]; t2=t
 
 			puts( "Added #{extra_needed} files in %.3fs" % (Time.now-start_time) )
