@@ -114,8 +114,14 @@ class RB3Jay < Sinatra::Application
 			seven_weeks = Date.today - 7*7
 			recent = Set.new @db["SELECT uri FROM song_events WHERE `when`>?", seven_weeks ].select_map(:uri)
 			puts "%-20s: %.3fs" % ["find recent",(t=Time.now)-t2]; t2=t
+			
+			xmas_capella = Set.new(@mpd.command_list(:songs) do
+				where(any:'christmas')
+				where(genre:'a capella')
+			end.map(&:file))
+			puts "%-20s: %.3fs" % ["find xmas/capella",(t=Time.now)-t2]; t2=t
 
-			disallowed_files = disliked + recent + @songs_in_list
+			disallowed_files = disliked + recent + xmas_capella + @songs_in_list
 			extra = (@filler - disallowed_files).to_a.slice(0,extra_needed)
 			puts "%-20s: %.3fs" % ["sort #{extra_needed} randsongs",(t=Time.now)-t2]; t2=t
 
