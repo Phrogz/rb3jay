@@ -106,7 +106,7 @@ class RB3Jay < Sinatra::Application
 			end
 
 			if songs
-				query.split(/\s+/).map do |piece|
+				query.strip.split(/\s+/).map do |piece|
 					*field,str = piece.split(':')
 					field = QUERY_FIELDS[field.first]
 					if field==:date && str[YEAR_RANGE]
