@@ -36,6 +36,38 @@
 						%td #{commas stats['like']}
 						%td #{commas stats['love']}
 
+		%table#extremes
+			%caption Voting Extremes
+			%thead
+				%tr
+					%th.user user
+					%th.title title
+					%th.artist artist
+					%th.icon.hate
+					%th.icon.bleh
+					%th.icon.like
+					%th.icon.love
+			- songs_seen = {}
+			- top = @songs_by_rating[0..20]
+			- mid = @contested_songs[0..20]
+			- bot = @songs_by_rating.reverse[0..20].reverse
+			- [top,mid,bot].each do |songs_and_ratings|
+				%tbody
+					- songs_and_ratings.each do |song,ratings|
+						- unless songs_seen[song]
+							- songs_seen[song] = 1
+							%tr
+								%th= song.file[%r{[^/]+}]
+								- if song.title
+									%td.title= song.title
+									%td.artist= song.artist || '-'
+								- else
+									%td.title(colspan=2)= song.file
+								%td #{commas ratings['hate']}
+								%td #{commas ratings['bleh']}
+								%td #{commas ratings['like']}
+								%td #{commas ratings['love']}
+
 		%table#played
 			%caption Most Played
 			%thead

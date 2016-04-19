@@ -12,7 +12,7 @@ body#stats th.icon { background-position:center center }
 
 body#stats .title,
 body#stats .artist,
-body#stats .uri { text-align:left }
+body#stats .uri { text-align:left ! important }
 
 body#stats .time { text-align:right }
 
@@ -24,3 +24,4 @@ body#stats table#dups td { overflow:hidden; white-space:nowrap; text-overflow:el
 
 body#stats table#dups tbody tr:last-child td { border-bottom:1px solid #999 }
 
+body#stats table#extremes tbody tr:first-child > * { border-top:1px solid #666; }
