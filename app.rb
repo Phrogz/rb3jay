@@ -104,7 +104,7 @@ class RB3Jay < Sinatra::Application
 						@previous_song = @mpd.song_with_id(info[:songid]) rescue nil
 					elsif @previous_song.id != info[:songid]
 						stickers = @mpd.list_stickers 'song', @previous_song.file rescue nil # If the previous song was removed from the database, this will error
-						if @previous_time / @previous_song.track_length > SKIP_PERCENT
+						if @previous_time && (@previous_time / @previous_song.track_length > SKIP_PERCENT)
 							record_event 'play', stickers['added-by'] if stickers
 						end
 						@mpd.delete_sticker('song', @previous_song.file, 'added-by') if stickers && stickers['added-by']
