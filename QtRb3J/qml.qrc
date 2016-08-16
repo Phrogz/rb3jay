@@ -9,9 +9,6 @@
         <file>Rating.qml</file>
         <file>FayeClient.qml</file>
     </qresource>
-    <qresource prefix="/js">
-        <file alias="faye-client.js">js/faye-client.js</file>
-    </qresource>
     <qresource prefix="/img">
         <file alias="bleh.png">../public/bleh.png</file>
         <file alias="hate.png">../public/hate.png</file>
