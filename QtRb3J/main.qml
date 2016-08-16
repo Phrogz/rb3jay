@@ -4,18 +4,72 @@ import QtQuick.Layouts 1.3
 import QtWebSockets 1.0
 
 ApplicationWindow {
-    id: window
+    id: app
     minimumWidth: 600
     minimumHeight: 300
     visible: true
     width:1280; height:200
     title: "RB3Jay"
 
-    FayeClient {
+    property string host: 'http://localhost:8080/'
+    property string activeUser
+
+    property var userSubscription
+
+    function receiveStatus(s){
+        playcontrol.playingFlag = s.state=="play";
+        songcontrol.song        = s.file;
+        songcontrol.elapsed     = s.elapsed;
+        songcontrol.duration    = s.time && s.time[1];
+        audiocontrol.volume     = s.volume;
+    }
+
+    function receiveUpNext(d){}
+    function receivePlaylists(d){}
+    function receiveSongInfo(d){}
+    function logoutUser(){
+        if (userSubscription) userSubscription.cancel();
+        userSubscription = null;
+        activeUser = null;
+    }
+    function loginUser(user){
+        activeUser = user;
+        var startup = server.subscribe('/startup-'+user, function(data){
+            // øupnext.update(data.upnext);
+            // øupnext.activeSong(data.status.file);
+            // ømyqueue.updateQueue(data.myqueue);
+            // øsongs.updatePlaylists(data.playlists);
+            // øcontrols.update(data.status);
+            // startup.cancel();
+        });
+        userSubscription = server.subscribe('/user-'+user,function(data){
+            // if ('myqueue' in data) ømyqueue.updateQueue(data.myqueue);
+            // if ('active'  in data) ømyqueue.updateActive(data.active);
+        });
+    }
+
+    function post(path,data){
+        if (!data) data = {};
+        data.user = activeUser;
+        var xhr = new XMLHttpRequest;
+        xhr.onreadystatechange = function(){
+            if (xhr.readyState==XMLHttpRequest.DONE){
+                console.log("Post to ",path,"returned status",xhr.status,"and",xhr.responseText);
+            }
+        };
+        xhr.open('POST',host+path);
+        xhr.setRequestHeader('Content-Type', 'application/json;charset=UTF-8');
+        xhr.send(JSON.stringify(data));
+    }
+
+    BayeuxClient {
         id: server
-        url: 'http://localhost:8080/faye'
+        url: host+'faye'
         Component.onCompleted: {
-            subscribe('/status',function(s){ console.log(s) });
+            subscribe('/status',      receiveStatus);
+            subscribe('/next',        receiveUpNext);
+            subscribe('/playlists',   receivePlaylists);
+            subscribe('/songdetails', receiveSongInfo);
         }
     }
 
@@ -31,23 +85,30 @@ ApplicationWindow {
         spacing: 0
         height: 100
         width: parent.width
-        PlayControls {
+        PlayControl {
+            id: playcontrol
             Layout.minimumWidth:200
             Layout.maximumWidth:200
             Layout.preferredWidth:200
             Layout.fillHeight:true
+            onPlayingFlagChanged: post(playingFlag ? '/play' : '/paws')
+            onNext: post('skip')
         }
-        NowPlaying {
+        SongControl {
+            id: songcontrol
             Layout.minimumWidth: 200
             Layout.preferredWidth: parent.width*0.7
             Layout.fillWidth:true
             Layout.fillHeight:true
+            height: parent.height
         }
         AudioControl {
+            id: audiocontrol
             Layout.minimumWidth: 200
             Layout.preferredWidth: parent.width*0.3
             Layout.fillWidth:true
             Layout.fillHeight:true
+            height: parent.height
         }
     }
 

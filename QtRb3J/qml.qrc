@@ -1,13 +1,13 @@
 <RCC>
     <qresource prefix="/">
         <file>main.qml</file>
-        <file>NowPlaying.qml</file>
-        <file>PlayControls.qml</file>
+        <file>PlayControl.qml</file>
+        <file>SongControl.qml</file>
         <file>AudioControl.qml</file>
-        <file>Inspector.qml</file>
         <file>SongRow.qml</file>
+        <file>Inspector.qml</file>
         <file>Rating.qml</file>
-        <file>FayeClient.qml</file>
+        <file>BayeuxClient.qml</file>
     </qresource>
     <qresource prefix="/img">
         <file alias="bleh.png">../public/bleh.png</file>
@@ -15,5 +15,8 @@
         <file alias="like.png">../public/like.png</file>
         <file alias="love.png">../public/love.png</file>
         <file alias="zero.png">../public/zero.png</file>
+        <file alias="play.png">images/play.png</file>
+        <file alias="pause.png">images/pause.png</file>
+        <file alias="skip.png">images/skip.png</file>
     </qresource>
 </RCC>

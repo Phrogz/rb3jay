@@ -5,26 +5,29 @@ import QtWebSockets 1.0
 Item {
 	id: root
 
-	property bool autoConnect: true
-	property bool retry: true
+	// Number of seconds to wait for a connection before retrying; set to 0 to prevent retries
+	property real   retry: 2
 	property string url: ''
+
 	property string _clientId: ''
-	property var _queue: []
-	property var _calls: ({})
-	property var _paths: ({})
+	property var    _queue: []
+	property var    _calls: ({})
+	property var    _paths: ({})
+	property bool   _connected: false
+
+	property var    _socketStatus: ({})
+
+	onUrlChanged: if (url) connect();
 
 	function connect(){
+		console.log("Attempting to connect to ",url);
+		if (retry) delayedRetryConnect.start();
+		_connected = false;
 		var xhr = new XMLHttpRequest;
 		xhr.onreadystatechange = function(){
-			switch (xhr.readyState){
-				case XMLHttpRequest.DONE:
-					handleMessage(xhr.responseText);
-				break;
-				// case XMLHttpRequest.HEADERS_RECEIVED:
-				// 	console.log('headers',xhr.getAllResponseHeaders());
-				// break;
-				default:
-					console.log('TODO: handle XHR readyState:',xhr.readyState);
+			if (xhr.readyState==XMLHttpRequest.DONE){
+				if (xhr.status==200) handleMessage(xhr.responseText);
+				else console.log("Handshake returned status",xhr.status);
 			}
 		};
 		xhr.open('POST',url);
@@ -44,10 +47,10 @@ Item {
 		if(message.channel=="/meta/handshake"){
 			console.assert(message.successful,"TODO: handle unsuccessful handshake");
 			if (message.successful){
-				_clientId = message.clientId;
+				_clientId  = message.clientId;
+				_connected = true;
 				if (~message.supportedConnectionTypes.indexOf('websocket')){
 					socket.url = url.replace( /^(?:\w+:\/\/)/, 'ws://' );
-					// socket.active = active;
 				}
 				publish('/meta/connect',{connectionType:'websocket'},{beforeOthers:true});
 			}
@@ -68,38 +71,22 @@ Item {
 
 	function _webSocketStatusChange(){
 		if (!socket) return;
+		console.log("websocket "+_socketStatus[socket.status]);
 		switch(socket.status){
-			case WebSocket.Connecting:
-				console.log("websocket connecting")
-				// TODO:
-			break;
 			case WebSocket.Open:
-				console.log("websocket open")
 				_processQueue();
 			break;
 			case WebSocket.Error:
 				console.log("websocket error:", socket.errorString);
-				// TODO:
 			break;
-			case WebSocket.Closing:
-				console.log("websocket closing")
-				// TODO:
-			break;
-			case WebSocket.Closed:
-				console.log("websocket closed")
-				// TODO:
-			break;
-			default:
-				console.log('ws status unrecognized:',socket.status);
 		}
 	}
 
 	function _processQueue(){
 		console.log("Processing queue",new Date);
 		if (socket.status!=WebSocket.Open){
-			// TODO: attempt to reconnect socket in x seconds; let .Open status change trigger this
-			console.log("WebSocket not ready, trying again in "+delayedProcessQueue.interval+"ms");
-			delayedProcessQueue.start();
+			// TODO: attempt to reconnect socket if closed or error
+			console.log("queue WebSocket status:",_socketStatus[socket.status]);
 			return;
 		}
 		_queue.forEach(function(message){
@@ -128,10 +115,6 @@ Item {
 		_processQueue();
 	}
 
-	Component.onCompleted: {
-		if (autoConnect && url) connect();
-	}
-
 	WebSocket {
 		id: socket
 		Component.onCompleted: {
@@ -141,10 +124,18 @@ Item {
 	}
 
 	Timer {
-		id: delayedProcessQueue
-		interval: 100
-		repeat: false
-		running: false
-		Component.onCompleted: triggered.connect(_processQueue);
+		id: delayedRetryConnect
+		interval: 1000*retry
+		repeat:   false
+		running:  false
+		onTriggered: if (!_connected) connect();
+	}
+
+	Component.onCompleted:{
+		_socketStatus[WebSocket.Connecting] = 'connecting';
+		_socketStatus[WebSocket.Open]       = 'open';
+		_socketStatus[WebSocket.Error]      = 'error';
+		_socketStatus[WebSocket.Closing]    = 'closing';
+		_socketStatus[WebSocket.Closed]     = 'closed';
 	}
 }
