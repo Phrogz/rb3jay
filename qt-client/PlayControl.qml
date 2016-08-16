@@ -6,9 +6,6 @@ RowLayout {
 	property bool playingFlag: false
 	signal next
 
-
-    Rectangle { anchors.fill:parent; border{ width:2; color:'red' } }
-
 	Image {
 		source: 'qrc:/img/' + (playingFlag?'pause':'play') + '.png'
         sourceSize.height: 100
