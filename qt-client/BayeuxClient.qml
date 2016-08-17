@@ -13,7 +13,7 @@ Item {
 	property var    øqueue: []
 	property var    øcalls: ({})
 	property var    øpaths: ({})
-	property bool   øconnected: false
+	property string østatus: ''
 
 	onUrlChanged: if (url) øconnect();
 
@@ -36,11 +36,16 @@ Item {
 	}
 
 	function øconnect(){
+		if (østatus=='connecting') return;
+		console.log('attempting to connect',new Date);
+		østatus = 'connecting';
 		if (retry) delayedRetryConnect.start();
-		øconnected = false;
 		var xhr = new XMLHttpRequest;
 		xhr.onreadystatechange = function(){
-			if (xhr.readyState==XMLHttpRequest.DONE && xhr.status==200) øhandleMessage(xhr.responseText);
+			if (xhr.readyState==XMLHttpRequest.DONE){
+				if (xhr.status==200) øhandleMessage(xhr.responseText);
+				else østatus='';
+			}
 		};
 		xhr.open('POST',url);
 		xhr.setRequestHeader('Content-Type', 'application/json;charset=UTF-8');
@@ -61,13 +66,13 @@ Item {
 			console.assert(message.successful,"TODO: handle unsuccessful handshake");
 			if (message.successful){
 				øclientId  = message.clientId;
-				øconnected = true;
+				østatus = 'connected';
 				if (~message.supportedConnectionTypes.indexOf('websocket')){
 					if (socket.url) socket.url = ''; // reset the socket
 					socket.url = url.replace( /^(?:\w+:\/\/)/, 'ws://' );
 				} else console.error("TODO: BayeuxClient currently only supports websocket communication");
 				publish('/meta/connect',{connectionType:'websocket'},{beforeOthers:true});
-			}
+			} else østatus='';
 		} else {
 			if (!øpaths[message.channel]){
 				var parts = message.channel.split('/');
@@ -88,7 +93,7 @@ Item {
 				socket.sendTextMessage(JSON.stringify(message));
 			});
 			øqueue.length=0;
-		} else if (socket.status!=WebSocket.Connecting) connect();
+		} else if (socket.status!=WebSocket.Connecting) øconnect();
 	}
 
 	WebSocket {
@@ -106,6 +111,6 @@ Item {
 	Timer {
 		id: delayedRetryConnect
 		interval: 1000*retry
-		onTriggered: if (!øconnected) øconnect();
+		onTriggered: if (!østatus) øconnect();
 	}
 }
