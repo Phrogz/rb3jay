@@ -1,7 +1,6 @@
 import QtQuick 2.7
 import QtQuick.Controls 2.0
 import QtQuick.Layouts 1.3
-import QtWebSockets 1.0
 
 ApplicationWindow {
     id: app
@@ -73,9 +72,10 @@ ApplicationWindow {
         }
     }
 
+    SongDatabase { id:songdb }
+
     Rectangle {
         id: pseudocontent
-        height: parent.height - (header.height + footer.height)
         color:'red'
         anchors { top:header.bottom; bottom:footer.top; left:parent.left; right:parent.right }
     }
