@@ -8,9 +8,9 @@ RowLayout {
 
 	Image {
 		source: 'qrc:/img/' + (playingFlag?'pause':'play') + '.png'
-        sourceSize.height: 100
-		clip: true
-		fillMode: Image.PreserveAspectFit
+		Layout.preferredWidth: 100
+		Layout.preferredHeight: 100
+		clip:true; fillMode:Image.PreserveAspectFit
 
 		MouseArea {
 			anchors.fill: parent
@@ -21,10 +21,9 @@ RowLayout {
 
 	Image {
 		source: 'qrc:/img/skip.png'
-        sourceSize.height: 100
-        clip: true
-		fillMode: Image.PreserveAspectFit
-
+		Layout.preferredWidth: 100
+		Layout.preferredHeight: 100
+		clip:true; fillMode:Image.PreserveAspectFit
 
 		MouseArea {
 			anchors.fill: parent
