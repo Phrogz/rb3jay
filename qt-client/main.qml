@@ -1,6 +1,7 @@
 import QtQuick 2.7
 import QtQuick.Controls 2.0
 import QtQuick.Layouts 1.3
+import QtQuick.Controls 1.4
 
 ApplicationWindow {
     id: app
@@ -74,13 +75,26 @@ ApplicationWindow {
 
     SongDatabase { id:songdb }
 
-    Rectangle {
-        id: pseudocontent
-        color:'red'
+    SplitView {
+        orientation: Qt.Horizontal
         anchors { top:header.bottom; bottom:footer.top; left:parent.left; right:parent.right }
+        SongList {
+            id:songlist
+            Layout.minimumWidth:200
+        }
+        SplitView {
+            orientation: Qt.Vertical
+            Layout.fillWidth:true
+            MyQueue {
+                id:myqueue
+            }
+            UpNext {
+                id:upnext
+            }
+        }
     }
 
-    header: RowLayout {
+    menuBar: RowLayout {
         id: header
         spacing: 0
         height: 100
@@ -90,6 +104,7 @@ ApplicationWindow {
             Layout.minimumWidth:200
             Layout.maximumWidth:200
             Layout.preferredWidth:200
+            Layout.preferredHeight:parent.height
             Layout.fillHeight:true
             onPlayingFlagChanged: post(playingFlag ? '/play' : '/paws')
             onNext: post('skip')
@@ -98,9 +113,9 @@ ApplicationWindow {
             id: songcontrol
             Layout.minimumWidth: 200
             Layout.preferredWidth: parent.width*0.7
+            Layout.preferredHeight:parent.height
             Layout.fillWidth:true
             Layout.fillHeight:true
-            height: parent.height
         }
         AudioControl {
             id: audiocontrol
@@ -108,11 +123,11 @@ ApplicationWindow {
             Layout.preferredWidth: parent.width*0.3
             Layout.fillWidth:true
             Layout.fillHeight:true
-            height: parent.height
+            Layout.preferredHeight:parent.height
         }
     }
 
-    footer: Inspector {
+    statusBar: Inspector {
         id: footer
         height:100
     }

@@ -9,6 +9,9 @@
         <file>Rating.qml</file>
         <file>BayeuxClient.qml</file>
         <file>SongDatabase.qml</file>
+        <file>SongList.qml</file>
+        <file>MyQueue.qml</file>
+        <file>UpNext.qml</file>
     </qresource>
     <qresource prefix="/img">
         <file alias="bleh.png">../public/bleh.png</file>

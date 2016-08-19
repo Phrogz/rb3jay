@@ -8,47 +8,56 @@ Item {
     property string rating: "zero"
     property int    elapsed
     property int    duration
-    property int    øpadding: height/10
+    property real   øspacing: height/20
+
+    Component.onCompleted: console.log('songs are',ørowHeight)
 
     onSongChanged: {
         console.log('songcontrol song now',song)
     }
 
-    ColumnLayout {
-        anchors {
-            top:parent.top;   topMargin:øpadding 
-            left:parent.left; leftMargin:øpadding
+    RowLayout {
+        anchors.fill:parent
+        spacing:øspacing
+        ColumnLayout {
+            spacing:øspacing
+            Text {
+                id: songtitle
+                Layout.topMargin:øspacing
+                Layout.fillWidth:true
+                Layout.fillHeight:true
+                font { pixelSize:øroot.height/8 }
+                text: "<song title>"
+                Rectangle{ anchors.fill:parent; color:'transparent'; border{ width:1; color:'green' } }
+            }
+            Text {
+                id: artalb
+                property string artist: "<song artist>"
+                property string album:  "<song album>"
+                Layout.fillWidth:true
+                Layout.fillHeight:true
+                font: songtitle.font
+                text: artist + (album ? ('—'+album) : '')
+                Rectangle{ anchors.fill:parent; color:'transparent'; border{ width:1; color:'red' } }
+            }
+            Slider {
+                id: progressSlider
+                visible: !!duration
+                Layout.fillWidth:true                
+                Layout.bottomMargin:øspacing
+                Layout.preferredHeight:øroot.height/4
+                value: elapsed/duration
+                Rectangle{ anchors.fill:parent; color:'transparent'; border{ width:1; color:'blue' } }
+            }
         }
-        width:  parent.width  - 2*øpadding - rating.width
-        height: parent.height - 2*øpadding
 
-        Text {
-            id: songtitle
-            Layout.fillWidth:true
-            Layout.preferredHeight: øroot.height/3
-            font { pixelSize:øroot.height/3 }
-            text: "<song title>"
+        Rating {
+            rating: songcontrol.rating
+            anchors { right:parent.right; verticalCenter:parent.verticalCenter }
+            Layout.preferredWidth:  øroot.height
+            Layout.preferredHeight: øroot.height
+            Rectangle{ anchors.fill:parent; color:'transparent'; border{ width:1; color:'orange' } }
         }
-        Text {
-            id: artalb
-            property string artist: "<song artist>"
-            property string album:  "<song album>"
-            Layout.fillWidth:true
-            Layout.preferredHeight: øroot.height/3
-            font: songtitle.font
-            text: artist + (album ? ('—'+album) : '')
-        }
-        Slider {
-            id: progressSlider
-            visible: !!duration
-            Layout.fillWidth:true
-            Layout.preferredHeight: øroot.height/3
-            value: elapsed/duration
-        }
-    }
 
-    Rating {
-        rating: songcontrol.rating
-        anchors { right:parent.right; verticalCenter:parent.verticalCenter }
     }
 }
