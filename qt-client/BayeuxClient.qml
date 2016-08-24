@@ -8,6 +8,7 @@ Item {
 
 	// Will automatically connect to the server once url is set
 	property string url: ''
+	property bool   debug: false
 
 	property string øclientId: ''
 	property var    øqueue: []
@@ -15,9 +16,10 @@ Item {
 	property var    øpaths: ({})
 	property string østatus: ''
 
-	onUrlChanged: if (url) øconnect();
+	onUrlChanged: url ? øconnect() : (østatus='');
 
 	function subscribe( channel, callback ){
+		if (debug) console.log("BayeuxClient subscribing to",channel);
 		var parts = /^(.*?)(\/\*{1,2})?$/.exec(channel);
 		var base=parts[1], wild=parts[2];
 		if (!øcalls[base]) øcalls[base]=[];
@@ -28,6 +30,7 @@ Item {
 	}
 
 	function publish( channel, data, options ){
+		if (debug) console.log("BayeuxClient publishing to",channel,JSON.stringify(data));
 		if (!options) options={};
 		var message = { channel:channel };
 		Object.keys(data).forEach(function(key){ message[key]=data[key] });
@@ -37,9 +40,9 @@ Item {
 
 	function øconnect(){
 		if (østatus=='connecting') return;
-		console.log('attempting to connect',new Date);
+		if (debug) console.log('BayeuxClient attempting to connect to',url);
 		østatus = 'connecting';
-		if (retry) delayedRetryConnect.start();
+		if (url && retry) delayedRetryConnect.start();
 		var xhr = new XMLHttpRequest;
 		xhr.onreadystatechange = function(){
 			if (xhr.readyState==XMLHttpRequest.DONE){
@@ -59,6 +62,7 @@ Item {
 		if (!message) return;
 		if ("string"===typeof message) message = JSON.parse(message);
 		if (message instanceof Array) return message.forEach(øhandleMessage);
+		if (debug) console.log("BayeuxClient received:",JSON.stringify(message));
 
 		// TODO: handle advice field for any message
 
@@ -111,6 +115,6 @@ Item {
 	Timer {
 		id: delayedRetryConnect
 		interval: 1000*retry
-		onTriggered: if (!østatus) øconnect();
+		onTriggered: if (url && !østatus) øconnect();
 	}
 }

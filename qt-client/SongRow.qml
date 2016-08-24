@@ -2,14 +2,10 @@ import QtQuick 2.7
 import QtQuick.Layouts 1.3
 
 Rectangle {
-    id: song
-    color: theme.rowBGColor
+    id: øroot
+    color: ɢtheme.songBGColor
 
-    property string rating: "zero"
-    property alias  title:  songtitle.text
-    property alias  artist: songartist.text
-    property string album:  "<song album>"
-    property int    duration:  215
+    property QtObject song
 
     signal adjustRating(var song)
     signal hideRating
@@ -19,52 +15,46 @@ Rectangle {
         spacing: height*0.05
 
         Rating {
-            width:song.height
-            height:song.height
-            Layout.preferredWidth:song.height
+            song: song
+            Layout.preferredWidth: øroot.height
+            Layout.preferredHeight:øroot.height
+        }
+
+        Text {
+            text: song && song.title || '-'
+            font: ɢtheme.songFont
+            elide: Text.ElideRight
+            maximumLineCount: 1
+            verticalAlignment: Text.AlignVCenter
+            Layout.minimumWidth:  øroot.height
+            Layout.preferredWidth:øroot.width*0.6
+            Layout.fillWidth: true
             Layout.fillHeight:true
         }
 
         Text {
-            id: songtitle
-            text: "<song title>"
-            font { pixelSize:height * 0.9 }
+            text: song && song.artist || '-'
+            font: ɢtheme.songFont
             elide: Text.ElideMiddle
             maximumLineCount: 1
             verticalAlignment: Text.AlignVCenter
-            Layout {
-                minimumWidth:song.height;
-                preferredWidth:song.height*0.6
-                fillWidth:true; fillHeight:true
-            }
+            Layout.minimumWidth:  øroot.height
+            Layout.preferredWidth:øroot.width*0.3
+            Layout.fillWidth: true
+            Layout.fillHeight:true
         }
 
         Text {
-            id: songartist
-            text: "<song artist>"
-            font: songtitle.font
-            elide: Text.ElideMiddle
+            text: formatDuration(song && song.duration)
+            font: ɢtheme.songFont
             maximumLineCount: 1
-            verticalAlignment: Text.AlignVCenter
-            Layout {
-                minimumWidth:song.height;
-                preferredWidth:song.height*0.3
-                fillWidth:true; fillHeight:true
-            }
-        }
-
-        Text {
-            id: songduration
-            text: formatDuration(song.duration)
-            font: songtitle.font
-            maximumLineCount: 1
-            verticalAlignment: Text.AlignVCenter
+            verticalAlignment:   Text.AlignVCenter
             horizontalAlignment: Text.AlignRight
-            Layout {
-                minimumWidth:song.height;
-                preferredWidth:song.height*0.3
-                fillWidth:true; fillHeight:true
-            }
+            Layout.minimumWidth:  øroot.height
+            Layout.preferredWidth:øroot.width*0.1
+            Layout.fillWidth: true
+            Layout.fillHeight:true
+
             function formatDuration(seconds){
                 if (isNaN(seconds)) return '-';
                 var hors = Math.floor(seconds/3600);

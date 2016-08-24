@@ -2,7 +2,7 @@ import QtQuick 2.7
 
 Image {
     property string rating: "zero"
-
+    property string song
     signal show
     signal hide
 

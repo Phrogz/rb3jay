@@ -1,14 +1,13 @@
 import QtQuick 2.7
-import QtQuick.Controls 1.4
+import QtQuick.Controls 2.0
 
 Rectangle {
 	id: audiocontrol
 	property alias volume: volumeSlider.value
-    color: 'blue'
+    color: ɢtheme.headerBGColor
 
 	Slider {
 		id: volumeSlider
-		anchors.fill: parent
-		maximumValue: 100
+        anchors.fill: parent
 	}
 }

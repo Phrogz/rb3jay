@@ -10,6 +10,7 @@
         <file>BayeuxClient.qml</file>
         <file>SongDatabase.qml</file>
         <file>SongList.qml</file>
+        <file>Theme.qml</file>
         <file>MyQueue.qml</file>
         <file>UpNext.qml</file>
     </qresource>
