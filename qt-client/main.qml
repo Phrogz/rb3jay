@@ -41,9 +41,10 @@ ApplicationWindow {
 			startup.cancel();
 		});
 		userSubscription = server.subscribe('/user-'+user,function(data){
-			if ('myqueue' in data) updateMyQueue(data.myqueue);
-			if ('active'  in data) updateActive(data.active);
+			if ('myqueue' in data) myqueue.update(data.myqueue);
+			if ('active'  in data) myqueue.active = data.active;
 		});
+		songlist.getSongs();
 	}
 
 	function post(path,data,callback){
@@ -61,17 +62,20 @@ ApplicationWindow {
 
 		var xhr = new XMLHttpRequest;
 		xhr.onreadystatechange = function(){
-			if (xhr.readyState==XMLHttpRequest.DONE){
-//				console.log(method+" to ",path,"returned status",xhr.status,"and",JSON.stringify(xhr.responseText));
-				if (xhr.status==200 && callback) callback(JSON.parse(xhr.responseText));
-			}
+			if (xhr.readyState==XMLHttpRequest.DONE && xhr.status==200 && callback)
+				callback(JSON.parse(xhr.responseText));
 		};
-		xhr.open(method,host+path);
-		xhr.setRequestHeader("Content-Type", "application/x-www-form-urlencoded");
-
 		var kv=[], add=function(k,v){ kv[kv.length]=encodeURIComponent(k)+"="+encodeURIComponent(v) };
 		for (var k in data) buildParams(k,data[k],add);
-		xhr.send(kv.join("&").replace(/%20/g,"+"));
+		data = kv.join("&").replace(/%20/g,"+");
+		if (method=='GET'){
+			xhr.open(method,host+path+'?'+data);
+			xhr.send();
+		} else {
+			xhr.open(method,host+path);
+			xhr.setRequestHeader("Content-Type", "application/x-www-form-urlencoded");
+			xhr.send();
+		}
 	}
 
 	function buildParams( key, val, add ) {
@@ -101,9 +105,7 @@ ApplicationWindow {
 	SongDatabase { id:ɢsongdb }
 	Theme        { id:ɢtheme  }
 
-	Component.onCompleted: {
-		loginUser('gkistner');
-	}
+	Component.onCompleted: loginUser('phrogz');
 
 	SplitView {
 		orientation: Qt.Horizontal
