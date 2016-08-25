@@ -122,29 +122,29 @@ ApplicationWindow {
 			Layout.preferredWidth:ɢapp.width/2
 			MyQueue {
 				id:myqueue
-				Layout.minimumHeight: ɢtheme.titlebarHeight + ɢtheme.songHeight
+				Layout.minimumHeight: ɢtheme.titlebars.height + ɢtheme.songs.height
 				Layout.fillWidth:true
 			}
 			UpNext {
 				id:upnext
-				Layout.minimumHeight: ɢtheme.titlebarHeight + ɢtheme.songHeight
+				Layout.minimumHeight: ɢtheme.titlebars.height + ɢtheme.songs.height
 				Layout.fillWidth:true
 			}
 		}
 	}
 
 	toolBar: Rectangle {
-		color: ɢtheme.headerBGColor
-		height: ɢtheme.headerHeight
-		width: parent.width
+		color:  ɢtheme.header.backColor
+		height: ɢtheme.header.height
+		width:  parent.width
 		RowLayout {
 			anchors.fill: parent
 			spacing: 0
 			PlayControl {
 				id: playcontrol
-				Layout.minimumWidth:2*ɢtheme.headerHeight
-				Layout.maximumWidth:2*ɢtheme.headerHeight
-				Layout.preferredWidth:2*ɢtheme.headerHeight
+				Layout.preferredWidth:2*ɢtheme.header.height
+				Layout.minimumWidth:Layout.preferredWidth
+				Layout.maximumWidth:Layout.preferredWidth
 				Layout.preferredHeight:parent.height
 				Layout.fillHeight:true
 				onPlayingFlagChanged: post(playingFlag ? '/play' : '/paws')
@@ -152,7 +152,7 @@ ApplicationWindow {
 			}
 			SongControl {
 				id: songcontrol
-				Layout.minimumWidth: 2*ɢtheme.headerHeight
+				Layout.minimumWidth: 2*ɢtheme.header.height
 				Layout.preferredWidth: parent.width*0.7
 				Layout.preferredHeight:parent.height
 				Layout.fillWidth:true
@@ -160,7 +160,7 @@ ApplicationWindow {
 			}
 			AudioControl {
 				id: audiocontrol
-				Layout.minimumWidth: 2*ɢtheme.headerHeight
+				Layout.minimumWidth: 2*ɢtheme.header.height
 				Layout.preferredWidth: parent.width*0.3
 				Layout.fillWidth:true
 				Layout.fillHeight:true

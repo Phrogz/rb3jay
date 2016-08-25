@@ -1,30 +1,35 @@
 import QtQml 2.2
 
 QtObject {
-    property real headerHeight:    100 // Top bar of the app, with music controls
-    property real inspectorHeight: 100 // Bottom bar of the app, showing song details
-    property real titlebarHeight:   30 // Headers above each song list
-    property real songHeight:       20 // Row with song details
-
-    property color headerBGColor:   '#cccccc'
-    property color detailsBGColor:  '#ffffff'
-    property color songBGColor:     '#eeeeee'
-    property color titlebarBGColor: '#eeeeff'
-    property color titlebarColor:   '#99000000'
-
-    property font headerTitleFont: Qt.font({
-        pixelSize:Math.round(headerHeight*0.20),
-        bold:true
-    })
-    property font headerArtAlbFont: Qt.font({
-        pixelSize:Math.round(headerHeight*0.15),
-        bold:false
-    })
-    property font songFont: Qt.font({
-        pixelSize:Math.round(songHeight*0.5)
-    })
-    property font titlebarFont: Qt.font({
-        pixelSize:Math.round(titlebarHeight*0.5),
-        bold:true
-    })
+	property var header: ({                               // Top bar of the app, with music controls
+		height:     100,
+		backColor:  '#cccccc',
+		textColor:  '#000000'
+	})
+	property var details: ({                              // The currently playing song
+		backColor:  '#ffffff',
+		textColor:  '#000000',
+		titleFont:  Qt.font({ pointSize:22, bold:true  }),
+		artalbFont: Qt.font({ pointSize:16, bold:false })
+	})
+	property var inspector: ({                            // Bottom bar of the app, showing song details
+		height:    100,
+		backColor: '#999999',
+		textColor: '#333333',
+		font:      Qt.font({ pointSize:16 })
+	})
+	property var titlebars: ({                            // Headers above each song list
+		height:    30,
+		backColor: '#eeeeff',
+		textColor: '#66000000',
+		font:      Qt.font({ pointSize:14, bold:true }),
+	})
+	property var songs: ({                                // Row with song details
+		height:      20,
+		backColor:   '#eeeeee',
+		textColor:   '#000000',
+		font:        Qt.font({ pointSize:12 }),
+		playedFont:  Qt.font({ pointSize:12, italic:true }),
+		playedColor: '#999999'
+	})
 }

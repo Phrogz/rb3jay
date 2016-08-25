@@ -16,8 +16,8 @@ Rectangle {
 		spacing:0
 
 		Rectangle {
-			color: ɢtheme.titlebarBGColor
-			Layout.preferredHeight: ɢtheme.titlebarHeight
+			color: ɢtheme.titlebars.backColor
+			Layout.preferredHeight: ɢtheme.titlebars.height
 			Layout.fillWidth:true
 			RowLayout {
 				anchors.fill:parent
@@ -54,7 +54,7 @@ Rectangle {
 				delegate: SongRow {
 					song: ɢsongdb.fromFile( modelData.file, modelData )
 					width:parent.width
-					height:ɢtheme.songHeight
+					height:ɢtheme.songs.height
 				}
 			}
 		}

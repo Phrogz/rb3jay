@@ -12,24 +12,25 @@ Rectangle {
 
 	ColumnLayout {
 		anchors.fill:parent
+		spacing:0
 
 		Rectangle {
-			color: ɢtheme.titlebarBGColor
-			Layout.preferredHeight: ɢtheme.titlebarHeight
-			Layout.preferredWidth:  parent.width
+			color: ɢtheme.titlebars.backColor
+			Layout.preferredHeight: ɢtheme.titlebars.height
+			Layout.fillWidth:true
 			Text {
 				id: label
 				anchors.fill:parent
 				text: "up next"
-				font:  ɢtheme.titlebarFont
-				color: ɢtheme.titlebarColor
+				font:  ɢtheme.titlebars.font
+				color: ɢtheme.titlebars.textColor
 				horizontalAlignment: Text.AlignHCenter
 				verticalAlignment:   Text.AlignVCenter
 			}
 		}
 
 		ScrollView {
-			frameVisible:true
+			frameVisible:false
 			Layout.fillHeight:true
 			Layout.fillWidth:true
 			ListView {
@@ -37,8 +38,9 @@ Rectangle {
 				model: []
 				delegate: SongRow {
 					song: ɢsongdb.fromFile( modelData.file, modelData )
+					past: !!modelData.event
 					width:parent.width
-					height:ɢtheme.songHeight
+					height:ɢtheme.songs.height
 				}
 			}
 		}
