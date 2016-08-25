@@ -25,19 +25,20 @@ ApplicationWindow {
 	}
 
 	function receivePlaylists(d){}
+
 	function logoutUser(){
 		if (userSubscription) userSubscription.cancel();
 		userSubscription = null;
 		activeUser = null;
 	}
+
 	function loginUser(user){
 		activeUser = user;
 		var startup = server.subscribe('/startup-'+user, function(data){
+			header.update(data.status);
 			upnext.update(data.upnext);
-			// øupnext.activeSong(data.status.file);
-			// ømyqueue.updateMyQueue(data.myqueue);
-			// øsongs.updatePlaylists(data.playlists);
-			// øcontrols.update(data.status);
+			myqueue.update(data.myqueue);
+			// songlist.updatePlaylists(data.playlists);
 			startup.cancel();
 		});
 		userSubscription = server.subscribe('/user-'+user,function(data){
@@ -95,9 +96,9 @@ ApplicationWindow {
 		// debug: true
 		url: host+'faye'
 		Component.onCompleted: {
-			subscribe('/status',      receiveStatus);
+			subscribe('/status',      header.update);
 			subscribe('/next',        upnext.update);
-			subscribe('/playlists',   receivePlaylists);
+			// subscribe('/playlists',   songlist.updatePlaylists);
 			subscribe('/songdetails', ɢsongdb.update);
 		}
 	}
@@ -133,40 +134,9 @@ ApplicationWindow {
 		}
 	}
 
-	toolBar: Rectangle {
-		color:  ɢtheme.header.backColor
-		height: ɢtheme.header.height
-		width:  parent.width
-		RowLayout {
-			anchors.fill: parent
-			spacing: 0
-			PlayControl {
-				id: playcontrol
-				Layout.preferredWidth:2*ɢtheme.header.height
-				Layout.minimumWidth:Layout.preferredWidth
-				Layout.maximumWidth:Layout.preferredWidth
-				Layout.preferredHeight:parent.height
-				Layout.fillHeight:true
-				onPlayingFlagChanged: post(playingFlag ? '/play' : '/paws')
-				onNext: post('skip')
-			}
-			SongControl {
-				id: songcontrol
-				Layout.minimumWidth: 2*ɢtheme.header.height
-				Layout.preferredWidth: parent.width*0.7
-				Layout.preferredHeight:parent.height
-				Layout.fillWidth:true
-				Layout.fillHeight:true
-			}
-			AudioControl {
-				id: audiocontrol
-				Layout.minimumWidth: 2*ɢtheme.header.height
-				Layout.preferredWidth: parent.width*0.3
-				Layout.fillWidth:true
-				Layout.fillHeight:true
-				Layout.preferredHeight:parent.height
-			}
-		}
+	toolBar: Header {
+		id:header
+		width:parent.width
 	}
 
 	statusBar: Inspector {

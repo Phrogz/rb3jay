@@ -3,6 +3,7 @@ import QtQml 2.2
 QtObject {
 	id: songdb
 	property var songsByFile: ({})
+	property QtObject songPlaying
 	property Component songObj: Component {
 		QtObject {
 			id:song
@@ -16,7 +17,7 @@ QtObject {
 			property int    time
 			property int    date
 			property real   score
-			property date   lastPlayed: new Date
+			property date   lastPlayed
 			property int    played
 			property int    skipped
 			property int    disc
@@ -24,6 +25,7 @@ QtObject {
 			property string event
 			property int    priority
 			property string user
+			property bool   playingNow: false
 			property var    ratings: ({})
 
 			function toJSON(){
@@ -49,6 +51,14 @@ QtObject {
 		if (!song) song = songsByFile[file] = songObj.createObject(songdb,{file:file});
 		if (details) song.update(details);
 		return song;
+	}
+
+	function setSongPlaying(file){
+		if (songPlaying && songPlaying.file==file) return;
+		if (songPlaying) songPlaying.playingNow = false;
+		if (!file) return;
+		songPlaying = fromFile(file);
+		songPlaying.playingNow = true;
 	}
 
 //	// Do not pass along user, or else automated re-inspection will keep the user active

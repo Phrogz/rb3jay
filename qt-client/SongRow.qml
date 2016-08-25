@@ -19,7 +19,7 @@ Rectangle {
 		property color rowcolor: ɢtheme.songs[past ? 'playedColor' : 'textColor']
 
 		Rating {
-			song: song
+			song: øroot.song
 			Layout.preferredWidth:  øroot.height
 			Layout.preferredHeight: øroot.height
 		}

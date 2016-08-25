@@ -13,6 +13,7 @@
         <file>Theme.qml</file>
         <file>MyQueue.qml</file>
         <file>UpNext.qml</file>
+        <file>Header.qml</file>
     </qresource>
     <qresource prefix="/img">
         <file alias="bleh.png">../public/bleh.png</file>
@@ -23,5 +24,6 @@
         <file alias="play.png">images/play.png</file>
         <file alias="pause.png">images/pause.png</file>
         <file alias="skip.png">images/skip.png</file>
+        <file alias="active-song.png">images/active-song.png</file>
     </qresource>
 </RCC>

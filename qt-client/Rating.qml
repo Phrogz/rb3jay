@@ -1,18 +1,18 @@
 import QtQuick 2.7
 
 Image {
-    property string rating: "zero"
-    property string song
-    signal show
-    signal hide
+	  property QtObject song
+	  property string rating: song ? (song.playingNow ? 'active-song' : (song.ratings && song.ratings[activeUser] || 'zero')) : 'zero'
+	  signal show
+	  signal hide
 
-    fillMode: Image.PreserveAspectFit
-    source: "qrc:/img/"+rating+".png"
-    MouseArea {
-        anchors.fill:parent
-        hoverEnabled:true
-        onClicked: parent.show()
-        onEntered: parent.show()
-        onExited:  parent.hide()
-    }
+	  fillMode: Image.PreserveAspectFit
+		source: "qrc:/img/"+rating+".png"
+		MouseArea {
+			  anchors.fill:parent
+				hoverEnabled:true
+				onClicked: parent.show()
+				onEntered: parent.show()
+				onExited:  parent.hide()
+		}
 }
