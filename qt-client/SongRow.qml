@@ -14,7 +14,6 @@ Rectangle {
 	RowLayout {
 		id: songrow
 		anchors.fill: parent
-		spacing: height * 0.05
 
 		property font  rowfont:  ɢtheme.songs[past ? 'playedFont'  : 'font']
 		property color rowcolor: ɢtheme.songs[past ? 'playedColor' : 'textColor']
@@ -31,10 +30,11 @@ Rectangle {
 			font:  songrow.rowfont
 			color: songrow.rowcolor
 			elide: Text.ElideRight
+			rightPadding: øroot.height/2
 			maximumLineCount: 1
 			verticalAlignment: Text.AlignVCenter
 			Layout.minimumWidth: øroot.height
-			Layout.preferredWidth: øroot.width * 0.6
+			Layout.preferredWidth: øroot.width * 0.5
 			Layout.fillWidth:  true
 			Layout.fillHeight: true
 		}
@@ -44,6 +44,7 @@ Rectangle {
 			font:  songrow.rowfont
 			color: songrow.rowcolor
 			elide: Text.ElideMiddle
+			rightPadding: øroot.height/2
 			maximumLineCount: 1
 			verticalAlignment: Text.AlignVCenter
 			Layout.minimumWidth: øroot.height
@@ -53,9 +54,10 @@ Rectangle {
 		}
 
 		Text {
-			text: formatDuration(song && song.duration)
+			text: formatDuration(song && song.time)
 			font:  songrow.rowfont
 			color: songrow.rowcolor
+			rightPadding: øroot.height/4
 			maximumLineCount: 1
 			verticalAlignment: Text.AlignVCenter
 			horizontalAlignment: Text.AlignRight
