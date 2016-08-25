@@ -4,7 +4,6 @@ import QtQuick.Layouts 1.3
 
 Rectangle {
 	function update(songs){
-		console.log('SongList got',songs.length);
 		ølist.model = songs;
 	}
 
@@ -14,11 +13,12 @@ Rectangle {
 
 	ColumnLayout {
 		anchors.fill:parent
+		spacing:0
 
 		Rectangle {
 			color: ɢtheme.titlebarBGColor
 			Layout.preferredHeight: ɢtheme.titlebarHeight
-			Layout.preferredWidth:  parent.width
+			Layout.fillWidth:true
 			RowLayout {
 				anchors.fill:parent
 				ComboBox {
@@ -38,17 +38,18 @@ Rectangle {
 					id: øquery
 					Layout.preferredWidth:parent.width/2
 					Layout.fillHeight:true
-					onEditingFinished:getSongs()
+					onTextChanged:getSongs()
 				}
 			}
 		}
 
 		ScrollView {
-			frameVisible:true
+			frameVisible:false
 			Layout.fillHeight:true
 			Layout.fillWidth:true
 			ListView {
 				id: ølist
+
 				model: []
 				delegate: SongRow {
 					song: ɢsongdb.fromFile( modelData.file, modelData )
