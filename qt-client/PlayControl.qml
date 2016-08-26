@@ -4,7 +4,10 @@ import QtQuick.Layouts 1.3
 RowLayout {
 	id: playcontrol
 	property bool playingFlag: false
+    signal togglePlayback
 	signal next
+
+    onTogglePlayback: ɢapp.post( playingFlag ? 'paws' : 'play' )
 
 	Image {
 		source: 'qrc:/img/' + (playingFlag?'pause':'play') + '.png'
@@ -14,7 +17,7 @@ RowLayout {
 
 		MouseArea {
 			anchors.fill: parent
-			onClicked: playingFlag = !playingFlag
+            onClicked: playcontrol.togglePlayback()
 			// TODO: hoverEnabled:true, highlighting via onEntered/onExited
 		}
 	}

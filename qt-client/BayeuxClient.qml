@@ -40,7 +40,7 @@ Item {
 
 	function øconnect(){
 		if (østatus=='connecting') return;
-		if (debug) console.log('BayeuxClient attempting to connect to',url);
+        if (debug) console.debug('BayeuxClient attempting to connect to',url);
 		østatus = 'connecting';
 		if (url && retry) delayedRetryConnect.start();
 		var xhr = new XMLHttpRequest;
@@ -72,7 +72,6 @@ Item {
 				øclientId  = message.clientId;
 				østatus = 'connected';
 				if (~message.supportedConnectionTypes.indexOf('websocket')){
-					if (socket.url) socket.url = ''; // reset the socket
 					socket.url = url.replace( /^(?:\w+:\/\/)/, 'ws://' );
 				} else console.error("TODO: BayeuxClient currently only supports websocket communication");
 				publish('/meta/connect',{connectionType:'websocket'},{beforeOthers:true});
@@ -102,14 +101,28 @@ Item {
 
 	WebSocket {
 		id: socket
+        property var statusNames: ({})
 		onStatusChanged: {
-			if (!socket) return; // Happens when the app is shutting down
+            if (!socket) return debug && console.debug('socket has been deleted'); // Happens when the app is shutting down
+            if (debug) console.log("WebSocket status:",statusNames[socket.status]);
 			switch(socket.status){
 				case WebSocket.Open: øprocessQueue(); break;
 				case WebSocket.Error: console.log("websocket error:", socket.errorString); break;
+                case WebSocket.Closed:
+                    if (debug) console.debug("WebSocket closed...attempting to reconnect.");
+                    østatus = '';
+                    øconnect();
+                break;
 			}
 		}
-		Component.onCompleted: textMessageReceived.connect(øhandleMessage);
+        Component.onCompleted: {
+            statusNames[WebSocket.Open]       = 'websocket.open';
+            statusNames[WebSocket.Error]      = 'websocket.error';
+            statusNames[WebSocket.Closing]    = 'websocket.closing';
+            statusNames[WebSocket.Closed]     = 'websocket.closed';
+            statusNames[WebSocket.Connecting] = 'websocket.connecting';
+            textMessageReceived.connect(øhandleMessage);
+        }
 	}
 
 	Timer {

@@ -11,7 +11,7 @@ ApplicationWindow {
 	width:1280; height:500
 	title: "RB3Jay"
 
-	property string host: 'http://localhost:8080/'
+	property string host: 'http://music.local/'
 	property string activeUser
 
 	property var userSubscription
@@ -93,7 +93,7 @@ ApplicationWindow {
 
 	BayeuxClient {
 		id: server
-		// debug: true
+        debug: true
 		url: host+'faye'
 		Component.onCompleted: {
 			subscribe('/status',      header.update);
@@ -106,7 +106,7 @@ ApplicationWindow {
 	SongDatabase { id:ɢsongdb }
 	Theme        { id:ɢtheme  }
 
-	Component.onCompleted: loginUser('phrogz');
+    Component.onCompleted: loginUser('gkistner');
 
 	SplitView {
 		orientation: Qt.Horizontal
