@@ -3,11 +3,12 @@ import QtQuick.Controls 2.0
 
 Rectangle {
 	id: audiocontrol
-	property alias volume: volumeSlider.value
-	  color: ɢtheme.header.backColor
+    property real volume
+    color: ɢtheme.header.backColor
 
 	Slider {
 		id: volumeSlider
-		    anchors.fill: parent
+        anchors.fill: parent
+        value: volume/100
 	}
 }

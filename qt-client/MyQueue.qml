@@ -5,7 +5,7 @@ Rectangle {
 	color: '#ccffcc'
 	property bool active
 	function update(songs){
-		console.log('myqueue updating with',JSON.stringify(songs));
+//		console.log('myqueue updating with',JSON.stringify(songs));
 	}
 }
 

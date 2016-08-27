@@ -6,7 +6,7 @@ Rectangle {
 	height: ɢtheme.header.height
 
 	function update(status){
-		if (status.volume>0) audiocontrol.volume = status.volume
+        if (status.volume>=0) audiocontrol.volume = status.volume
 		playcontrol.playingFlag = status.state=='play'
 		ɢsongdb.setSongPlaying(status.file)
 		songcontrol.elapsed  = status.elapsed || 0
