@@ -64,6 +64,14 @@ Item {
 		xhr.send(data);
 	}
 
+	function øreconnect(){
+		østate = '';
+		Object.keys(øcalls).forEach(function(base){
+			øcalls[base].forEach(function(o){ publish('/meta/subscribe',{subscription:o.channel}) });
+		});
+		øconnect();
+	}
+
 	function øhandleMessage(message){
 		if (!message) return;
 		if ("string"===typeof message) message=JSON.parse(message);
@@ -77,6 +85,7 @@ Item {
 				console.assert(message.successful,"BayeuxClient xmlhttp handshake failed!");
 				if (message.successful){
 					ømyId = message.clientId;
+					retryConnect.stop();
 					if (~message.supportedConnectionTypes.indexOf('websocket')) socket.connect();
 					else console.error("BayeuxClient currently only supports WebSocket communication");
 				} else østate='';
@@ -85,8 +94,7 @@ Item {
 				if (message.successful) socket.connect();
 				else{
 					console.warn("BayeuxClient WebSocket connect failed!",message.error);
-					østate = '';
-					øconnect();
+					øreconnect();
 				}
 			break;
 			default:
@@ -148,11 +156,7 @@ Item {
 					console.log('BayeuxClient WebSocket error:', socket.errorString);
 				case WebSocket.Closed:
 					if (debug) console.debug('BayeuxClient attempting to reconnect...');
-					østate = '';
-					øconnect();
-					Object.keys(øcalls).forEach(function(base){
-						øcalls[base].forEach(function(o){ publish('/meta/subscribe',{subscription:o.channel}) });
-					});
+					øreconnect();
 				break;
 			}
 		}
