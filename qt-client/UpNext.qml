@@ -4,6 +4,8 @@ import QtQuick.Layouts 1.3
 
 
 Rectangle {
+	color: ɢtheme.songs.unusedSpace
+
 	function update(songs){
 		var next = songs.next || [];
 		ølist.model = (songs.done || []).concat(next);

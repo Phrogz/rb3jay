@@ -3,12 +3,14 @@ import QtQuick.Controls 1.4
 import QtQuick.Layouts 1.3
 
 Rectangle {
+	color: ɢtheme.songs.unusedSpace
+
 	function update(songs){
 		ølist.model = songs;
 	}
 
 	function getSongs(){
-		ɢapp.get('search',{ playlist:øplaylist.value(), query:øquery.text }, update)
+		get('search',{ playlist:øplaylist.value(), query:øquery.text }, update)
 	}
 
 	ColumnLayout {
@@ -26,8 +28,8 @@ Rectangle {
 					Layout.preferredWidth:parent.width/2
 					Layout.fillHeight:true
 					model: ListModel {
-						  ListElement { text:"(my preferred)"; value:"øilikeyø" }
-							ListElement { text:"(all songs)";    value:"" }
+					  ListElement { text:"(my preferred)"; value:"øilikeyø" }
+						ListElement { text:"(all songs)";    value:"" }
 					}
 					onCurrentIndexChanged: getSongs()
 					function value(){

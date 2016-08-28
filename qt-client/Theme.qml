@@ -1,35 +1,47 @@
 import QtQml 2.2
 
 QtObject {
-	property var header: ({                               // Top bar of the app, with music controls
-		height:     100,
+	property real uiScale: 0.8
+
+	// Top bar of the app, with music controls
+	property var header: ({
+		height:     100*uiScale,
 		backColor:  '#cccccc',
 		textColor:  '#000000'
 	})
-	property var details: ({                              // The currently playing song
+
+	// The currently playing song
+	property var details: ({
 		backColor:  '#ffffff',
 		textColor:  '#000000',
-		titleFont:  Qt.font({ pointSize:22, bold:true  }),
-		artalbFont: Qt.font({ pointSize:16, bold:false })
+		titleFont:  Qt.font({ pointSize:22*uiScale, bold:true  }),
+		artalbFont: Qt.font({ pointSize:16*uiScale, bold:false })
 	})
-	property var inspector: ({                            // Bottom bar of the app, showing song details
-		height:    100,
+
+	// Bottom bar of the app, showing song details
+	property var inspector: ({
+		height:    100*uiScale,
 		backColor: '#999999',
 		textColor: '#333333',
-		font:      Qt.font({ pointSize:16 })
+		font:      Qt.font({ pointSize:16*uiScale })
 	})
-	property var titlebars: ({                            // Headers above each song list
-		height:    30,
+
+	// Headers above each song list
+	property var titlebars: ({
+		height:    30*uiScale,
 		backColor: '#eeeeff',
 		textColor: '#66000000',
-		font:      Qt.font({ pointSize:14, bold:true }),
+		font:      Qt.font({ pointSize:14*uiScale, bold:true }),
 	})
-	property var songs: ({                                // Row with song details
-		height:      20,
-		backColor:   '#eeeeee',
+
+	// Row with song details
+	property var songs: ({
+		height:      20*uiScale,
+		backColor:   '#fafafa',
 		textColor:   '#000000',
-		font:        Qt.font({ pointSize:12 }),
-		playedFont:  Qt.font({ pointSize:12, italic:true }),
+		unusedSpace: '#eeeeee',
+		font:        Qt.font({ pointSize:12*uiScale }),
+		playedFont:  Qt.font({ pointSize:12*uiScale, italic:true }),
 		playedColor: '#999999'
 	})
 }

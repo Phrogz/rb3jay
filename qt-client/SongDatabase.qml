@@ -62,7 +62,7 @@ QtObject {
 	}
 
 //	// Do not pass along user, or else automated re-inspection will keep the user active
-//	if (!songsByFile[file].title) ɢapp.post('/checkdetails',{song:song.toJSON(),user:null});
+//	if (!songsByFile[file].title) post('/checkdetails',{song:song.toJSON(),user:null});
 
 	function update(details){
 		return fromFile(details.file,details);

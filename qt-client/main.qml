@@ -5,13 +5,12 @@ import QtQuick.Controls 1.4
 
 ApplicationWindow {
 	id: ɢapp
-	minimumWidth: 600
-	minimumHeight: 300
 	visible: true
-	width:1280; height:500
+	minimumWidth:600; minimumHeight:300
+	width:1000; height:400
 	title: "RB3Jay"
 
-	property string host: 'http://music.local/'
+	property string host: 'http://localhost:8080/'
 	property string activeUser
 
 	property var userSubscription
@@ -48,14 +47,75 @@ ApplicationWindow {
 		songlist.getSongs();
 	}
 
-	function post(path,data,callback){
-		xhr('POST',path,data,callback);
+	function buildParams( key, val, add ) {
+		if (val instanceof Array){
+			val.forEach(function(v,i){
+				if (/\[\]$/.test(key)) add(key,v);
+				else if (typeof v==='object' || v instanceof Array) buildParams(key+'['+i+']',v);
+				else buildParams(key+'[]',v,add);
+			});
+		} else if (val!=null && typeof val === "object"){
+			for (var k in val) buildParams(key+'['+k+']',val[k],add);
+		} else add(key,val);
 	}
 
-	function get(path,data,callback){
-		xhr('GET',path,data,callback);
+	BayeuxClient {
+		id: server
+		// debug: true
+		url: host+'faye'
+		Component.onCompleted: {
+			subscribe('/status',      header.update);
+			subscribe('/next',        upnext.update);
+			// subscribe('/playlists',   songlist.updatePlaylists);
+			subscribe('/songdetails', ɢsongdb.update);
+		}
 	}
 
+	SongDatabase { id:ɢsongdb }
+	Theme        { id:ɢtheme  }
+
+	Component.onCompleted: loginUser('phrogz');
+
+	SplitView {
+		orientation: Qt.Horizontal
+		anchors.fill: parent
+		SongList {
+			id:songlist
+			Layout.minimumWidth:200
+			Layout.fillWidth:true
+			width:ɢapp.width/2
+		}
+		SplitView {
+			orientation: Qt.Vertical
+			Layout.minimumWidth:200
+			width:songlist.width
+			MyQueue {
+				id:myqueue
+				Layout.minimumHeight: ɢtheme.titlebars.height + ɢtheme.songs.height*1.5
+				Layout.fillWidth:true
+				height:(ɢapp.height-header.height-footer.height)/2
+			}
+			UpNext {
+				id:upnext
+				Layout.minimumHeight: ɢtheme.titlebars.height + ɢtheme.songs.height*1.5
+				Layout.fillWidth:true
+				height:myqueue.height
+			}
+		}
+	}
+
+	toolBar: Header {
+		id:header
+		width:parent.width
+	}
+
+	statusBar: Inspector {
+		id: footer
+		height:ɢtheme.inspector.height
+	}
+
+	function post(path,data,callback){ xhr('POST',path,data,callback) }
+	function get( path,data,callback){ xhr('GET', path,data,callback) }
 	function xhr(method,path,data,callback){
 		if (!data) data={};
 		if (data.user!==null) data.user=activeUser;
@@ -77,70 +137,5 @@ ApplicationWindow {
 			xhr.setRequestHeader("Content-Type", "application/x-www-form-urlencoded");
 			xhr.send();
 		}
-	}
-
-	function buildParams( key, val, add ) {
-		if (val instanceof Array){
-			val.forEach(function(v,i){
-				if (/\[\]$/.test(key)) add(key,v);
-				else if (typeof v==='object' || v instanceof Array) buildParams(key+'['+i+']',v);
-				else buildParams(key+'[]',v,add);
-			});
-		} else if (val!=null && typeof val === "object"){
-			for (var k in val) buildParams(key+'['+k+']',val[k],add);
-		} else add(key,val);
-	}
-
-	BayeuxClient {
-		id: server
-        debug: true
-		url: host+'faye'
-		Component.onCompleted: {
-			subscribe('/status',      header.update);
-			subscribe('/next',        upnext.update);
-			// subscribe('/playlists',   songlist.updatePlaylists);
-			subscribe('/songdetails', ɢsongdb.update);
-		}
-	}
-
-	SongDatabase { id:ɢsongdb }
-	Theme        { id:ɢtheme  }
-
-    Component.onCompleted: loginUser('gkistner');
-
-	SplitView {
-		orientation: Qt.Horizontal
-		anchors.fill: parent
-		SongList {
-			id:songlist
-			Layout.minimumWidth:200
-			Layout.fillWidth:true
-			Layout.preferredWidth:ɢapp.width/2
-		}
-		SplitView {
-			orientation: Qt.Vertical
-			Layout.minimumWidth:200
-			Layout.preferredWidth:ɢapp.width/2
-			MyQueue {
-				id:myqueue
-				Layout.minimumHeight: ɢtheme.titlebars.height + ɢtheme.songs.height
-				Layout.fillWidth:true
-			}
-			UpNext {
-				id:upnext
-				Layout.minimumHeight: ɢtheme.titlebars.height + ɢtheme.songs.height
-				Layout.fillWidth:true
-			}
-		}
-	}
-
-	toolBar: Header {
-		id:header
-		width:parent.width
-	}
-
-	statusBar: Inspector {
-		id: footer
-		height:ɢtheme.inspectorHeight
 	}
 }
