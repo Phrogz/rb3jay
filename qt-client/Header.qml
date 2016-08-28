@@ -6,7 +6,7 @@ Rectangle {
 	height: ɢtheme.header.height
 
 	function update(status){
-        if (status.volume>=0) audiocontrol.volume = status.volume
+		if (status.volume>=0) audiocontrol.volume = status.volume
 		playcontrol.playingFlag = status.state=='play'
 		ɢsongdb.setSongPlaying(status.file)
 		songcontrol.elapsed  = status.elapsed || 0
@@ -23,7 +23,7 @@ Rectangle {
 			Layout.maximumWidth:Layout.preferredWidth
 			Layout.preferredHeight:parent.height
 			Layout.fillHeight:true
-			onPlayingFlagChanged: post(playingFlag ? '/play' : '/paws')
+			onPlayingFlagChanged: post(playingFlag ? 'play' : 'paws')
 			onNext: post('skip')
 		}
 		SongControl {
