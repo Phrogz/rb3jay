@@ -1,0 +1,6 @@
+mkdir -p bin
+cd bin
+rm -rf *
+$QMAKE ../qt-client.pro -r -spec linux-g++ && make
+cd ..
+./bin/qt-client
