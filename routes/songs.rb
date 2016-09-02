@@ -67,6 +67,7 @@ class RB3Jay < Sinatra::Application
 					'"needsupdate"'
 			end
 		else
+			warn "/checkdetails called, but was not passed a song"
 		end
 	end
 

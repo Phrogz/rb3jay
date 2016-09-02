@@ -14,8 +14,10 @@ QtObject {
 	property var details: ({
 		backColor:  '#ffffff',
 		textColor:  '#000000',
+		timeColor:  '#66000000',
 		titleFont:  Qt.font({ pointSize:22*uiScale, bold:true  }),
-		artalbFont: Qt.font({ pointSize:16*uiScale, bold:false })
+		artalbFont: Qt.font({ pointSize:16*uiScale, bold:false }),
+		timeFont:   Qt.font({ pointSize:12*uiScale, bold:false })
 	})
 
 	// Bottom bar of the app, showing song details
@@ -39,7 +41,7 @@ QtObject {
 		height:      20*uiScale,
 		backColor:   '#fafafa',
 		textColor:   '#000000',
-		unusedSpace: '#eeeeee',
+		highlight:   '#ddeeff',
 		font:        Qt.font({ pointSize:12*uiScale }),
 		playedFont:  Qt.font({ pointSize:12*uiScale, italic:true }),
 		playedColor: '#999999'

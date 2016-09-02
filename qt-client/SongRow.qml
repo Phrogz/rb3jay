@@ -2,14 +2,23 @@ import QtQuick 2.7
 import QtQuick.Layouts 1.3
 
 Rectangle {
-	id: øroot
-	color: ɢtheme.songs.backColor
+	id: root
+	color:  'transparent' //ɢtheme.songs.backColor
+	width:  parent.width
+	height: ɢtheme.songs.height
 
 	property QtObject song
 	property bool past: false
 
 	signal adjustRating(var song)
 	signal hideRating
+
+	MouseArea {
+		anchors.fill:parent
+		onClicked: {
+			root.ListView.view.currentIndex = index
+		}
+	}
 
 	RowLayout {
 		id: songrow
@@ -19,9 +28,9 @@ Rectangle {
 		property color rowcolor: ɢtheme.songs[past ? 'playedColor' : 'textColor']
 
 		Rating {
-			song: øroot.song
-			Layout.preferredWidth:  øroot.height
-			Layout.preferredHeight: øroot.height
+			song: root.song
+			Layout.preferredWidth:  root.height
+			Layout.preferredHeight: root.height
 		}
 
 		Text {
@@ -30,11 +39,11 @@ Rectangle {
 			font:  songrow.rowfont
 			color: songrow.rowcolor
 			elide: Text.ElideRight
-			rightPadding: øroot.height/2
+			rightPadding: root.height/2
 			maximumLineCount: 1
 			verticalAlignment: Text.AlignVCenter
-			Layout.minimumWidth: øroot.height
-			Layout.preferredWidth: øroot.width * 0.5
+			Layout.minimumWidth: root.height
+			Layout.preferredWidth: root.width * 0.5
 			Layout.fillWidth:  true
 			Layout.fillHeight: true
 		}
@@ -44,11 +53,11 @@ Rectangle {
 			font:  songrow.rowfont
 			color: songrow.rowcolor
 			elide: Text.ElideMiddle
-			rightPadding: øroot.height/2
+			rightPadding: root.height/2
 			maximumLineCount: 1
 			verticalAlignment: Text.AlignVCenter
-			Layout.minimumWidth: øroot.height
-			Layout.preferredWidth: øroot.width * 0.3
+			Layout.minimumWidth: root.height
+			Layout.preferredWidth: root.width * 0.3
 			Layout.fillWidth:  true
 			Layout.fillHeight: true
 		}
@@ -57,24 +66,14 @@ Rectangle {
 			text: formatDuration(song && song.time)
 			font:  songrow.rowfont
 			color: songrow.rowcolor
-			rightPadding: øroot.height/4
+			rightPadding: root.height/4
 			maximumLineCount: 1
 			verticalAlignment: Text.AlignVCenter
 			horizontalAlignment: Text.AlignRight
-			Layout.minimumWidth:   øroot.height
-			Layout.preferredWidth: øroot.width * 0.1
+			Layout.minimumWidth:   root.height
+			Layout.preferredWidth: root.width * 0.1
 			Layout.fillWidth:  true
 			Layout.fillHeight: true
-
-			function formatDuration(seconds) {
-				if (isNaN(seconds)) return '-';
-				var hors = Math.floor(seconds / 3600);
-				var mins = Math.floor(seconds / 60 % 60);
-				seconds = Math.round(seconds % 60);
-				if (seconds < 10) seconds = "0" + seconds;
-				if (hors) return hors + ":" + (mins < 10 ? '0' : '') + mins + ":" + seconds
-				else      return mins + ":" + seconds
-			}
 		}
 	}
 }

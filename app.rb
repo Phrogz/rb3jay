@@ -1,5 +1,5 @@
 %w[ eventmachine thin sinatra faye sequel set haml tilt/haml
-	  rack/session/moneta ruby-mpd json time digest ].each{ |lib| require lib }
+    rack/session/moneta ruby-mpd json time digest ].each{ |lib| require lib }
 
 require_relative 'environment'
 require_relative 'helpers/ruby-mpd-monkeypatches'
@@ -7,7 +7,9 @@ require_relative 'helpers/ruby-mpd-monkeypatches'
 def run!
 	EM.run do
 		Faye::WebSocket.load_adapter('thin')
-		server = Faye::RackAdapter.new(mount:'/', timeout:25)
+		server = Faye::RackAdapter.new(mount:'/', timeout:60)
+		# server.add_extension(Holla.new)
+
 		rb3jay = RB3Jay.new( server )
 
 		dispatch = Rack::Builder.app do
@@ -24,6 +26,17 @@ def run!
 			server:  'thin',
 			signals: false,
 		})
+	end
+end
+
+class Holla
+	def incoming(message,callback)
+		puts "incoming!", message.to_json
+		callback.call(message)
+	end
+	def outgoing(message,callback)
+		puts "outgoing", message.to_json, ""
+		callback.call(message)
 	end
 end
 
@@ -203,7 +216,7 @@ class RB3Jay < Sinatra::Application
 	post('/play'){ @mpd.play                                    ; '"ok"' }
 	post('/paws'){ @mpd.pause=true                              ; '"ok"' }
 	post('/skip'){ @mpd.next; record_event('skip',params[:user]); '"ok"' }
-	post('/seek'){ @mpd.seek params[:time].to_f                 ; '"ok"' }
+	post('/seek'){ @mpd.seek params[:time].to_f.round           ; '"ok"' }
 	post('/volm'){ @mpd.volume = params[:volume].to_i           ; '"ok"' }
 	post('/scan'){ @mpd.update                                  ; '"ok"' } # TODO: look up user account and scan only that directory
 

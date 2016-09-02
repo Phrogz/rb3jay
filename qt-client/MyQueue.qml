@@ -5,7 +5,7 @@ import QtQuick.Layouts 1.3
 Rectangle {
 	property bool active: true
 
-	color: ɢtheme.songs.unusedSpace
+	color: ɢtheme.songs.backColor
 
 	function update(songs){
 		ølist.model = songs;
@@ -38,10 +38,9 @@ Rectangle {
 			ListView {
 				id: ølist
 				model: []
+				highlight: SongHighlight { width:parent.width }
 				delegate: SongRow {
 					song: ɢsongdb.fromFile( modelData.file, modelData )
-					width:parent.width
-					height:ɢtheme.songs.height
 				}
 			}
 		}

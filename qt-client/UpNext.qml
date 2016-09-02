@@ -2,13 +2,12 @@ import QtQuick 2.7
 import QtQuick.Controls 1.4
 import QtQuick.Layouts 1.3
 
-
 Rectangle {
-	color: ɢtheme.songs.unusedSpace
+	color: ɢtheme.songs.backColor
 
 	function update(songs){
 		var next = songs.next || [];
-		ølist.model = (songs.done || []).concat(next);
+		list.model = (songs.done || []).concat(next);
 		label.text = "up next ("+next.length+" songs)";
 	}
 
@@ -36,13 +35,12 @@ Rectangle {
 			Layout.fillHeight:true
 			Layout.fillWidth:true
 			ListView {
-				id: ølist
+				id: list
 				model: []
+				highlight: SongHighlight { width:parent.width }
 				delegate: SongRow {
 					song: ɢsongdb.fromFile( modelData.file, modelData )
 					past: !!modelData.event
-					width:parent.width
-					height:ɢtheme.songs.height
 				}
 			}
 		}

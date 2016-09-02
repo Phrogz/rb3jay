@@ -111,7 +111,8 @@ class RB3Jay < Sinatra::Application
 			disliked  = Set.new @db[:user_ratings].filter(rating:'hate').or(rating:'bleh').distinct.select_map(:uri)
 			puts "%-20s: %.3fs" % ["find disliked",(t=Time.now)-t2]; t2=t
 
-			seven_weeks = Date.today - 7*7
+			# TODO: use an environment.rb variable for this
+			seven_weeks = Date.today - 1
 			recent = Set.new @db["SELECT uri FROM song_events WHERE `when`>?", seven_weeks ].select_map(:uri)
 			puts "%-20s: %.3fs" % ["find recent",(t=Time.now)-t2]; t2=t
 			

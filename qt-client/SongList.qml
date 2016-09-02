@@ -3,14 +3,14 @@ import QtQuick.Controls 1.4
 import QtQuick.Layouts 1.3
 
 Rectangle {
-	color: ɢtheme.songs.unusedSpace
+	color: ɢtheme.songs.backColor
 
 	function update(songs){
-		ølist.model = songs;
+		list.model = songs;
 	}
 
 	function getSongs(){
-		get('search',{ playlist:øplaylist.value(), query:øquery.text }, update)
+		get('search', { playlist:playlist.value(), query:query.text }, update)
 	}
 
 	ColumnLayout {
@@ -24,7 +24,7 @@ Rectangle {
 			RowLayout {
 				anchors.fill:parent
 				ComboBox {
-					id: øplaylist
+					id: playlist
 					Layout.preferredWidth:parent.width/2
 					Layout.fillHeight:true
 					model: ListModel {
@@ -37,7 +37,7 @@ Rectangle {
 					}
 				}
 				TextInput {
-					id: øquery
+					id: query
 					Layout.preferredWidth:parent.width/2
 					Layout.fillHeight:true
 					onTextChanged:getSongs()
@@ -50,13 +50,11 @@ Rectangle {
 			Layout.fillHeight:true
 			Layout.fillWidth:true
 			ListView {
-				id: ølist
-
+				id: list
 				model: []
+				highlight: SongHighlight { width:parent.width }
 				delegate: SongRow {
 					song: ɢsongdb.fromFile( modelData.file, modelData )
-					width:parent.width
-					height:ɢtheme.songs.height
 				}
 			}
 		}

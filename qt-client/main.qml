@@ -1,5 +1,4 @@
 import QtQuick 2.7
-import QtQuick.Controls 2.0
 import QtQuick.Layouts 1.3
 import QtQuick.Controls 1.4
 
@@ -138,4 +137,15 @@ ApplicationWindow {
 			xhr.send();
 		}
 	}
+
+	function formatDuration(seconds) {
+		if (isNaN(seconds)) return '-';
+		var hors = Math.floor(seconds / 3600);
+		var mins = Math.floor(seconds / 60 % 60);
+		seconds = Math.round(seconds % 60);
+		if (seconds < 10) seconds = "0" + seconds;
+		if (hors) return hors + ":" + (mins < 10 ? '0' : '') + mins + ":" + seconds
+		else      return mins + ":" + seconds
+	}
+
 }
