@@ -49,12 +49,14 @@ Rectangle {
 			frameVisible:false
 			Layout.fillHeight:true
 			Layout.fillWidth:true
-			ListView {
+			MultiSelectableListView {
 				id: list
 				model: []
-				highlight: SongHighlight { width:parent.width }
 				delegate: SongRow {
+					id: row
 					song: ɢsongdb.fromFile( modelData.file, modelData )
+					onIndexEchoChanged:    list.delegateByIndex[index] = row
+					Component.onCompleted: list.delegateByIndex[index] = row
 				}
 			}
 		}

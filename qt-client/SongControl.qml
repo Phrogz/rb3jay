@@ -23,6 +23,7 @@ Rectangle {
 				font: ɢtheme.details.titleFont
 				text: song ? (song.title || song.file) : ''
 				leftPadding:øspacing
+				elide: Text.ElideRight
 			}
 			Text {
 				Layout.fillWidth:true
@@ -31,6 +32,7 @@ Rectangle {
 				font: ɢtheme.details.artalbFont
 				text: song ? (song.artist||'') + (song.album ? (' (on <i>'+song.album+'</i>)') : '') : ''
 				leftPadding:øspacing
+				elide: Text.ElideRight
 			}
 			RowLayout {
 				opacity:duration ? 1 : 0

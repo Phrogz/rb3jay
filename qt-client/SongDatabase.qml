@@ -16,6 +16,7 @@ QtObject {
 			property string composer
 			property int    time
 			property int    date
+			property alias  year: song.date
 			property real   score
 			property date   lastPlayed
 			property int    played
@@ -27,6 +28,7 @@ QtObject {
 			property string user
 			property bool   playingNow: false
 			property var    ratings: ({})
+			property string rating: ratings[ɢactiveUser] || 'zero'
 
 			function toJSON(){
 				var o = {file:file};

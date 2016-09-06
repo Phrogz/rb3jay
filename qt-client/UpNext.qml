@@ -34,16 +34,18 @@ Rectangle {
 			frameVisible:false
 			Layout.fillHeight:true
 			Layout.fillWidth:true
-			ListView {
+			MultiSelectableListView {
 				id: list
 				model: []
-				highlight: SongHighlight { width:parent.width }
+				property var selectedIndices: ({"0":1,"6":1,"7":1,"8":1})
 				delegate: SongRow {
+					id: row
 					song: ɢsongdb.fromFile( modelData.file, modelData )
 					past: !!modelData.event
+					onIndexEchoChanged:    list.delegateByIndex[index] = row
+					Component.onCompleted: list.delegateByIndex[index] = row
 				}
 			}
 		}
-
 	}
 }

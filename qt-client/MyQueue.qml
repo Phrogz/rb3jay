@@ -9,7 +9,7 @@ Rectangle {
 
 	function update(songs){
 		ølist.model = songs;
-		label.text = (activeUser ? (activeUser+"'s") : 'my') + " queue ("+songs.length+" songs)";
+		label.text = (ɢactiveUser ? (ɢactiveUser+"'s") : 'my') + " queue ("+songs.length+" songs)";
 	}
 
 	ColumnLayout {
@@ -35,12 +35,15 @@ Rectangle {
 			frameVisible:false
 			Layout.fillHeight:true
 			Layout.fillWidth:true
-			ListView {
+			MultiSelectableListView {
 				id: ølist
 				model: []
-				highlight: SongHighlight { width:parent.width }
+				property var selectedIndices: ({})
 				delegate: SongRow {
+					id: row
 					song: ɢsongdb.fromFile( modelData.file, modelData )
+					onIndexEchoChanged:    list.delegateByIndex[index] = row
+					Component.onCompleted: list.delegateByIndex[index] = row
 				}
 			}
 		}

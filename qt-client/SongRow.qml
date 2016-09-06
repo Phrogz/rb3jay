@@ -3,12 +3,16 @@ import QtQuick.Layouts 1.3
 
 Rectangle {
 	id: root
-	color:  'transparent' //ɢtheme.songs.backColor
+	color:  selected ? ( focused ? ɢtheme.songs.activeFocus : ɢtheme.songs.inactiveFocus) : ɢtheme.songs.backColor
 	width:  parent.width
 	height: ɢtheme.songs.height
 
 	property QtObject song
 	property bool past: false
+	property bool selected:  ListView.view.isSelected(index)
+	property bool focused:   ListView.view.focus || ListView.view.activeFocus
+	property bool indexEcho: index
+	onIndexEchoChanged: selected = ListView.view.isSelected(index)
 
 	signal adjustRating(var song)
 	signal hideRating
@@ -16,7 +20,11 @@ Rectangle {
 	MouseArea {
 		anchors.fill:parent
 		onClicked: {
-			root.ListView.view.currentIndex = index
+			var view = root.ListView.view;
+			if      (mouse.modifiers & Qt.ShiftModifier)   view.selectExtend(index);
+			else if (mouse.modifiers & Qt.ControlModifier) view.selectToggle(index);
+			else                                           view.selectSolely(index);
+			view.forceActiveFocus(Qt.MouseFocusReason);
 		}
 	}
 
@@ -35,7 +43,7 @@ Rectangle {
 
 		Text {
 			id: title
-			text: song && song.title || '-'
+			text:  song && song.title || '-'
 			font:  songrow.rowfont
 			color: songrow.rowcolor
 			elide: Text.ElideRight
@@ -49,7 +57,7 @@ Rectangle {
 		}
 
 		Text {
-			text: song && song.artist || '-'
+			text:  song && song.artist || '-'
 			font:  songrow.rowfont
 			color: songrow.rowcolor
 			elide: Text.ElideMiddle
@@ -63,7 +71,7 @@ Rectangle {
 		}
 
 		Text {
-			text: formatDuration(song && song.time)
+			text:  formatDuration(song && song.time)
 			font:  songrow.rowfont
 			color: songrow.rowcolor
 			rightPadding: root.height/4

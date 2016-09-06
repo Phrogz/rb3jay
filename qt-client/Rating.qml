@@ -2,7 +2,7 @@ import QtQuick 2.7
 
 Image {
 	  property QtObject song
-	  property string rating: song ? (song.playingNow ? 'active-song' : (song.ratings && song.ratings[activeUser] || 'zero')) : 'zero'
+	  property string rating: song ? (song.playingNow ? 'active-song' : song.rating) : 'zero'
 	  signal show
 	  signal hide
 

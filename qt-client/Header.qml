@@ -4,6 +4,7 @@ import QtQuick.Layouts 1.1
 Rectangle {
 	color:  ɢtheme.header.backColor
 	height: ɢtheme.header.height
+	width:  parent.width
 
 	function update(status){
 		if (status.volume>=0) audiocontrol.volume = status.volume

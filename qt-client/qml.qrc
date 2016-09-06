@@ -14,7 +14,9 @@
         <file>UpNext.qml</file>
         <file>Header.qml</file>
         <file>SongRow.qml</file>
-        <file>SongHighlight.qml</file>
+        <file>MultiSelectableListView.qml</file>
+        <file>InspectorLabel.qml</file>
+        <file>InspectorField.qml</file>
     </qresource>
     <qresource prefix="/img">
         <file alias="bleh.png">../public/bleh.png</file>

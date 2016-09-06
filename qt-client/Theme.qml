@@ -20,14 +20,6 @@ QtObject {
 		timeFont:   Qt.font({ pointSize:12*uiScale, bold:false })
 	})
 
-	// Bottom bar of the app, showing song details
-	property var inspector: ({
-		height:    100*uiScale,
-		backColor: '#999999',
-		textColor: '#333333',
-		font:      Qt.font({ pointSize:16*uiScale })
-	})
-
 	// Headers above each song list
 	property var titlebars: ({
 		height:    30*uiScale,
@@ -38,12 +30,23 @@ QtObject {
 
 	// Row with song details
 	property var songs: ({
-		height:      20*uiScale,
-		backColor:   '#fafafa',
-		textColor:   '#000000',
-		highlight:   '#ddeeff',
-		font:        Qt.font({ pointSize:12*uiScale }),
-		playedFont:  Qt.font({ pointSize:12*uiScale, italic:true }),
-		playedColor: '#999999'
+		height:        20*uiScale,
+		backColor:     '#fafafa',
+		textColor:     '#000000',
+		activeFocus:   '#ddeeff',
+		inactiveFocus: '#eeeeee',
+		font:          Qt.font({ pointSize:12*uiScale }),
+		playedFont:    Qt.font({ pointSize:12*uiScale, italic:true }),
+		playedColor:   '#999999'
+	})
+
+	// Bottom bar of the app, showing song details
+	property var inspector: ({
+		height:     50*uiScale,
+		backColor:  '#999999',
+		textColor:  '#333333',
+		labelColor: '#666666',
+		labelWidth: 60,
+		font:      Qt.font({ pointSize:12*uiScale })
 	})
 }

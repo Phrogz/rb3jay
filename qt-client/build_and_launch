@@ -1,6 +1,8 @@
+# set -e
 mkdir -p bin
 cd bin
 rm -rf *
-$QMAKE ../qt-client.pro -r -spec linux-g++ && make
+$QMAKE ../qt-client.pro -r -spec linux-g++
+make | grep -v "bin/rcc" | grep -v "g++"
 cd ..
-./bin/qt-client
+./bin/qt-client 2>&1 | grep -v "cannot resolve SSLv2"

@@ -10,28 +10,20 @@ ApplicationWindow {
 	title: "RB3Jay"
 
 	property string host: 'http://localhost:8080/'
-	property string activeUser
+	property string ɢactiveUser
 
-	property var userSubscription
-
-	function receiveStatus(s){
-		playcontrol.playingFlag = s.state=="play";
-		songcontrol.song        = s.file;
-		songcontrol.elapsed     = s.elapsed;
-		songcontrol.duration    = s.time && s.time[1];
-		audiocontrol.volume     = s.volume;
-	}
+	property var øuserSubscription
 
 	function receivePlaylists(d){}
 
 	function logoutUser(){
-		if (userSubscription) userSubscription.cancel();
-		userSubscription = null;
-		activeUser = null;
+		if (øuserSubscription) øuserSubscription.cancel();
+		øuserSubscription = null;
+		ɢactiveUser = null;
 	}
 
 	function loginUser(user){
-		activeUser = user;
+		ɢactiveUser = user;
 		var startup = server.subscribe('/startup-'+user, function(data){
 			header.update(data.status);
 			upnext.update(data.upnext);
@@ -39,7 +31,7 @@ ApplicationWindow {
 			// songlist.updatePlaylists(data.playlists);
 			startup.cancel();
 		});
-		userSubscription = server.subscribe('/user-'+user,function(data){
+		øuserSubscription = server.subscribe('/user-'+user,function(data){
 			if ('myqueue' in data) myqueue.update(data.myqueue);
 			if ('active'  in data) myqueue.active = data.active;
 		});
@@ -92,7 +84,7 @@ ApplicationWindow {
 				id:myqueue
 				Layout.minimumHeight: ɢtheme.titlebars.height + ɢtheme.songs.height*1.5
 				Layout.fillWidth:true
-				height:(ɢapp.height-header.height-footer.height)/2
+				height:(ɢapp.height-header.height-ɢinspector.height)/2
 			}
 			UpNext {
 				id:upnext
@@ -103,21 +95,14 @@ ApplicationWindow {
 		}
 	}
 
-	toolBar: Header {
-		id:header
-		width:parent.width
-	}
-
-	statusBar: Inspector {
-		id: footer
-		height:ɢtheme.inspector.height
-	}
+	toolBar:   Header { id:header }
+	statusBar: Inspector { id: ɢinspector }
 
 	function post(path,data,callback){ xhr('POST',path,data,callback) }
 	function get( path,data,callback){ xhr('GET', path,data,callback) }
 	function xhr(method,path,data,callback){
 		if (!data) data={};
-		if (data.user!==null) data.user=activeUser;
+		if (data.user!==null) data.user=ɢactiveUser;
 		else delete data.user;
 
 		var xhr = new XMLHttpRequest;
