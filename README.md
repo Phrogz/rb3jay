@@ -12,11 +12,13 @@ A democratic, crowd-controlled music player for the workplace.
 # Requirements & Installation
 
 * Requires the [`sequel`](http://sequel.jeremyevans.net) and [`sqlite3`](https://github.com/sparklemotion/sqlite3-ruby) gems to be installed.
-  * This, in turn, requires that you have SQLite installed.
-* Requires the [`ruby-mpd`](https://github.com/archSeer/ruby-mpd) gem to be installed
+  * This, in turn, requires that you have SQLite installed, including the development headers (e.g. `apt-get install libsqlite3-dev`)
+* Requires the [`ruby-mpd`](https://github.com/archSeer/ruby-mpd) gem to be installed.
   * This, in turn, requires that you have [`mpd`](http://www.musicpd.org) installed.
   * This needs to run on a machine with fast file-level access to the "sticker" file for MPD. Most simply this means running on the same machine as MPD.
   * Currently this requires that you have [`mpc`](http://www.musicpd.org/clients/mpc/) is installed on the same machine as RB3Jay.
+* Requires the [`faye`](https://github.com/faye/faye) gem to be installed.
+* Requires the [`haml`](https://github.com/haml/haml) gem to be installed.
 * Editing tags requires the [`taglib-ruby`](http://robinst.github.io/taglib-ruby/) gem to be installed
   * This, in turn, requires that you have [`taglib`](http://developer.kde.org/~wheeler/taglib.html) installed along with header files.
 * Requires `sinatra`, and `moneta` gems installed.
