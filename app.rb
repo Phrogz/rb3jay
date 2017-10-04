@@ -89,7 +89,7 @@ class RB3Jay < Sinatra::Application
 	end
 
 	def prepare_filler
-		@filler = Set.new @mpd.songs.map(&:file).sort_by{ |file| Digest::MD5.digest(file) }
+		@filler = Set.new @mpd.songs.map(&:file).compact.sort_by{ |file| Digest::MD5.digest(file) }
 	end
 
 	def watch_status
