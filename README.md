@@ -25,6 +25,13 @@ A democratic, crowd-controlled music player for the workplace.
   * Suggest that you also install `thin` and use that to run the web server.
 * `gem install rb3jay`
 
+In summary:
+
+```
+sudo apt-get install build-essentials sqlite3 libsqlite3-dev mpd mpc ruby ruby-dev
+sudo gem install sqlite3 sequel ruby-mpd faye haml sinatra moneta thin
+```
+
 
 # Starting the Servers
 
